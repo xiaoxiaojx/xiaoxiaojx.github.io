@@ -1,0 +1,68 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width"/><link rel="alternate" type="application/rss+xml" title="RSS" href="/feed.xml"/><link rel="preload" href="/fonts/Inter-roman.latin.var.woff2" as="font" type="font/woff2" crossorigin="anonymous"/><title>JavaScript String length 转换为 byteLength</title><meta name="next-head-count" content="5"/><meta name="robots" content="follow, index"/><meta name="description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta property="og:site_name" content="Next.js Blog Starter Kit"/><meta property="og:description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta property="og:title" content="Next.js Blog Starter Kit"/><meta property="og:image" content="https://assets.vercel.com/image/upload/q_auto/front/vercel/dps.png"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:site" content="@yourname"/><meta name="twitter:title" content="Next.js Blog Starter Kit"/><meta name="twitter:description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta name="twitter:image" content="https://assets.vercel.com/image/upload/q_auto/front/vercel/dps.png"/><link rel="preload" href="/_next/static/css/f2b21aaf63910e63.css" as="style"/><link rel="stylesheet" href="/_next/static/css/f2b21aaf63910e63.css" data-n-g=""/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js"></script><script src="/_next/static/chunks/webpack-94547de1949c56d7.js" defer=""></script><script src="/_next/static/chunks/framework-ac88a2a245aea9ab.js" defer=""></script><script src="/_next/static/chunks/main-dffe95be63c1a593.js" defer=""></script><script src="/_next/static/chunks/pages/_app-5857a8f704812edc.js" defer=""></script><script src="/_next/static/chunks/886-30b761d7afa6f29e.js" defer=""></script><script src="/_next/static/chunks/pages/posts/b6-f00ddee0c0ff81b5.js" defer=""></script><script src="/_next/static/tfm0fD_EdrgzIEIb9I0oi/_buildManifest.js" defer=""></script><script src="/_next/static/tfm0fD_EdrgzIEIb9I0oi/_ssgManifest.js" defer=""></script><style id="__jsx-2447ca1c11803f07">footer.jsx-2447ca1c11803f07{margin-top:8rem}a.jsx-2447ca1c11803f07{float:right}</style></head><body><div id="__next"><script>!function(){try{var d=document.documentElement,c=d.classList;c.remove('light','dark');var e=localStorage.getItem('theme');if('system'===e||(!e&&true)){var t='(prefers-color-scheme: dark)',m=window.matchMedia(t);if(m.media!==t||m.matches){d.style.colorScheme = 'dark';c.add('dark')}else{d.style.colorScheme = 'light';c.add('light')}}else if(e){c.add(e|| '')}if(e==='light'||e==='dark')d.style.colorScheme=e}catch(e){}}()</script><article class="nx-container nx-prose-sm dark:nx-prose-dark md:nx-prose" dir="ltr"><h1>JavaScript String length 转换为 byteLength</h1><div class="nx-mb-8 nx-flex nx-gap-3 nx-items-center"><div class="nx-grow nx-text-gray-400"><div class="nx-not-prose nx-flex nx-flex-wrap nx-items-center nx-gap-1">You<!-- -->,<time dateTime="2022-11-09T16:00:00.000Z">Thu Nov 10 2022</time><span class="nx-px-1">•</span><a class="
+          nx-select-none
+          nx-rounded-md
+          nx-bg-gray-200
+          nx-px-1
+          nx-text-sm
+          nx-text-gray-400
+          nx-transition-colors
+          hover:nx-bg-gray-300
+          hover:nx-text-gray-500
+          dark:nx-bg-gray-600
+          dark:nx-text-gray-300
+          dark:hover:nx-bg-gray-700
+          dark:hover:nx-text-gray-200
+        " href="/tags/Node.js">Node.js</a></div></div><div class="nx-flex nx-items-center nx-gap-3"><a href="/posts">Back</a></div></div><p>看 Node.js 中这段代码较为疑惑, 如下 StorageSize 函数通过 JavaScript 字符串的长度（str-&gt;Length）估算出转换为 UTF-8 编码会占用的最大字节数为 3 * str-&gt;Length(), 说明长度为 1 的 JavaScript 字符串转换为 UTF-8 编码最多需要 3 个字节来存储, 那么这个结论是如何得出来的?</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="c++" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="c++" data-theme="default"><span class="line"><span style="color:var(--shiki-color-text)">Maybe&lt;size_t&gt; StringBytes::StorageSize(Isolate* isolate,</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">                                       Local&lt;Value&gt; val,</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">                                       enum encoding encoding) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  HandleScope scope(isolate);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  size_t data_size = 0;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  Local&lt;String&gt; str;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  if (!val-&gt;ToString(isolate-&gt;GetCurrentContext()).ToLocal(&amp;str))</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    return Nothing&lt;size_t&gt;();</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  switch (encoding) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    // 省略 ...</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    </span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    case UTF8:</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      data_size = 3 * str-&gt;Length();</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      break</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    default:</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      CHECK(0 &amp;&amp; &quot;unknown encoding&quot;);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      break;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  }</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  return Just(data_size);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">}</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div>
+<blockquote>
+<p><a target="_blank" rel="noreferrer" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/length">MDN String length<span class="nx-sr-only"> (opens in a new tab)</span></a>: The length read-only property of a string contains the length of the string in UTF-16 code units.</p>
+</blockquote>
+<p>通过查阅 MDN 发现 JavaScript 字符串是 UTF-16 编码, 那么 UTF-16 的编码规则是怎样的了?</p>
+<!-- -->
+<p>通过查阅 <a target="_blank" rel="noreferrer" href="https://zh.wikipedia.org/wiki/UTF-16">UTF-16 维基百科<span class="nx-sr-only"> (opens in a new tab)</span></a> 发现 UTF-16 共2种情况的编码, 码点范围 0-65535 的字符在 UTF-16 是 2 个字节, 65536 以上为 4 个字节</p>
+<p>最后我们再查阅 <a target="_blank" rel="noreferrer" href="https://baike.baidu.com/item/%E7%BB%9F%E4%B8%80%E7%A0%81/2985798">统一码 百度百科<span class="nx-sr-only"> (opens in a new tab)</span></a> 发现 UTF-8 共4种情况的编码</p>
+<!-- -->
+<p>于是我们可以从码点范围 0-127, 128-2047, 2048-65535 中任意取一个数来验证 JavaScript 字符串的长度与转换为 UTF-8 编码的字节数的关系</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="js" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="js" data-theme="default"><span class="line"><span style="color:var(--shiki-token-comment)">// 码点范围 0～127, &quot;1&quot;.codePointAt(): 49</span></span>
+<span class="line"><span style="color:var(--shiki-token-string-expression)">&quot;1&quot;</span><span style="color:var(--shiki-color-text)">.</span><span style="color:var(--shiki-token-constant)">length</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// length: 1, Buffer.byteLength(&quot;1&quot;, &quot;utf16le&quot;): 2, Buffer.byteLength(&quot;1&quot;, &quot;utf8&quot;): 1</span></span>
+<span class="line"> </span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// 码点范围 128~2047, &quot;®&quot;.codePointAt(): 174</span></span>
+<span class="line"><span style="color:var(--shiki-token-string-expression)">&quot;®&quot;</span><span style="color:var(--shiki-color-text)">.</span><span style="color:var(--shiki-token-constant)">length</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// length: 1, Buffer.byteLength(&quot;®&quot;, &quot;utf16le&quot;): 2, Buffer.byteLength(&quot;®&quot;, &quot;utf8&quot;): 2</span></span>
+<span class="line"> </span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// 码点范围 2048~65535, &quot;多&quot;.codePointAt(): 22810</span></span>
+<span class="line"><span style="color:var(--shiki-token-string-expression)">&quot;多&quot;</span><span style="color:var(--shiki-color-text)">.</span><span style="color:var(--shiki-token-constant)">length</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// length: 1, Buffer.byteLength(&quot;多&quot;, &quot;utf16le&quot;): 2, Buffer.byteLength(&quot;多&quot;, &quot;utf8&quot;): 3</span></span>
+<span class="line"> </span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// 码点范围 65536~2097151, &quot;𐀀&quot;.codePointAt(): 65536</span></span>
+<span class="line"><span style="color:var(--shiki-token-string-expression)">&quot;𐀀&quot;</span><span style="color:var(--shiki-color-text)">.</span><span style="color:var(--shiki-token-constant)">length</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// length: 2, Buffer.byteLength(&quot;𐀀&quot;, &quot;utf16le&quot;): 4, Buffer.byteLength(&quot;𐀀&quot;, &quot;utf8&quot;): 4</span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div>
+<p>上面的验证结果来看, 当 JavaScript 字符串的长度为 1 时 UTF-8 编码的字节数可能为1个或者2个或者3个, ✅ 从而验证了 JavaScript 字符串转换为 UTF-8 编码最多需要 3 * str-&gt;Length() 个字节来存储。</p>
+<ul>
+<li>Unicode 字符对照表见: <a target="_blank" rel="noreferrer" href="https://en.wikibooks.org/wiki/Unicode/Character_reference/10000-10FFF">Unicode/Character reference<span class="nx-sr-only"> (opens in a new tab)</span></a></li>
+</ul><footer class="jsx-2447ca1c11803f07"><small class="jsx-2447ca1c11803f07"><time class="jsx-2447ca1c11803f07">2023</time> © 多小凯.</small></footer></article></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{}},"page":"/posts/b6","query":{},"buildId":"tfm0fD_EdrgzIEIb9I0oi","nextExport":true,"autoExport":true,"isFallback":false,"scriptLoader":[]}</script></body></html>

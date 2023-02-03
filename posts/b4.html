@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width"/><link rel="alternate" type="application/rss+xml" title="RSS" href="/feed.xml"/><link rel="preload" href="/fonts/Inter-roman.latin.var.woff2" as="font" type="font/woff2" crossorigin="anonymous"/><title>从业务的角度来看 React18 Suspense SSR 架构</title><meta name="next-head-count" content="5"/><meta name="robots" content="follow, index"/><meta name="description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta property="og:site_name" content="Next.js Blog Starter Kit"/><meta property="og:description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta property="og:title" content="Next.js Blog Starter Kit"/><meta property="og:image" content="https://assets.vercel.com/image/upload/q_auto/front/vercel/dps.png"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:site" content="@yourname"/><meta name="twitter:title" content="Next.js Blog Starter Kit"/><meta name="twitter:description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta name="twitter:image" content="https://assets.vercel.com/image/upload/q_auto/front/vercel/dps.png"/><link rel="preload" href="/_next/static/css/f2b21aaf63910e63.css" as="style"/><link rel="stylesheet" href="/_next/static/css/f2b21aaf63910e63.css" data-n-g=""/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js"></script><script src="/_next/static/chunks/webpack-94547de1949c56d7.js" defer=""></script><script src="/_next/static/chunks/framework-ac88a2a245aea9ab.js" defer=""></script><script src="/_next/static/chunks/main-dffe95be63c1a593.js" defer=""></script><script src="/_next/static/chunks/pages/_app-5857a8f704812edc.js" defer=""></script><script src="/_next/static/chunks/886-30b761d7afa6f29e.js" defer=""></script><script src="/_next/static/chunks/pages/posts/b4-d139da7814e70772.js" defer=""></script><script src="/_next/static/tfm0fD_EdrgzIEIb9I0oi/_buildManifest.js" defer=""></script><script src="/_next/static/tfm0fD_EdrgzIEIb9I0oi/_ssgManifest.js" defer=""></script><style id="__jsx-2447ca1c11803f07">footer.jsx-2447ca1c11803f07{margin-top:8rem}a.jsx-2447ca1c11803f07{float:right}</style></head><body><div id="__next"><script>!function(){try{var d=document.documentElement,c=d.classList;c.remove('light','dark');var e=localStorage.getItem('theme');if('system'===e||(!e&&true)){var t='(prefers-color-scheme: dark)',m=window.matchMedia(t);if(m.media!==t||m.matches){d.style.colorScheme = 'dark';c.add('dark')}else{d.style.colorScheme = 'light';c.add('light')}}else if(e){c.add(e|| '')}if(e==='light'||e==='dark')d.style.colorScheme=e}catch(e){}}()</script><article class="nx-container nx-prose-sm dark:nx-prose-dark md:nx-prose" dir="ltr"><h1>从业务的角度来看 React18 Suspense SSR 架构</h1><div class="nx-mb-8 nx-flex nx-gap-3 nx-items-center"><div class="nx-grow nx-text-gray-400"><div class="nx-not-prose nx-flex nx-flex-wrap nx-items-center nx-gap-1">You<!-- -->,<time dateTime="2022-12-03T16:00:00.000Z">Sun Dec 04 2022</time><span class="nx-px-1">•</span><a class="
+          nx-select-none
+          nx-rounded-md
+          nx-bg-gray-200
+          nx-px-1
+          nx-text-sm
+          nx-text-gray-400
+          nx-transition-colors
+          hover:nx-bg-gray-300
+          hover:nx-text-gray-500
+          dark:nx-bg-gray-600
+          dark:nx-text-gray-300
+          dark:hover:nx-bg-gray-700
+          dark:hover:nx-text-gray-200
+        " href="/tags/SSR">SSR</a></div></div><div class="nx-flex nx-items-center nx-gap-3"><a href="/posts">Back</a></div></div><p><img src="https://user-images.githubusercontent.com/23253540/205350835-ff3f8d06-fa63-4ea4-9138-41a6c4a5980f.png" alt="image"/></p>
+<h2 class="subheading-h2">目录<span class="nx-absolute -nx-mt-7" id="目录"></span><a href="#目录" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<!-- -->
+<ul>
+<li>
+<ol>
+<li><a href="/posts/b4#ssr_1">实际业务的困境</a></li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li><a href="/posts/b4#SuspenseSSR">Suspense SSR 架构</a></li>
+</ol>
+<ul>
+<li>2.1. <a href="/posts/b4#ssr_21">可能存在的问题</a></li>
+</ul>
+</li>
+<li>
+<ol start="3">
+<li><a href="/posts/b4#ssr_30">应用到业务中的效果</a></li>
+</ol>
+</li>
+<li>
+<ol start="4">
+<li><a href="/posts/b4#ssr_40">小结</a></li>
+</ol>
+</li>
+<li>
+<ol start="5">
+<li><a href="/posts/b4#ssr_50">最后的话</a></li>
+</ol>
+</li>
+</ul>
+<!-- -->
+<!-- -->
+<h2 class="subheading-h2">1. <!-- -->实际业务的困境<span class="nx-absolute -nx-mt-7" id="1-a-namessr_1a实际业务的困境"></span><a href="#1-a-namessr_1a实际业务的困境" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<p>现有的服务端渲染（Server-side rendering，简称 SSR）的原理是当 HTML 请求到达 Node 端时先等待后端接口数据请求完成（30～300ms），然后再进行渲染（2～5ms），最后再响应渲染完成的页面给浏览器。</p>
+<blockquote>
+<p>大致流程是: fetch data (server) → render to HTML (server) → load code (client) → hydrate (client)</p>
+</blockquote>
+<p>如本文用作示例的<code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr">商品管理</code>页面，需要并发8个后端接口请求，最慢的接口 <code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr">/api/xxx/goodsList</code> 延时为 <strong>246.6 ms</strong>，导致<code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr">Step1阶段</code>用户看到的页面白屏时间至少是 <strong>246.6ms + 5ms</strong>。</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/205345878-4952929d-b3eb-46bd-8de3-12ccb70dc0e1.png" alt="image"/></p>
+<blockquote>
+<p>💡 Step2 截图为灰色仅为了区别于 Step3 可交互状态，实际用户看到的效果与 Step3 无差异</p>
+</blockquote>
+<p>为了解决<strong>后端接口延时不可控</strong>造成的 Step1 阶段白屏时间过长的问题，于是我们开发了<code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr">渐进式渲染</code>功能，优化后的渲染链路变成了如下</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/205346406-22140efc-5844-4e9f-848a-242ee102e170.png" alt="image"/></p>
+<h2 class="subheading-h2">2. <!-- -->Suspense SSR 架构<span class="nx-absolute -nx-mt-7" id="2-a-namesuspensessrasuspense-ssr-架构"></span><a href="#2-a-namesuspensessrasuspense-ssr-架构" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<p>React18 新的 Suspense SSR 架构允许你在服务端使用 <code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr">Suspense</code> 组件，比如你的 <code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr">Comments</code> 组件是需要后端接口的数据，那么可以做到后端接口数据仅阻塞 <code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr">Comments</code> 组件，不会阻塞整个 <code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr">App</code> 组件的渲染与提前返回</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="html" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="html" data-theme="default"><span class="line"><span style="color:var(--shiki-color-text)">&lt;</span><span style="color:var(--shiki-token-string-expression)">Layout</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  &lt;</span><span style="color:var(--shiki-token-string-expression)">NavBar</span><span style="color:var(--shiki-color-text)"> /&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  &lt;</span><span style="color:var(--shiki-token-string-expression)">Sidebar</span><span style="color:var(--shiki-color-text)"> /&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  &lt;</span><span style="color:var(--shiki-token-string-expression)">RightPane</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    &lt;</span><span style="color:var(--shiki-token-string-expression)">Post</span><span style="color:var(--shiki-color-text)"> /&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    &lt;</span><span style="color:var(--shiki-token-string-expression)">Suspense</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-function)">fallback</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string)">{</span><span style="color:var(--shiki-color-text)">&lt;Spinner /&gt;}&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      &lt;</span><span style="color:var(--shiki-token-string-expression)">Comments</span><span style="color:var(--shiki-color-text)"> /&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    &lt;/</span><span style="color:var(--shiki-token-string-expression)">Suspense</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  &lt;/</span><span style="color:var(--shiki-token-string-expression)">RightPane</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">&lt;/</span><span style="color:var(--shiki-token-string-expression)">Layout</span><span style="color:var(--shiki-color-text)">&gt;</span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div>
+<p>新 Suspense SSR 架构下的渲染链路变成了如下
+<img src="https://user-images.githubusercontent.com/23253540/205346837-8a77e5ad-92f2-4827-a218-7a28f42b396f.png" alt="image"/></p>
+<h3 class="subheading-h3">2.1. <!-- -->可能存在的问题<span class="nx-absolute -nx-mt-7" id="21-a-namessr_21a可能存在的问题"></span><a href="#21-a-namessr_21a可能存在的问题" class="subheading-anchor" aria-label="Permalink for this section"></a></h3>
+<p>你可能想到部分可交互状态时，如果客户端其他组件响应了事件导致 <code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr">Comment</code> 组件的 props 变化，而服务端是根据 initProps 对 <code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr">Comment</code> 进行的渲染，那么 React 会如何取舍</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="js" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="js" data-theme="default"><span class="line"><span style="color:var(--shiki-token-keyword)">function</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-function)">Content</span><span style="color:var(--shiki-color-text)">() {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  </span><span style="color:var(--shiki-token-keyword)">const</span><span style="color:var(--shiki-color-text)"> [</span><span style="color:var(--shiki-token-constant)">count</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-constant)">setCount</span><span style="color:var(--shiki-color-text)">] </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-function)">useState</span><span style="color:var(--shiki-color-text)">(</span><span style="color:var(--shiki-token-constant)">0</span><span style="color:var(--shiki-color-text)">);</span></span>
+<span class="line"> </span>
+<span class="line"><span style="color:var(--shiki-color-text)">  </span><span style="color:var(--shiki-token-keyword)">return</span><span style="color:var(--shiki-color-text)"> (</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    &lt;</span><span style="color:var(--shiki-token-constant)">Layout</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      &lt;</span><span style="color:var(--shiki-token-constant)">NavBar</span><span style="color:var(--shiki-color-text)"> /&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      &lt;</span><span style="color:var(--shiki-token-constant)">Sidebar</span><span style="color:var(--shiki-color-text)"> /&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      &lt;</span><span style="color:var(--shiki-token-constant)">RightPane</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">        &lt;</span><span style="color:var(--shiki-token-constant)">Post</span><span style="color:var(--shiki-color-text)"> /&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">        &lt;</span><span style="color:var(--shiki-token-string-expression)">h2</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">            </span><span style="color:var(--shiki-token-function)">onClick</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-color-text)">{() </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-color-text)"> {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">              </span><span style="color:var(--shiki-token-function)">setCount</span><span style="color:var(--shiki-color-text)">(count </span><span style="color:var(--shiki-token-keyword)">+</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-constant)">1</span><span style="color:var(--shiki-color-text)">)</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">              </span><span style="color:var(--shiki-token-constant)">console</span><span style="color:var(--shiki-token-function)">.log</span><span style="color:var(--shiki-color-text)">(</span><span style="color:var(--shiki-token-string-expression)">&quot;setCount 点击事件测试, count: &quot;</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-color-text)"> count);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">            }}</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">          &gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">            setCount 点击事件测试</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">        &lt;/</span><span style="color:var(--shiki-token-string-expression)">h2</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">        &lt;</span><span style="color:var(--shiki-token-constant)">Suspense</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-function)">fallback</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-color-text)">{&lt;</span><span style="color:var(--shiki-token-constant)">Spinner</span><span style="color:var(--shiki-color-text)"> /&gt;}&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">          &lt;</span><span style="color:var(--shiki-token-constant)">Comments</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-function)">count</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-color-text)">{count}/&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">        &lt;/</span><span style="color:var(--shiki-token-constant)">Suspense</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      &lt;/</span><span style="color:var(--shiki-token-constant)">RightPane</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    &lt;/</span><span style="color:var(--shiki-token-constant)">Layout</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  );</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">}</span></span>
+<span class="line"> </span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">function</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-function)">Comments</span><span style="color:var(--shiki-color-text)">({ count }) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  </span><span style="color:var(--shiki-token-keyword)">const</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-constant)">comments</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-function)">useData</span><span style="color:var(--shiki-color-text)">();</span></span>
+<span class="line"> </span>
+<span class="line"><span style="color:var(--shiki-color-text)">  </span><span style="color:var(--shiki-token-keyword)">return</span><span style="color:var(--shiki-color-text)"> (</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    &lt;&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    &lt;</span><span style="color:var(--shiki-token-string-expression)">span</span><span style="color:var(--shiki-color-text)">&gt;count: {count}&lt;/</span><span style="color:var(--shiki-token-string-expression)">span</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      {</span><span style="color:var(--shiki-token-constant)">comments</span><span style="color:var(--shiki-token-function)">.map</span><span style="color:var(--shiki-color-text)">((comment</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-color-text)"> i) </span><span style="color:var(--shiki-token-keyword)">=&gt;</span><span style="color:var(--shiki-color-text)"> (</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">        &lt;</span><span style="color:var(--shiki-token-string-expression)">p</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-function)">className</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string-expression)">&quot;comment&quot;</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-function)">key</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-color-text)">{i}&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">          {comment}</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">        &lt;/</span><span style="color:var(--shiki-token-string-expression)">p</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      ))}</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    &lt;/&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  );</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">}</span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div>
+<p>从测试结果来看 Props 发生变化后 React 会以客户端最新渲染的结果为准, 与此同时抛出<code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr">Uncaught Error: This Suspense boundary received an update before it finished hydrating.</code>错误
+<img src="https://user-images.githubusercontent.com/23253540/205336013-af20351d-9719-48ac-ac05-469e51840fc9.png" alt="image"/></p>
+<h2 class="subheading-h2">3. <!-- -->应用到业务中的效果<span class="nx-absolute -nx-mt-7" id="3-a-namessr_30a应用到业务中的效果"></span><a href="#3-a-namessr_30a应用到业务中的效果" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<p>因为 Suspense 支持对于单个组件进行的延迟渲染，首先我们需要对页面组件进行拆分，同时使用 Suspense 进行包裹</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/205336541-f42ae8f7-7050-48e5-92c3-3533db33e853.png" alt="image"/></p>
+<p>如果升级到了新 Suspense SSR 架构下的渲染链路变成了如下
+<img src="https://user-images.githubusercontent.com/23253540/205347267-453f4391-f7ed-4902-9438-b19e1b4c619b.png" alt="image"/></p>
+<h2 class="subheading-h2">4. <!-- -->小结<span class="nx-absolute -nx-mt-7" id="4-a-namessr_40a小结"></span><a href="#4-a-namessr_40a小结" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<h5 class="subheading-h5">Suspense SSR 架构解决了服务端渲染各个流程串行等待问题，强调一切按需（懒加载，懒编译，现在是懒渲染？）进行<span class="nx-absolute -nx-mt-7" id="suspense-ssr-架构解决了服务端渲染各个流程串行等待问题强调一切按需懒加载懒编译现在是懒渲染进行"></span><a href="#suspense-ssr-架构解决了服务端渲染各个流程串行等待问题强调一切按需懒加载懒编译现在是懒渲染进行" class="subheading-anchor" aria-label="Permalink for this section"></a></h5>
+<ul>
+<li>渐进式渲染像是 React 原生不支持 Suspense SSR 下的模拟实现</li>
+</ul>
+<h5 class="subheading-h5">渐进式渲染首屏比 Suspense SSR 更加完整<span class="nx-absolute -nx-mt-7" id="渐进式渲染首屏比-suspense-ssr-更加完整"></span><a href="#渐进式渲染首屏比-suspense-ssr-更加完整" class="subheading-anchor" aria-label="Permalink for this section"></a></h5>
+<ul>
+<li>渐进式渲染: 服务端渲染时虽然没有接口数据，但根据 initState 能够渲染出较完整的首屏</li>
+<li>Suspense SSR: 需要接口数据的组件首屏都是渲染的占位组件，如 Spinner</li>
+</ul>
+<h5 class="subheading-h5">Suspense SSR 类似于懒渲染，设计理念更加符合现代化 Web 开发<span class="nx-absolute -nx-mt-7" id="suspense-ssr-类似于懒渲染设计理念更加符合现代化-web-开发"></span><a href="#suspense-ssr-类似于懒渲染设计理念更加符合现代化-web-开发" class="subheading-anchor" aria-label="Permalink for this section"></a></h5>
+<ul>
+<li>更多特性见: <a target="_blank" rel="noreferrer" href="https://github.com/reactwg/react-18/discussions/37">New Suspense SSR Architecture in React 18<span class="nx-sr-only"> (opens in a new tab)</span></a></li>
+</ul>
+<h2 class="subheading-h2">5. <!-- -->最后的话<span class="nx-absolute -nx-mt-7" id="5-a-namessr_50a最后的话"></span><a href="#5-a-namessr_50a最后的话" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<p>如果发现升级后页面没有进行分块渲染, 或许你要继续阅读 👉 <a target="_blank" rel="noreferrer" href="https://github.com/xiaoxiaojx/blog/issues/37">服务端流式渲染 iOS 中踩坑记<span class="nx-sr-only"> (opens in a new tab)</span></a></p><footer class="jsx-2447ca1c11803f07"><small class="jsx-2447ca1c11803f07"><time class="jsx-2447ca1c11803f07">2023</time> © 多小凯.</small></footer></article></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{}},"page":"/posts/b4","query":{},"buildId":"tfm0fD_EdrgzIEIb9I0oi","nextExport":true,"autoExport":true,"isFallback":false,"scriptLoader":[]}</script></body></html>

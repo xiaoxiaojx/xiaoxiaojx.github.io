@@ -1,0 +1,294 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width"/><link rel="alternate" type="application/rss+xml" title="RSS" href="/feed.xml"/><link rel="preload" href="/fonts/Inter-roman.latin.var.woff2" as="font" type="font/woff2" crossorigin="anonymous"/><title>巨石应用解决方案 nopack</title><meta name="next-head-count" content="5"/><meta name="robots" content="follow, index"/><meta name="description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta property="og:site_name" content="Next.js Blog Starter Kit"/><meta property="og:description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta property="og:title" content="Next.js Blog Starter Kit"/><meta property="og:image" content="https://assets.vercel.com/image/upload/q_auto/front/vercel/dps.png"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:site" content="@yourname"/><meta name="twitter:title" content="Next.js Blog Starter Kit"/><meta name="twitter:description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta name="twitter:image" content="https://assets.vercel.com/image/upload/q_auto/front/vercel/dps.png"/><link rel="preload" href="/_next/static/css/f2b21aaf63910e63.css" as="style"/><link rel="stylesheet" href="/_next/static/css/f2b21aaf63910e63.css" data-n-g=""/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js"></script><script src="/_next/static/chunks/webpack-94547de1949c56d7.js" defer=""></script><script src="/_next/static/chunks/framework-ac88a2a245aea9ab.js" defer=""></script><script src="/_next/static/chunks/main-dffe95be63c1a593.js" defer=""></script><script src="/_next/static/chunks/pages/_app-5857a8f704812edc.js" defer=""></script><script src="/_next/static/chunks/886-30b761d7afa6f29e.js" defer=""></script><script src="/_next/static/chunks/pages/posts/b1-d8af5261c346b4b6.js" defer=""></script><script src="/_next/static/tfm0fD_EdrgzIEIb9I0oi/_buildManifest.js" defer=""></script><script src="/_next/static/tfm0fD_EdrgzIEIb9I0oi/_ssgManifest.js" defer=""></script><style id="__jsx-2447ca1c11803f07">footer.jsx-2447ca1c11803f07{margin-top:8rem}a.jsx-2447ca1c11803f07{float:right}</style></head><body><div id="__next"><script>!function(){try{var d=document.documentElement,c=d.classList;c.remove('light','dark');var e=localStorage.getItem('theme');if('system'===e||(!e&&true)){var t='(prefers-color-scheme: dark)',m=window.matchMedia(t);if(m.media!==t||m.matches){d.style.colorScheme = 'dark';c.add('dark')}else{d.style.colorScheme = 'light';c.add('light')}}else if(e){c.add(e|| '')}if(e==='light'||e==='dark')d.style.colorScheme=e}catch(e){}}()</script><article class="nx-container nx-prose-sm dark:nx-prose-dark md:nx-prose" dir="ltr"><h1>巨石应用解决方案 nopack</h1><div class="nx-mb-8 nx-flex nx-gap-3 nx-items-center"><div class="nx-grow nx-text-gray-400"><div class="nx-not-prose nx-flex nx-flex-wrap nx-items-center nx-gap-1">You<!-- -->,<time dateTime="2021-10-13T16:00:00.000Z">Thu Oct 14 2021</time><span class="nx-px-1">•</span><a class="
+          nx-select-none
+          nx-rounded-md
+          nx-bg-gray-200
+          nx-px-1
+          nx-text-sm
+          nx-text-gray-400
+          nx-transition-colors
+          hover:nx-bg-gray-300
+          hover:nx-text-gray-500
+          dark:nx-bg-gray-600
+          dark:nx-text-gray-300
+          dark:hover:nx-bg-gray-700
+          dark:hover:nx-text-gray-200
+        " href="/tags/bundleless">bundleless</a></div></div><div class="nx-flex nx-items-center nx-gap-3"><a href="/posts">Back</a></div></div><h2 class="subheading-h2">目录<span class="nx-absolute -nx-mt-7" id="目录"></span><a href="#目录" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<!-- -->
+<ul>
+<li>
+<ol>
+<li><a href="/posts/b1#">背景</a></li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li><a href="/posts/b1#vitesnowpack">vite 与 snowpack</a></li>
+</ol>
+</li>
+<li>
+<ol start="3">
+<li><a href="/posts/b1#nopack">nopack</a>
+<ul>
+<li>3.1. <a href="/posts/b1#Q:0">Q: 如何做到项目 0 改动接入 ?</a></li>
+<li>3.2. <a href="/posts/b1#Q:nopack">Q: nopack 这个名字是啥意思 ?</a></li>
+<li>3.3. <a href="/posts/b1#Q:cjs">Q: 如何彻底消除 cjs 这些语法了 ?</a></li>
+<li>3.4. <a href="/posts/b1#Q:nopack-1">Q: nopack 不是坚决不打包吗 ?</a></li>
+<li>3.5. <a href="/posts/b1#Q:vite">Q: 这样看来比 vite 更快 ?</a></li>
+<li>3.6. <a href="/posts/b1#Q:">Q: 最终接入的效果如何 ?</a></li>
+<li>3.7. <a href="/posts/b1#Q:esm">Q: esm 开发的劣势?</a></li>
+<li>3.8. <a href="/posts/b1#Q:-1">Q: 生产环境能用上了吗 ?</a></li>
+<li>3.9. <a href="/posts/b1#Q:esm-1">Q: esm 开发的时代是不是已经来了 ?</a></li>
+<li>3.10. <a href="/posts/b1#Q:vitesnowpackunbundled">Q: vite、snowpack、unbundled 这些推荐用哪个 ?</a></li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<ol start="4">
+<li><a href="/posts/b1#swcesbuild">swc 与 esbuild</a></li>
+</ol>
+<ul>
+<li>4.1. <a href="/posts/b1#swc">swc</a></li>
+<li>4.2. <a href="/posts/b1#esbuild">esbuild</a></li>
+<li>4.3. <a href="/posts/b1#4-3">测试数据</a></li>
+</ul>
+</li>
+<li>
+<ol start="5">
+<li><a href="/posts/b1#5-0">彩蛋</a></li>
+</ol>
+</li>
+<li>
+<ol start="6">
+<li><a href="/posts/b1#6-0">最后的话</a></li>
+</ol>
+<ul>
+<li>6.1. <a href="/posts/b1#6-1">2022-05-13 补充</a></li>
+<li>6.2. <a href="/posts/b1#6-2">2022-10-30 补充</a></li>
+</ul>
+</li>
+</ul>
+<!-- -->
+<!-- -->
+<p><img src="https://user-images.githubusercontent.com/23253540/140098710-57b43962-4c24-449b-a799-164fa85642bc.png" alt="image"/></p>
+<h2 class="subheading-h2">1. <!-- -->背景<span class="nx-absolute -nx-mt-7" id="1-a-namea背景"></span><a href="#1-a-namea背景" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<p>最近一段时间陆续有同学吐槽, 现有的开发环境打包太慢了, 原话如下</p>
+<ul>
+<li>同学 a: xxx 项目冷启动，刚刚计时是 3分45秒 左右，有空看看是否有优化空间哈。
+视频是 xxx 项目 f-xxx-6196 分支（yarn dev回车后开始计时）</li>
+<li>同学 b: 本地运行太慢了，想砍人</li>
+<li>同学 c: 我们项目启动很慢，咋整</li>
+<li>同学 d: xxx 项目编译时间太长了，改个东西容易电脑卡，不排除我的电脑问题，体验很差</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/23253540/139574683-cde367e6-3de6-460b-b28f-869fcd150e53.png" alt="0cbf92807d10b552fccc77993449a821c97ecb14"/></p>
+<blockquote>
+<p>截图为该项目的 gitlab 信息</p>
+</blockquote>
+<p>也确实, 3分45秒 🐢🐢🐢 的等待时间谁又受得了 😣 ！ 那么我们现在的脚手架的问题出在哪里 ?</p>
+<p>现有脚手架是基于 webpack 打包，其实做了 如 babel, ts 等缓存优化，甚至 hard-source 这样的持久缓存。但是由于需求的快速迭代，一切换分支导致了大量 node_modules 依赖变化需要重新生成新的缓存，使得每次打包缓存等优化等都失效了, 此时我也埋下了 nopack (不打包 ❌📦 ) 的仇恨种子！</p>
+<p>所以当现有的优化手段都命中的时候，时间才能勉强减少到 40s 🐢 左右。</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/139096712-0820fd05-b088-4504-ae7b-7ed0dbe8e161.png" alt="image"/></p>
+<p>webpack5 也尝试去解决慢的这个问题, 比如新增了一个比较重量级的持久缓存的功能, 不过从 esbuild 官方给大家的数据来看, webpack5 却是最慢的 ! 😢</p>
+<p>这可能是 webpack5 被黑得最惨的一次... 因为第一次打包有一部分时间是在生成缓存了, 怎么不拿第二次缓存生效后的时间来遛一遛比一比了？在这种情况下, 我们升级 webpack5 可能还是解决不了痛点, 分支一来回切换又回到了解放前!</p>
+<p>当项目逐渐膨胀时, 似乎是已经到了 webpack 的瓶颈, 近期特别火的 vite 与 snowpack 或许才是真正的解决方案 ?</p>
+<h2 class="subheading-h2">2. <!-- -->vite 与 snowpack<span class="nx-absolute -nx-mt-7" id="2-a-namevitesnowpackavite-与-snowpack"></span><a href="#2-a-namevitesnowpackavite-与-snowpack" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<p><img src="https://user-images.githubusercontent.com/23253540/142038899-940f587e-3bae-4583-a84f-f125b5f16359.png" alt="image"/>
+最终我想到的是接入 vite 或者 snowpack 解决现有的问题, 关于提到的这些工具的原理, 有不少文章都讲得很好了, 这里就不做过多的介绍。</p>
+<p>snowpack 刚出来不久就认真充满好奇的读了他的代码, 发现里面有不少写死的地方, 比如 define 是通过字符串的替换去实现, 这明显就会误伤无辜, css 的 import 也没处理, 最近作者也说会交给社区去维护, 自己有些力不从心了。</p>
+<blockquote>
+<p>Real-world testing is super important. I&#x27;m sure that sounds cliche, but its true. We had a few starter projects that we could test Snowpack against, but they were all small and simple. This created a huge experience gap between our internal projects and our actual users.</p>
+</blockquote>
+<p>文章出自 <a target="_blank" rel="noreferrer" href="https://dev.to/fredkschott/5-more-things-i-learned-building-snowpack-to-20-000-stars-5dc9">6 More Things I Learned Building Snowpack to 20,000 Stars (Part 2)<span class="nx-sr-only"> (opens in a new tab)</span></a>, 而我们更接近业务, 近 100 个大型项目, 包含各类系统与 h5, 几乎能踩完所有的坑。</p>
+<blockquote>
+<p>To be honest, I&#x27;m not sure where Snowpack goes from here. I burnt out on it at the end of last year, and haven&#x27;t found the energy to return. Usage and downloads began to trend down and the community has gotten quieter.</p>
+</blockquote>
+<blockquote>
+<p>At the same time, Vite (that Snowpack alternative that now powers SvelteKit) is taking off. To their credit, they do a lot of things really well. The good news is that two tools are very similar and easy to switch out. Even Astro is experimenting with moving from Snowpack to Vite in a future release.</p>
+</blockquote>
+<p>虽如此 snowpack 依然是个可敬的产品 🔥 ~</p>
+<p>所以综合体验下来还是 vite 值得信赖, 如果此时是新项目毫无疑问我推荐大家使用 vite, 但是我们这是老项目...</p>
+<p>何为老项目? 就是之前升级了一个 ts-loader 的大版本, 有俩项目测试环境白屏了。在试图接入 vite 时遇见了 cssModules 解析报错、js scss import 解析路径失败等问题。</p>
+<p>到这里我认为 vite 是没有任何问题的, 有些稀奇古怪, 百花齐放的问题的代码就得你自己去改, 当然实际继续挣扎下去可能会发现更多的奇葩问题, 其解决沟通成本和时间成本是无法估计的。</p>
+<h2 class="subheading-h2">3. <!-- -->nopack<span class="nx-absolute -nx-mt-7" id="3-a-namenopackanopack"></span><a href="#3-a-namenopackanopack" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<p><img src="https://user-images.githubusercontent.com/23253540/159294569-4705b6c3-7481-405b-a249-a0858b4cc201.png" alt="image"/></p>
+<p>最终我决定自己开发, 并且过渡阶段希望可以随意切换新的 ES Module 开发模式与现有的 webpack 模式。</p>
+<p>nopack 将以全局安装的形式存在, 即对现有项目 0 侵入，对线上环境 0 危险，对接入的项目源代码可以做到 0 修改就可以运行起来。</p>
+<blockquote>
+<p>原理图</p>
+</blockquote>
+<p><img src="https://user-images.githubusercontent.com/23253540/143553680-db671e18-3248-4490-afce-7b470c784794.png" alt="image"/></p>
+<blockquote>
+<p>时序图</p>
+</blockquote>
+<p><img src="https://user-images.githubusercontent.com/23253540/141148154-4b117402-f05b-420b-ae5f-37bbde878d76.png" alt="image"/></p>
+<h4 class="subheading-h4">3.1. <!-- -->Q: 如何做到项目 0 改动接入 ?<span class="nx-absolute -nx-mt-7" id="31-a-nameq0aq-如何做到项目-0-改动接入-"></span><a href="#31-a-nameq0aq-如何做到项目-0-改动接入-" class="subheading-anchor" aria-label="Permalink for this section"></a></h4>
+<ul>
+<li>vite 的大部分零件 jsResolver, sass 等的处理是偏向于 rollup 体系。要想无缝兼容现在项目中配置的 _moduleAliases 与 sass 中各种 import, 于是这部分我采用的 webpack 的零件, 主要是 enhanced-resolve 与 sass-loader 的处理逻辑。</li>
+<li>另一点不太重要的是发现大家都喜欢用 websocket 通信, vite、snowpack、webpack-dev-server 都是如此, 而 nopack 这里使用的是 sse。</li>
+</ul>
+<h4 class="subheading-h4">3.2. <!-- -->Q: nopack 这个名字是啥意思 ?<span class="nx-absolute -nx-mt-7" id="32-a-nameqnopackaq-nopack-这个名字是啥意思-"></span><a href="#32-a-nameqnopackaq-nopack-这个名字是啥意思-" class="subheading-anchor" aria-label="Permalink for this section"></a></h4>
+<ul>
+<li>
+<p>本意是只想做一个转译服务, 竭尽全力的不打包 ❌📦 。最初是想仅对 ts 与 jsx 文件请求进行一个转译后返回, 即总共只进行一次 AST 的操作。想法还是天真了, 因为 cjs to ejs 是一个不成立的事情, require 是运行时的, import 是静态的, 可能你想到了 import() 函数不也是运行时的吗 ? 不过 import() 返回的却是 Promise !</p>
+</li>
+<li>
+<p>事实证明初期只想做转译的思想不成立 👇
+<img src="https://user-images.githubusercontent.com/23253540/139574362-47435c1a-1bf7-4340-a2ad-d47beb72af10.png" alt="image"/></p>
+</li>
+</ul>
+<h4 class="subheading-h4">3.3. <!-- -->Q: 如何彻底消除 cjs 这些语法了 ?<span class="nx-absolute -nx-mt-7" id="33-a-nameqcjsaq-如何彻底消除-cjs-这些语法了-"></span><a href="#33-a-nameqcjsaq-如何彻底消除-cjs-这些语法了-" class="subheading-anchor" aria-label="Permalink for this section"></a></h4>
+<ul>
+<li>那就只有预构建打包了, 合成一个文件, require 的代码直接塞在对应的位置了, 哪还会有 require 这些东西了</li>
+</ul>
+<h4 class="subheading-h4">3.4. <!-- -->Q: nopack 不是坚决不打包吗 ?<span class="nx-absolute -nx-mt-7" id="34-a-nameqnopack-1aq-nopack-不是坚决不打包吗-"></span><a href="#34-a-nameqnopack-1aq-nopack-不是坚决不打包吗-" class="subheading-anchor" aria-label="Permalink for this section"></a></h4>
+<ul>
+<li>为了这些不合法模块, 只能忍气吞声了, 这里 nopack 与 vite 这里有些区别, nopack 会试图判断这个 npm 包是不是 esm 的包, 比如 package.json 中有 module, browser 字段, 或者 import 的是 es, esm 目录的文件如 &quot;packageA/es/a.js&quot; 这种或许也是 esm 就不进行预构建了。这样下来项目 xxx 🔍 扫描到了 336 个包, 最后只会对 199 个包进行预构建 📦 。</li>
+</ul>
+<h4 class="subheading-h4">3.5. <!-- -->Q: 这样看来比 vite 更快 ?<span class="nx-absolute -nx-mt-7" id="35-a-nameqviteaq-这样看来比-vite-更快-"></span><a href="#35-a-nameqviteaq-这样看来比-vite-更快-" class="subheading-anchor" aria-label="Permalink for this section"></a></h4>
+<ul>
+<li>快是快了, 但是具有迷惑性行为的包也不少, 比如某个包也声明了 module 字段, 但我其实是 cjs 的代码。更有甚者一个包中大部分文件是 esm 的, 有1 ～ 2 文件个是 cjs 的🤯!  没办法, 你不是 nopack 吗, 这些包我忍你了, 我 hardcode 到一个数组中把你们加入黑名单。所以进行全量预构建的 vite 作为一个通用的工具可能也是无奈之举。</li>
+</ul>
+<h4 class="subheading-h4">3.6. <!-- -->Q: 最终接入的效果如何 ?<span class="nx-absolute -nx-mt-7" id="36-a-nameqaq-最终接入的效果如何-"></span><a href="#36-a-nameqaq-最终接入的效果如何-" class="subheading-anchor" aria-label="Permalink for this section"></a></h4>
+<ul>
+<li>号称 3分45秒 的项目通过 esbuild 预构建大概只花 8s 左右, 然后页面刷新时会对 src 下的 ts 与 jsx 通过 esbuid 进行转译, 大概 4s 的时间, 所以最终开始预构建到页面完全展示出来只花了 12s, esbuild 远比我想象中的更快 ⚡️⚡️⚡️。</li>
+</ul>
+<h4 class="subheading-h4">3.7. <!-- -->Q: esm 开发的劣势?<span class="nx-absolute -nx-mt-7" id="37-a-nameqesmaq-esm-开发的劣势"></span><a href="#37-a-nameqesmaq-esm-开发的劣势" class="subheading-anchor" aria-label="Permalink for this section"></a></h4>
+<ol>
+<li>刷新页面的等待时间会慢一点<!-- -->
+<ul>
+<li>esm 模式强调转译, 浏览器运行阶段代码从入口文件一直往下运行下去的时候, 会不断有 import 语法发起新的文件请求, 对于 jsx 与 ts 文件的请求还需要通过 esbuild 进行转译, 对于 scss 请求需要 dart-sass 转译, 直到所有的代码运行完成。</li>
+<li>webpack 模式强调打包, 打包阶段会把入口文件开始依赖分析, 最后打包出一个 main.js 交给浏览器运行, 所以浏览器运行阶段就会快很多。</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>所以这里可以对 node_modules 的文件进行一个强缓存的优化, 以及通过 react-refresh 去做热更新, 避免页面刷新操作</p>
+</blockquote>
+<ol start="2">
+<li>对性能有一定的要求<!-- -->
+<ul>
+<li>在其中一个项目接入时, 使用 windows 开发的同学说快是快了, 但是页面刷新的那一刻有点卡 🤔, 排查时发现这个项目 network 中发了 3000 多个 js 的请求, chrome 把 cpu 拉满了。所以 nopack 不得不又退步 😢, 只能把 node_modules 的包进行全量的预构建来达到合并更多的文件, 一下请求数降低到了 700, chrome 即使拉满了 cpu 也是短暂就下来了。所以最终 nopack 又进行了妥协, 采用了全量预构建的方式。事实证明文件请求减少页面刷新时白屏时间减少了, 预构建也只增加了 2s 左右的时间, 开发体验会更好一点。</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>如果全量预构建 node_modules 还没解决该同学的问题, 我也开发了一个基于 esbuild ⚡️ 打包的开发环境开发的版本, 即像 webpack 一样, 把 src/index.js 为入口打包最后产出为一个 main.js 文件的模式, 对于这个 3分45s 的项目采用 esbuild ⚡️ 打包也仅花了 15s 左右!</p>
+</blockquote>
+<ol start="3">
+<li>esbuild 不会对 ts 类型进行检查<!-- -->
+<ul>
+<li>可以参考 fork-ts-checker-webpack-plugin 实现一个插件配合 esbuild 检查
+<img src="https://user-images.githubusercontent.com/23253540/139782422-7bcb6645-1fc4-46b1-b5d6-facc309bddab.png" alt="image"/></li>
+</ul>
+</li>
+<li>开发环境与生产环境不一致<!-- -->
+<ul>
+<li>esm 由于 js 文件请求过多, 页面展示的速度慢。生产环境还是得走现有的打包逻辑(文件合并, 丑化等), 开发环境与生产环境不一致可能会出现本地没有问题, 测试生产有问题的情况。</li>
+</ul>
+</li>
+</ol>
+<h4 class="subheading-h4">3.8. <!-- -->Q: 生产环境能用上了吗 ?<span class="nx-absolute -nx-mt-7" id="38-a-nameq-1aq-生产环境能用上了吗-"></span><a href="#38-a-nameq-1aq-生产环境能用上了吗-" class="subheading-anchor" aria-label="Permalink for this section"></a></h4>
+<ul>
+<li>nopack 也支持生产环境构建, 但是核心的老项目是不会使用 ⚠️⚠️⚠️ (不会为了这三分钟丢了饭碗 😨)。不过新的内部项目将会默认采用 nopack (其实这里可以用 vite 了, 为了不存在重复的工具就用 nopack 吧)。另外 nopack 生产环境打包是采用的 esbuild ⚡️ , vite 采用的是 rollup 📦 。</li>
+</ul>
+<h4 class="subheading-h4">3.9. <!-- -->Q: esm 开发的时代是不是已经来了 ?<span class="nx-absolute -nx-mt-7" id="39-a-nameqesm-1aq-esm-开发的时代是不是已经来了-"></span><a href="#39-a-nameqesm-1aq-esm-开发的时代是不是已经来了-" class="subheading-anchor" aria-label="Permalink for this section"></a></h4>
+<ul>
+<li>还在观望的同学也可以上了, <em><strong>截止 2021-10-29 已经有 9 个项目接入了 nopack🚀🚀🚀</strong></em>, 基本都是 0 改动接入运行。虽然期间暴露了各种各样的问题, 但是先驱者 vite 基本都有了各种解决方案可以进行参考。</li>
+</ul>
+<h4 class="subheading-h4">3.10. <!-- -->Q: vite、snowpack、unbundled 这些推荐用哪个 ?<span class="nx-absolute -nx-mt-7" id="310-a-nameqvitesnowpackunbundledaq-vitesnowpackunbundled-这些推荐用哪个-"></span><a href="#310-a-nameqvitesnowpackunbundledaq-vitesnowpackunbundled-这些推荐用哪个-" class="subheading-anchor" aria-label="Permalink for this section"></a></h4>
+<ul>
+<li>个人建议有 v 选 v。</li>
+</ul>
+<h2 class="subheading-h2">4. <!-- -->swc 与 esbuild<span class="nx-absolute -nx-mt-7" id="4-a-nameswcesbuildaswc-与-esbuild"></span><a href="#4-a-nameswcesbuildaswc-与-esbuild" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<p><img src="https://user-images.githubusercontent.com/23253540/142039206-864d3192-3610-4e81-b343-3601484eb097.png" alt="image"/>
+选择编译器的时候, 调研了 swc 与 esbuild</p>
+<h3 class="subheading-h3">4.1. <!-- -->swc<span class="nx-absolute -nx-mt-7" id="41-a-nameswcaswc"></span><a href="#41-a-nameswcaswc" class="subheading-anchor" aria-label="Permalink for this section"></a></h3>
+<p>nextjs 已经实验性使用 swc。</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/143618287-df4f2018-f031-4461-9450-304a8d3c7121.png" alt="image"/></p>
+<h3 class="subheading-h3">4.2. <!-- -->esbuild<span class="nx-absolute -nx-mt-7" id="42-a-nameesbuildaesbuild"></span><a href="#42-a-nameesbuildaesbuild" class="subheading-anchor" aria-label="Permalink for this section"></a></h3>
+<p>vite 与 snowpack 都是使用的 esbuild。</p>
+<blockquote>
+<p>目前仅发现范型函数赋值给变量编译会有问题。</p>
+</blockquote>
+<p><img src="https://user-images.githubusercontent.com/23253540/143618387-528f8e49-c02a-464a-9fde-9ba135bc0032.png" alt="image"/></p>
+<h3 class="subheading-h3">4.3. <!-- -->测试数据<span class="nx-absolute -nx-mt-7" id="43-a-name4-3a测试数据"></span><a href="#43-a-name4-3a测试数据" class="subheading-anchor" aria-label="Permalink for this section"></a></h3>
+<p>下面是 webpack 模式下测试 esbuild 与 swc 相关的测试数据</p>
+<ul>
+<li>项目: xxx</li>
+<li>版本: 91a69d4e</li>
+<li>编译速度: 首次无缓存状态下的构建时间</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/23253540/143618829-53740637-0fa3-411d-9ed4-0c1becfa170d.png" alt="image"/></p>
+<ul>
+<li>编译兼容:<!-- -->
+<ul>
+<li>swc 编译 componets/ModalForFirstTime.js 等文件存在问题，其他路由页面表现正常。</li>
+<li>esbuild 编译 js 的装饰器不支持，故换成 ts 模式编译 js 文件，其他路由页面表现正常。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>@evanw decorator spec unfortunately still seems like it&#x27;s a long way off, both based on low activity and based on how many things it looks like they still have to figure out.</p>
+</blockquote>
+<ul>
+<li>小结:<!-- -->
+<ul>
+<li>esbuild 与 swc 速度相差无几，但是 esbuild 对老项目的编译兼容性高于 swc。</li>
+</ul>
+</li>
+</ul>
+<h2 class="subheading-h2">5. <!-- -->彩蛋<span class="nx-absolute -nx-mt-7" id="5-a-name5-0a彩蛋"></span><a href="#5-a-name5-0a彩蛋" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<p>10月27日看到了字节大佬开源了基于 esbuild 的工具 unbundled, 当时还在想要是自己英语学好一点, 不用中式英语, 还指不一定也叫 unbundled 了 😄</p>
+<h2 class="subheading-h2">6. <!-- -->最后的话<span class="nx-absolute -nx-mt-7" id="6-a-name6-0a最后的话"></span><a href="#6-a-name6-0a最后的话" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<p>站在巨人的肩膀总是能看得更远, 首先感谢 vite 与 snowpack 从 CommonJs 到 ES Module 过渡时期提供的各种解决方案, 最后感谢背后的 esbuild 与 swc 提供的强大的心脏 ⚡️（🤔 看样子 js 的工具链的巨大变革会被 rust  / go 拉起帷幕）。</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/143617268-d57da61d-784a-4918-a013-2faccc5a6ead.png" alt="image"/></p>
+<p>谢谢阅读 ~</p>
+<h3 class="subheading-h3">6.1. <!-- -->2022-05-13 补充<span class="nx-absolute -nx-mt-7" id="61-a-name6-1a2022-05-13-补充"></span><a href="#61-a-name6-1a2022-05-13-补充" class="subheading-anchor" aria-label="Permalink for this section"></a></h3>
+<p>nopack 推出的一个月内几乎所有的 CSR 项目就使用上了, 迅速取代了原有的开发模式。要知道同学们面临着紧张的业务需求 🤯, 能够自发的去进行某项技术升级是多么难得的一件事情。</p>
+<p>基于 ES Module 的开发模式让我们逐渐告别了传统的 bundler 漫长的打包 🐢 等待, 加上 ⚡️ esbuild 与 swc 的出现使得即时编译的时间甚至可以忽略, 前端开发已经迈入了新的篇章 !</p>
+<h3 class="subheading-h3">6.2. <!-- -->2022-10-30 补充<span class="nx-absolute -nx-mt-7" id="62-a-name6-2a2022-10-30-补充"></span><a href="#62-a-name6-2a2022-10-30-补充" class="subheading-anchor" aria-label="Permalink for this section"></a></h3>
+<p>近期得知字节大佬的 unbundled 已经不再维护，确实对于各式各样业务项目架构的兼容非常困难。因为 ES Module 模式不可能应用于生产，所以一开始 nopack 就说明无法 100% 保证开发生产一致性，如果发现存在差异需要复现，开发环境请降级为原本的 webpack 模式（实际业务几乎没有遇见这种边界 case）。
+<img src="https://user-images.githubusercontent.com/23253540/198883570-b94c47f6-f3cf-4ba3-acce-c20301a16c26.png" alt="image"/>
+那么简单描述一下 nopack 如何兼容多种架构</p>
+<ol>
+<li>强依赖某个 babel 插件<!-- -->
+<ul>
+<li>阅读该插件实现，比如插件需要对某个文件 AST 遍历后修改某个属性，那么 nopack 可以对匹配上的文件进行一些正则操作来实现同等的功能</li>
+</ul>
+</li>
+<li>webpack external<!-- -->
+<ul>
+<li>预构建时通过 esbuild 设置 external 字段</li>
+<li>请求 src 下文件时通过 script importmap 把 external 的模块转发到本地 /nopack/external/ 的 devServer 进行处理（step1），devServer 返回虚拟文件内容（step2），最后再对 import external 的模块处的代码进行拦截修改（step3）</li>
+</ul>
+</li>
+</ol>
+<p>step1</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="html" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="html" data-theme="default"><span class="line"><span style="color:var(--shiki-color-text)">&lt;</span><span style="color:var(--shiki-token-string-expression)">script</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-function)">type</span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-token-string-expression)">&quot;importmap&quot;</span><span style="color:var(--shiki-color-text)">&gt;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      &quot;imports&quot;: {&quot;react &quot;:&quot;https://localhost:21619/nopack/external/react.js&quot;}</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    }</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">&lt;/</span><span style="color:var(--shiki-token-string-expression)">script</span><span style="color:var(--shiki-color-text)">&gt;</span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div>
+<p>step2</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="js" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="js" data-theme="default"><span class="line"><span style="color:var(--shiki-token-comment)">// devServer 返回的虚拟文件内容</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// devServer 无法知道该模块具备哪些 export,</span></span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// 因为 webpack external 表示全局存在的运行时变量, 静态编译时只能统一导出为 export default</span></span>
+<span class="line"> </span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">const</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-constant)">obj</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-color-text)"> React</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">export</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-keyword)">default</span><span style="color:var(--shiki-color-text)"> obj</span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div>
+<p>step3</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="js" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="js" data-theme="default"><span class="line"><span style="color:var(--shiki-token-comment)">// 拦截修改前</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">import</span><span style="color:var(--shiki-color-text)"> { Component } </span><span style="color:var(--shiki-token-keyword)">from</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-string-expression)">&#x27;react&#x27;</span></span>
+<span class="line"> </span>
+<span class="line"> </span>
+<span class="line"><span style="color:var(--shiki-token-comment)">// 拦截修改后, 从 devServer 返回的 export default 字段取值</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">import</span><span style="color:var(--shiki-color-text)"> __nopack__cjsImport0_react </span><span style="color:var(--shiki-token-keyword)">from</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-string-expression)">&quot;react&quot;</span><span style="color:var(--shiki-color-text)">;</span></span>
+<span class="line"><span style="color:var(--shiki-token-keyword)">const</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-constant)">Component</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-keyword)">=</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-constant)">__nopack__cjsImport0_react</span><span style="color:var(--shiki-color-text)">.__esModule </span><span style="color:var(--shiki-token-keyword)">?</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-constant)">__nopack__cjsImport0_react</span><span style="color:var(--shiki-color-text)">.</span><span style="color:var(--shiki-token-constant)">default</span><span style="color:var(--shiki-color-text)">.Component </span><span style="color:var(--shiki-token-keyword)">:</span><span style="color:var(--shiki-color-text)"> </span><span style="color:var(--shiki-token-constant)">__nopack__cjsImport0_react</span><span style="color:var(--shiki-color-text)">.Component;</span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div>
+<ol start="3">
+<li>webpack5模块联邦<!-- -->
+<ul>
+<li>首先要清楚模块联邦做了什么，深入了解后可知模块联邦其实可以通过 LazyCompilation entry + webpack external + 浏览器端简单的 webpack 模块联邦 runtime 注入来模拟实现</li>
+</ul>
+</li>
+</ol>
+<p>......具体实现细节和其他架构兼容的内容还比较多, 如果有读者需要再行记录吧 ~</p><footer class="jsx-2447ca1c11803f07"><small class="jsx-2447ca1c11803f07"><time class="jsx-2447ca1c11803f07">2023</time> © 多小凯.</small></footer></article></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{}},"page":"/posts/b1","query":{},"buildId":"tfm0fD_EdrgzIEIb9I0oi","nextExport":true,"autoExport":true,"isFallback":false,"scriptLoader":[]}</script></body></html>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title><![CDATA[Your Name]]></title>
+        <description><![CDATA[Your Name]]></description>
+        <link>https://yoursite.com</link>
+        <generator>RSS for Node</generator>
+        <lastBuildDate>Fri, 03 Feb 2023 17:57:26 GMT</lastBuildDate>
+        <atom:link href="https://yoursite.com/feed.xml" rel="self" type="application/rss+xml"/>
+        <item>
+            <title><![CDATA[巨石应用解决方案 nopack]]></title>
+            <description><![CDATA[最近一段时间陆续有同学吐槽, 现有的开发环境打包太慢了,]]></description>
+            <link>/posts/b1</link>
+            <guid isPermaLink="true">/posts/b1</guid>
+            <category><![CDATA[bundleless]]></category>
+            <dc:creator><![CDATA[You]]></dc:creator>
+            <pubDate>Wed, 13 Oct 2021 16:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[webpack Tree Shaking 之 sideEffects]]></title>
+            <description><![CDATA[下面以一个业务项目为例, 我们添加了若干文件来验证测试]]></description>
+            <link>/posts/b2</link>
+            <guid isPermaLink="true">/posts/b2</guid>
+            <category><![CDATA[webpack]]></category>
+            <dc:creator><![CDATA[You]]></dc:creator>
+            <pubDate>Sun, 15 Jan 2023 16:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[webpack Tree Shaking 的实现原理]]></title>
+            <description><![CDATA[a 同学运行一个服务端渲染（Server-side rendering，简称 SSR）]]></description>
+            <link>/posts/b3</link>
+            <guid isPermaLink="true">/posts/b3</guid>
+            <category><![CDATA[webpack]]></category>
+            <dc:creator><![CDATA[You]]></dc:creator>
+            <pubDate>Wed, 28 Dec 2022 16:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[Next.js Pages]]></title>
+            <description><![CDATA[Learn more about Next.js pages.]]></description>
+            <link>/posts/pages</link>
+            <guid isPermaLink="true">/posts/pages</guid>
+            <category><![CDATA[web development]]></category>
+            <dc:creator><![CDATA[You]]></dc:creator>
+            <pubDate>Wed, 17 Mar 2021 16:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[从业务的角度来看 React18 Suspense SSR 架构]]></title>
+            <description><![CDATA[现有的服务端渲染（Server-side rendering，简称 SSR）的原理是]]></description>
+            <link>/posts/b4</link>
+            <guid isPermaLink="true">/posts/b4</guid>
+            <category><![CDATA[SSR]]></category>
+            <dc:creator><![CDATA[You]]></dc:creator>
+            <pubDate>Sat, 03 Dec 2022 16:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[Node.js Server 偶发的神秘 404 告警排查]]></title>
+            <description><![CDATA[业务方反馈自己负责的服务端渲染项目出现了少量的 404 告警]]></description>
+            <link>/posts/b5</link>
+            <guid isPermaLink="true">/posts/b5</guid>
+            <category><![CDATA[DEBUG]]></category>
+            <dc:creator><![CDATA[You]]></dc:creator>
+            <pubDate>Fri, 11 Nov 2022 16:00:00 GMT</pubDate>
+        </item>
+    </channel>
+</rss>
