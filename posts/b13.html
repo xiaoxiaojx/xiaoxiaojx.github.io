@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width"/><link rel="alternate" type="application/rss+xml" title="RSS" href="/feed.xml"/><link rel="preload" href="/fonts/Inter-roman.latin.var.woff2" as="font" type="font/woff2" crossorigin="anonymous"/><title>v8::TryCatch 的使用</title><meta name="next-head-count" content="5"/><meta name="robots" content="follow, index"/><meta name="description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta property="og:site_name" content="Next.js Blog Starter Kit"/><meta property="og:description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta property="og:title" content="Next.js Blog Starter Kit"/><meta property="og:image" content="https://assets.vercel.com/image/upload/q_auto/front/vercel/dps.png"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:site" content="@yourname"/><meta name="twitter:title" content="Next.js Blog Starter Kit"/><meta name="twitter:description" content="Clone and deploy your own Next.js portfolio in minutes."/><meta name="twitter:image" content="https://assets.vercel.com/image/upload/q_auto/front/vercel/dps.png"/><link rel="preload" href="/next/static/css/f2b21aaf63910e63.css" as="style"/><link rel="stylesheet" href="/next/static/css/f2b21aaf63910e63.css" data-n-g=""/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/next/static/chunks/polyfills-c67a75d1b6f99dc8.js"></script><script src="/next/static/chunks/webpack-94547de1949c56d7.js" defer=""></script><script src="/next/static/chunks/framework-ac88a2a245aea9ab.js" defer=""></script><script src="/next/static/chunks/main-dffe95be63c1a593.js" defer=""></script><script src="/next/static/chunks/pages/_app-5857a8f704812edc.js" defer=""></script><script src="/next/static/chunks/886-30b761d7afa6f29e.js" defer=""></script><script src="/next/static/chunks/pages/posts/b13-bbd7f623e4443b57.js" defer=""></script><script src="/next/static/NaGQ6Clqfwl7-4CBOjyC9/_buildManifest.js" defer=""></script><script src="/next/static/NaGQ6Clqfwl7-4CBOjyC9/_ssgManifest.js" defer=""></script><style id="__jsx-2447ca1c11803f07">footer.jsx-2447ca1c11803f07{margin-top:8rem}a.jsx-2447ca1c11803f07{float:right}</style></head><body><div id="_next"><script>!function(){try{var d=document.documentElement,c=d.classList;c.remove('light','dark');var e=localStorage.getItem('theme');if('system'===e||(!e&&true)){var t='(prefers-color-scheme: dark)',m=window.matchMedia(t);if(m.media!==t||m.matches){d.style.colorScheme = 'dark';c.add('dark')}else{d.style.colorScheme = 'light';c.add('light')}}else if(e){c.add(e|| '')}if(e==='light'||e==='dark')d.style.colorScheme=e}catch(e){}}()</script><article class="nx-container nx-prose-sm dark:nx-prose-dark md:nx-prose" dir="ltr"><h1>v8::TryCatch 的使用</h1><div class="nx-mb-8 nx-flex nx-gap-3 nx-items-center"><div class="nx-grow nx-text-gray-400"><div class="nx-not-prose nx-flex nx-flex-wrap nx-items-center nx-gap-1">You<!-- -->,<time dateTime="2022-08-12T16:00:00.000Z">Sat Aug 13 2022</time><span class="nx-px-1">•</span><a class="
+          nx-select-none
+          nx-rounded-md
+          nx-bg-gray-200
+          nx-px-1
+          nx-text-sm
+          nx-text-gray-400
+          nx-transition-colors
+          hover:nx-bg-gray-300
+          hover:nx-text-gray-500
+          dark:nx-bg-gray-600
+          dark:nx-text-gray-300
+          dark:hover:nx-bg-gray-700
+          dark:hover:nx-text-gray-200
+        " href="/tags/v8">v8</a></div></div><div class="nx-flex nx-items-center nx-gap-3"><a href="/posts">Back</a></div></div><h2 class="subheading-h2">v8::TryCatch<span class="nx-absolute -nx-mt-7" id="v8trycatch"></span><a href="#v8trycatch" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<blockquote>
+<p>Creates a new try/catch block and registers it with v8.</p>
+</blockquote>
+<p><a target="_blank" rel="noreferrer" href="https://v8docs.nodesource.com/node-0.8/d4/dc6/classv8_1_1_try_catch.html#a67d9691a3266c7e9d391e2528f8550f9">v8docs<span class="nx-sr-only"> (opens in a new tab)</span></a> 中就很简单的介绍了一句「在一个作用域内注册一个 try catch」。光看文档很难明白, 除非接触过类似的实现才能够联想到这里的实际使用场景, 所以不够了解的时候还是得多看代码。</p>
+<h2 class="subheading-h2">使用场景<span class="nx-absolute -nx-mt-7" id="使用场景"></span><a href="#使用场景" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<p>如下 Node.js 中的代码可知, TryCatch 主要用于在 C++ 中捕获 JavaScript 调用的异常。在创建 try_catch 实例后, 你可以获取 C++ 代码中调用 JavaScript 函数的状态, 比如通过 try_catch 的 HasCaught 的返回值判断运行 JavaScript 函数是否抛错。</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="c++" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="c++" data-theme="default"><span class="line"><span style="color:var(--shiki-color-text)">// src/inspector_agent.cc</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">void Agent::ToggleAsyncHook(Isolate* isolate, Local&lt;Function&gt; fn) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  // Guard against running this during cleanup -- no async events will be</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  // emitted anyway at that point anymore, and calling into JS is not possible.</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  // This should probably not be something we&#x27;re attempting in the first place,</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  // Refs: https://github.com/nodejs/node/pull/34362#discussion_r456006039</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  if (!parent_env_-&gt;can_call_into_js()) return;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  CHECK(parent_env_-&gt;has_run_bootstrapping_code());</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  HandleScope handle_scope(isolate);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  CHECK(!fn.IsEmpty());</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  auto context = parent_env_-&gt;context();</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  v8::TryCatch try_catch(isolate);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  USE(fn-&gt;Call(context, Undefined(isolate), 0, nullptr));</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  if (try_catch.HasCaught() &amp;&amp; !try_catch.HasTerminated()) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    PrintCaughtException(isolate, context, try_catch);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    FatalError(&quot;\nnode::inspector::Agent::ToggleAsyncHook&quot;,</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">               &quot;Cannot toggle Inspector&#x27;s AsyncHook, please report this.&quot;);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  }</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">}</span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div>
+<h2 class="subheading-h2">SetVerbose<span class="nx-absolute -nx-mt-7" id="setverbose"></span><a href="#setverbose" class="subheading-anchor" aria-label="Permalink for this section"></a></h2>
+<blockquote>
+<p>Set verbosity of the external exception handler. By default, exceptions that are caught by an external exception handler are not reported. Call SetVerbose with true on an external exception handler to have exceptions caught by the handler reported as if they were not caught.</p>
+</blockquote>
+<p>有些代码中创建 try_catch 实例后紧接着会调用 SetVerbose 函数, 看了文档的解释后, 也不够清楚, 于是继续看看代码。</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="c++" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="c++" data-theme="default"><span class="line"><span style="color:var(--shiki-color-text)">// demo</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">static inline void trigger_fatal_exception(</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    napi_env env, v8::Local&lt;v8::Value&gt; local_err) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  v8::TryCatch try_catch(env-&gt;isolate);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  try_catch.SetVerbose(true);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  env-&gt;isolate-&gt;ThrowException(local_err);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  node::FatalException(env-&gt;isolate, try_catch);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">}</span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div>
+<p>上面的代码手动抛出了一个错误, 然后调用 node::FatalException 函数, node::FatalException 函数里面又调用了 TriggerUncaughtException 函数。从而我们可以知道 SetVerbose 为 true 后, 此时代码将不会继续往下走。</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="c++" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="c++" data-theme="default"><span class="line"><span style="color:var(--shiki-color-text)">// src/node_errors.cc</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">void TriggerUncaughtException(Isolate* isolate, const v8::TryCatch&amp; try_catch) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  // If the try_catch is verbose, the per-isolate message listener is going to</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  // handle it (which is going to call into another overload of</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  // TriggerUncaughtException()).</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  if (try_catch.IsVerbose()) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    return;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  }</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  // If the user calls TryCatch::TerminateExecution() on this TryCatch</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  // they must call CancelTerminateExecution() again before invoking</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  // TriggerUncaughtException() because it will invoke</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  // process._fatalException() in the JS land.</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  CHECK(!try_catch.HasTerminated());</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  CHECK(try_catch.HasCaught());</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  HandleScope scope(isolate);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  TriggerUncaughtException(isolate,</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">                           try_catch.Exception(),</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">                           try_catch.Message(),</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">                           false /* from_promise */);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">}</span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div>
+<p>情况一 SetVerbose 为 false 一直运行到最后调用 TriggerUncaughtException 函数。</p>
+<p>情况二 SetVerbose 为 true TriggerUncaughtException 函数直接被 return, 错误将由创建 try_catch 实例传入的 isolate 实例上通过 AddMessageListenerWithErrorLevel 注册的错误监听函数 PerIsolateMessageListener 处理</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="c++" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="c++" data-theme="default"><span class="line"><span style="color:var(--shiki-color-text)">// src/api/environment.cc</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">void SetIsolateErrorHandlers(v8::Isolate* isolate, const IsolateSettings&amp; s) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  if (s.flags &amp; MESSAGE_LISTENER_WITH_ERROR_LEVEL)</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    isolate-&gt;AddMessageListenerWithErrorLevel(</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">            errors::PerIsolateMessageListener,</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">            Isolate::MessageErrorLevel::kMessageError |</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">                Isolate::MessageErrorLevel::kMessageWarning);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  auto* abort_callback = s.should_abort_on_uncaught_exception_callback ?</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      s.should_abort_on_uncaught_exception_callback :</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      ShouldAbortOnUncaughtException;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  isolate-&gt;SetAbortOnUncaughtExceptionCallback(abort_callback);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  auto* fatal_error_cb = s.fatal_error_callback ?</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      s.fatal_error_callback : OnFatalError;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  isolate-&gt;SetFatalErrorHandler(fatal_error_cb);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  if ((s.flags &amp; SHOULD_NOT_SET_PREPARE_STACK_TRACE_CALLBACK) == 0) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    auto* prepare_stack_trace_cb = s.prepare_stack_trace_callback ?</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">        s.prepare_stack_trace_callback : PrepareStackTraceCallback;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    isolate-&gt;SetPrepareStackTraceCallback(prepare_stack_trace_cb);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  }</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">}</span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div>
+<p>PerIsolateMessageListener 函数根据 ErrorLevel 进行不同的处理, 如果是 kMessageWarning 则是通过 ProcessEmitWarningGeneric 函数触发 JavaScript 上的 process.on(&#x27;warn&#x27;) 事件, 否则通过 TriggerUncaughtException 触发 JavaScript 上的 process.on(&#x27;uncaughtException&#x27;) 事件</p>
+<div class="nx-not-prose"><div class="nextra-code-block nx-relative nx-mt-6 first:nx-mt-0"><pre class="nx-bg-primary-700/5 nx-mb-4 nx-overflow-x-auto nx-rounded-xl nx-font-medium nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] contrast-more:nx-border contrast-more:nx-border-primary-900/20 contrast-more:nx-contrast-150 contrast-more:dark:nx-border-primary-100/40 nx-py-4 " data-language="c++" data-theme="default"><code class="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10  " dir="ltr" data-language="c++" data-theme="default"><span class="line"><span style="color:var(--shiki-color-text)">// src/node_errors.cc</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)"></span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">void PerIsolateMessageListener(Local&lt;Message&gt; message, Local&lt;Value&gt; error) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  Isolate* isolate = message-&gt;GetIsolate();</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  switch (message-&gt;ErrorLevel()) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    case Isolate::MessageErrorLevel::kMessageWarning: {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      Environment* env = Environment::GetCurrent(isolate);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      if (!env) {</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">        break;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      }</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      Utf8Value filename(isolate, message-&gt;GetScriptOrigin().ResourceName());</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      // (filename):(line) (message)</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      std::stringstream warning;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      warning &lt;&lt; *filename;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      warning &lt;&lt; &quot;:&quot;;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      warning &lt;&lt; message-&gt;GetLineNumber(env-&gt;context()).FromMaybe(-1);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      warning &lt;&lt; &quot; &quot;;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      v8::String::Utf8Value msg(isolate, message-&gt;Get());</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      warning &lt;&lt; *msg;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      USE(ProcessEmitWarningGeneric(env, warning.str().c_str(), &quot;V8&quot;));</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      break;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    }</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">    case Isolate::MessageErrorLevel::kMessageError:</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      TriggerUncaughtException(isolate, error, message);</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">      break;</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">  }</span></span>
+<span class="line"><span style="color:var(--shiki-color-text)">}</span></span></code></pre><div class="nx-opacity-0 nx-transition [div:hover&gt;&amp;]:nx-opacity-100 focus-within:nx-opacity-100 nx-flex nx-gap-1 nx-absolute nx-m-[11px] nx-right-0 nx-top-0"><button class="nextra-button nx-transition-all active:nx-opacity-50 nx-bg-primary-700/5 nx-border nx-border-black/5 nx-text-gray-600 hover:nx-text-gray-900 nx-rounded-md nx-p-1.5 dark:nx-bg-primary-300/10 dark:nx-border-white/10 dark:nx-text-gray-400 dark:hover:nx-text-gray-50 md:nx-hidden" title="Toggle word wrap"><svg viewBox="0 0 24 24" width="24" height="24" class="nx-pointer-events-none nx-h-4 nx-w-4"><path fill="currentColor" d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></svg></button></div></div></div><footer class="jsx-2447ca1c11803f07"><small class="jsx-2447ca1c11803f07"><time class="jsx-2447ca1c11803f07">2023</time> © xiaoxiaojx</small></footer></article></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{}},"page":"/posts/b13","query":{},"buildId":"NaGQ6Clqfwl7-4CBOjyC9","nextExport":true,"autoExport":true,"isFallback":false,"scriptLoader":[]}</script></body></html>
