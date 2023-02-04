@@ -4,7 +4,7 @@ export default {
   footer: (
     <footer>
       <small>
-        <time>{YEAR}</time> © 多小凯.
+        <time>{YEAR}</time> © xiaoxiaojx
       </small>
       <style jsx>{`
         footer {
