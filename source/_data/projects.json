@@ -12,11 +12,11 @@
     {
        "name":"pure",
        "url":"https://github.com/xiaoxiaojx/pure",
-       "desc":"lightweight JavaScript runtime（just a learning 📖）"
+       "desc":"lightweight JavaScript runtime（just a toy 🤡）"
     },
     {
        "name":"nodehttp.h",
        "url":"https://github.com/xiaoxiaojx/nodehttp.h",
-       "desc":"Node.js style http server implemented in c, based on libuv and llhttp.（just for learning 📖）"
+       "desc":"Node.js style http server implemented in c, based on libuv and llhttp.（just a toy 🤡）"
     }
 ]
