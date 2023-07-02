@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="a 同学说我写的 npm 包 @xxfe&#x2F;pkg 在 x 项目使用时发布到测试环境报了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="n.e is not a function 问题记录">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/09/29/b10/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="a 同学说我写的 npm 包 @xxfe&#x2F;pkg 在 x 项目使用时发布到测试环境报了">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/192844916-1470a651-c3b1-473e-bbc1-aeafffe52415.png">
+<meta property="article:published_time" content="2022-09-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-02T15:50:57.386Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="webpack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/192844916-1470a651-c3b1-473e-bbc1-aeafffe52415.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>n.e is not a function 问题记录</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/10/10/b9/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/09/25/b11/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/09/29/b10/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&text=n.e is not a function 问题记录"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&title=n.e is not a function 问题记录"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&is_video=false&description=n.e is not a function 问题记录"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=n.e is not a function 问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/09/29/b10/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&title=n.e is not a function 问题记录"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&title=n.e is not a function 问题记录"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&title=n.e is not a function 问题记录"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&title=n.e is not a function 问题记录"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&name=n.e is not a function 问题记录&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/09/29/b10/&t=n.e is not a function 问题记录"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">问题简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">3.</span> <span class="toc-text">问题解决</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        n.e is not a function 问题记录
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-09-28T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-09-29</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/webpack/" rel="tag">webpack</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/192844916-1470a651-c3b1-473e-bbc1-aeafffe52415.png" alt="image"></p>
+<h2 id="问题简述"><a href="#问题简述" class="headerlink" title="问题简述"></a>问题简述</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">TypeError</span>: n.<span class="property">e</span> is not a <span class="keyword">function</span> </span><br></pre></td></tr></table></figure>
+<p> a 同学说我写的 npm 包 @xxfe&#x2F;pkg 在 x 项目使用时发布到测试环境报了如上的错误, 但是开发环境没有报错。接着我看了一下 node_modules 中这个包的代码, 这个 Promise 都没 await 咋会被 catch 且还真的被捕获打印了错误日志 🤯, 这是什么瞎猫碰见死耗子的操作 …<br> <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// node_modules/@xxfe/pkg</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">	<span class="variable language_">this</span>.<span class="property">aesUtilPromise</span> = <span class="keyword">import</span>(<span class="string">&#x27;../aes-util&#x27;</span>)</span><br><span class="line">&#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">	<span class="variable language_">console</span>.<span class="title function_">info</span>(<span class="string">&#x27;123  ========&#x27;</span>, e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br> 仅看 node_modules 中的代码并未发现明显的错误, 其实我们应该看的是 @xxfe&#x2F;pkg 打包后的代码<br> <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// dist/static/js/xxx.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">	<span class="variable language_">this</span>.<span class="property">aesUtilPromise</span>=n.<span class="title function_">e</span>(<span class="number">3</span>)</span><br><span class="line">&#125; <span class="keyword">catch</span>(r) &#123;</span><br><span class="line">	<span class="variable language_">console</span>.<span class="title function_">info</span>(<span class="string">&quot;123  ========&quot;</span>,r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>打包后的代码就发现了错误的源头 n.e</p>
+<p>熟悉 webpack 的同学就知道动态 import 函数打包后会被 <strong>webpack_require</strong>.e 函数给替换, 其原理就是通过动态创建一个 script 标签来加载一个 js, 如下即函数的代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******/</span>  __webpack_require__.<span class="property">e</span> = <span class="keyword">function</span> <span class="title function_">requireEnsure</span>(<span class="params">chunkId</span>) &#123;</span><br><span class="line"><span class="comment">/******/</span>   <span class="keyword">var</span> promises = [];</span><br><span class="line"><span class="comment">/******/</span></span><br><span class="line"><span class="comment">/******/</span></span><br><span class="line"><span class="comment">/******/</span>   <span class="comment">// JSONP chunk loading for javascript</span></span><br><span class="line"><span class="comment">/******/</span></span><br><span class="line"><span class="comment">/******/</span>   <span class="keyword">var</span> installedChunkData = installedChunks[chunkId];</span><br><span class="line"><span class="comment">/******/</span>   <span class="keyword">if</span>(installedChunkData !== <span class="number">0</span>) &#123; <span class="comment">// 0 means &quot;already installed&quot;.</span></span><br><span class="line"><span class="comment">/******/</span></span><br><span class="line"><span class="comment">/******/</span>    <span class="comment">// a Promise means &quot;currently loading&quot;.</span></span><br><span class="line"><span class="comment">/******/</span>    <span class="keyword">if</span>(installedChunkData) &#123;</span><br><span class="line"><span class="comment">/******/</span>     promises.<span class="title function_">push</span>(installedChunkData[<span class="number">2</span>]);</span><br><span class="line"><span class="comment">/******/</span>    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"><span class="comment">/******/</span>     <span class="comment">// setup Promise in chunk cache</span></span><br><span class="line"><span class="comment">/******/</span>     <span class="keyword">var</span> promise = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="keyword">function</span>(<span class="params">resolve, reject</span>) &#123;</span><br><span class="line"><span class="comment">/******/</span>      installedChunkData = installedChunks[chunkId] = [resolve, reject];</span><br><span class="line"><span class="comment">/******/</span>     &#125;);</span><br><span class="line"><span class="comment">/******/</span>     promises.<span class="title function_">push</span>(installedChunkData[<span class="number">2</span>] = promise);</span><br><span class="line"><span class="comment">/******/</span></span><br><span class="line"><span class="comment">/******/</span>     <span class="comment">// start chunk loading</span></span><br><span class="line"><span class="comment">/******/</span>     <span class="keyword">var</span> script = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;script&#x27;</span>);</span><br><span class="line"><span class="comment">/******/</span>     <span class="keyword">var</span> onScriptComplete;</span><br><span class="line"><span class="comment">/******/</span></span><br><span class="line"><span class="comment">/******/</span>     script.<span class="property">charset</span> = <span class="string">&#x27;utf-8&#x27;</span>;</span><br><span class="line"><span class="comment">/******/</span>     script.<span class="property">timeout</span> = <span class="number">120</span>;</span><br><span class="line"><span class="comment">/******/</span>     <span class="keyword">if</span> (__webpack_require__.<span class="property">nc</span>) &#123;</span><br><span class="line"><span class="comment">/******/</span>      script.<span class="title function_">setAttribute</span>(<span class="string">&quot;nonce&quot;</span>, __webpack_require__.<span class="property">nc</span>);</span><br><span class="line"><span class="comment">/******/</span>     &#125;</span><br><span class="line"><span class="comment">/******/</span>     script.<span class="property">src</span> = <span class="title function_">jsonpScriptSrc</span>(chunkId);</span><br><span class="line"><span class="comment">/******/</span>     <span class="keyword">if</span> (script.<span class="property">src</span>.<span class="title function_">indexOf</span>(<span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">origin</span> + <span class="string">&#x27;/&#x27;</span>) !== <span class="number">0</span>) &#123;</span><br><span class="line"><span class="comment">/******/</span>      script.<span class="property">crossOrigin</span> = <span class="string">&quot;anonymous&quot;</span>;</span><br><span class="line"><span class="comment">/******/</span>     &#125;</span><br><span class="line"><span class="comment">/******/</span>     <span class="comment">// create error before stack unwound to get useful stacktrace later</span></span><br><span class="line"><span class="comment">/******/</span>     <span class="keyword">var</span> error = <span class="keyword">new</span> <span class="title class_">Error</span>();</span><br><span class="line"><span class="comment">/******/</span>     onScriptComplete = <span class="keyword">function</span> (<span class="params">event</span>) &#123;</span><br><span class="line"><span class="comment">/******/</span>     <span class="comment">// ...</span></span><br><span class="line"><span class="comment">/******/</span>     &#125;;</span><br><span class="line"><span class="comment">/******/</span>     <span class="keyword">var</span> timeout = <span class="built_in">setTimeout</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line"><span class="comment">/******/</span>      <span class="title function_">onScriptComplete</span>(&#123; <span class="attr">type</span>: <span class="string">&#x27;timeout&#x27;</span>, <span class="attr">target</span>: script &#125;);</span><br><span class="line"><span class="comment">/******/</span>     &#125;, <span class="number">120000</span>);</span><br><span class="line"><span class="comment">/******/</span>     script.<span class="property">onerror</span> = script.<span class="property">onload</span> = onScriptComplete;</span><br><span class="line"><span class="comment">/******/</span>     <span class="variable language_">document</span>.<span class="property">head</span>.<span class="title function_">appendChild</span>(script);</span><br><span class="line"><span class="comment">/******/</span>    &#125;</span><br><span class="line"><span class="comment">/******/</span>   &#125;</span><br><span class="line"><span class="comment">/******/</span>   <span class="keyword">return</span> <span class="title class_">Promise</span>.<span class="title function_">all</span>(promises);</span><br><span class="line"><span class="comment">/******/</span>  &#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><p>那么为什么代码中用到了 import 函数, webpack 却没有注入 <strong>webpack_require</strong>.e 函数的实现了 ?</p>
+<p>此时我们只能看 webpack 的代码实现, 可以发现当 Object.keys(chunkMaps.hash).length 条件为 true 时, 才会注入 ${this.requireFn}.e 函数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/MainTemplate.js</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">requireExtensions</span>.<span class="title function_">tap</span>(<span class="string">&quot;MainTemplate&quot;</span>, <span class="function">(<span class="params">source, chunk, hash</span>) =&gt;</span> &#123;</span><br><span class="line">			<span class="keyword">const</span> buf = [];</span><br><span class="line">			<span class="keyword">const</span> chunkMaps = chunk.<span class="title function_">getChunkMaps</span>();</span><br><span class="line">			<span class="comment">// Check if there are non initial chunks which need to be imported using require-ensure</span></span><br><span class="line">			<span class="keyword">if</span> (<span class="title class_">Object</span>.<span class="title function_">keys</span>(chunkMaps.<span class="property">hash</span>).<span class="property">length</span>) &#123;</span><br><span class="line">				buf.<span class="title function_">push</span>(<span class="string">&quot;// This file contains only the entry chunk.&quot;</span>);</span><br><span class="line">				buf.<span class="title function_">push</span>(<span class="string">&quot;// The chunk loading function for additional chunks&quot;</span>);</span><br><span class="line">				buf.<span class="title function_">push</span>(<span class="string">`<span class="subst">$&#123;<span class="variable language_">this</span>.requireFn&#125;</span>.e = function requireEnsure(chunkId) &#123;`</span>);</span><br><span class="line">				buf.<span class="title function_">push</span>(<span class="title class_">Template</span>.<span class="title function_">indent</span>(<span class="string">&quot;var promises = [];&quot;</span>));</span><br><span class="line">				buf.<span class="title function_">push</span>(</span><br><span class="line">					<span class="title class_">Template</span>.<span class="title function_">indent</span>(</span><br><span class="line">						<span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">requireEnsure</span>.<span class="title function_">call</span>(<span class="string">&quot;&quot;</span>, chunk, hash, <span class="string">&quot;chunkId&quot;</span>)</span><br><span class="line">					)</span><br><span class="line">				);</span><br><span class="line">				buf.<span class="title function_">push</span>(<span class="title class_">Template</span>.<span class="title function_">indent</span>(<span class="string">&quot;return Promise.all(promises);&quot;</span>));</span><br><span class="line">				buf.<span class="title function_">push</span>(<span class="string">&quot;&#125;;&quot;</span>);</span><br><span class="line">			&#125;</span><br><span class="line">            <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>顺着函数调用顺序发现关键是 getAllAsyncChunks 函数返回值 chunks 集合不为空即可</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/Chunk.js</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">getAllAsyncChunks</span>(<span class="params"></span>) &#123;</span><br><span class="line">		<span class="keyword">const</span> queue = <span class="keyword">new</span> <span class="title class_">Set</span>();</span><br><span class="line">		<span class="keyword">const</span> chunks = <span class="keyword">new</span> <span class="title class_">Set</span>();</span><br><span class="line"></span><br><span class="line">		<span class="keyword">const</span> initialChunks = <span class="title function_">intersect</span>(</span><br><span class="line">			<span class="title class_">Array</span>.<span class="title function_">from</span>(<span class="variable language_">this</span>.<span class="property">groupsIterable</span>, <span class="function"><span class="params">g</span> =&gt;</span> <span class="keyword">new</span> <span class="title class_">Set</span>(g.<span class="property">chunks</span>))</span><br><span class="line">		);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">const</span> chunkGroup <span class="keyword">of</span> <span class="variable language_">this</span>.<span class="property">groupsIterable</span>) &#123;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">const</span> child <span class="keyword">of</span> chunkGroup.<span class="property">childrenIterable</span>) &#123;</span><br><span class="line">				queue.<span class="title function_">add</span>(child);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">const</span> chunkGroup <span class="keyword">of</span> queue) &#123;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">const</span> chunk <span class="keyword">of</span> chunkGroup.<span class="property">chunks</span>) &#123;</span><br><span class="line">				<span class="keyword">if</span> (!initialChunks.<span class="title function_">has</span>(chunk)) &#123;</span><br><span class="line">					chunks.<span class="title function_">add</span>(chunk);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">const</span> child <span class="keyword">of</span> chunkGroup.<span class="property">childrenIterable</span>) &#123;</span><br><span class="line">				queue.<span class="title function_">add</span>(child);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> chunks;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>chunks 集合只有一处往集合增加数据的逻辑。initialChunks 可以理解为首屏 html 中 script 标签的 js, 通常是 main.js 及其运行前依赖的 js, 比如 main.js 需要依赖 react, react-dom 等 js 的前置运行。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!initialChunks.<span class="title function_">has</span>(chunk)) &#123;</span><br><span class="line">	chunks.<span class="title function_">add</span>(chunk);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为业务项目 webpackConfig.optimizationa.splitChunks 的配置把 a 同学写的 @xxfe&#x2F;pkg 包都打入到了 xxfe_vendor 文件中, 而 @xxfe&#x2F; scope 下的依赖被业务项目大量使用, 所以无疑是业务项目 main.js 前置依赖的一个 js, 故 xxfe_vendor 在首屏 html 中 script 标签的 js 中</p>
+<p>所以 xxfe_vendor 是 initialChunks 中的其中一个, 故此处 if 为 false</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">xxfe_vendor</span>: &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;xxfe_vendor&#x27;</span>,</span><br><span class="line">  <span class="attr">chunks</span>: <span class="string">&#x27;all&#x27;</span>,</span><br><span class="line">  <span class="attr">priority</span>: <span class="number">8</span>,</span><br><span class="line">  <span class="attr">enforce</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">test</span>: <span class="function">(<span class="params"><span class="variable language_">module</span></span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> resource = <span class="title function_">getModulePath</span>(<span class="variable language_">module</span>)</span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/@xxfe(\\|\/)/</span>.<span class="title function_">test</span>(resource)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">  &#125;,</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>至此我们理清了导致问题的原因, @xxfe&#x2F;pkg 中的 import 函数引用的 js 及其自身代码由于分包的 splitChunks 设置都被打入到了 xxfe_vendor 中, 而 xxfe_vendor 又是业务项目 main.js 前置运行依赖的 js, 故 webpack 错误的认为你不需要 <strong>webpack_require</strong>.e 函数</p>
+<ul>
+<li>webpack 版本: 4.39.0</li>
+</ul>
+<blockquote>
+<p>Q: 这个算谁的 bug ?</p>
+<p>A: webpack 的 bug。因为不能说用户需要加载的 js 如果在首屏其中之一, 就不注入 <strong>webpack_require</strong>.e 函数的实现。业务项目通过 splitChunks 进行分包不是 npm 包的作者所能决定, 是否注入 <strong>webpack_require</strong>.e 函数的实现应该由是否有 import 函数语法来决定。</p>
+<p>Q: 为什么开发环境没有报错 ?</p>
+<p>A: 业务项目的 splitChunks 设置了只在生产构建生效</p>
+</blockquote>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>将如下的 <a target="_blank" rel="noopener" href="https://webpack.js.org/plugins/split-chunks-plugin/#splitchunkschunks">chunks</a> 字段由 all 改为了 initial, 表示该分包设置将不要影响到动态 import 函数异步加载的 js (该类型为 async chunks), 使得 @xxfe&#x2F;pkg 将不会被合入 xxfe_vendor 文件中, 那么如上的 initialChunks 也将不包含 @xxfe&#x2F;pkg, 从而 webpack 也会如约注入 <strong>webpack_require</strong>.e 函数的实现</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">xxfe_vendor</span>: &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;xxfe_vendor&#x27;</span>,</span><br><span class="line">  <span class="attr">chunks</span>: <span class="string">&#x27;initial&#x27;</span>,</span><br><span class="line">  <span class="attr">priority</span>: <span class="number">8</span>,</span><br><span class="line">  <span class="attr">enforce</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">test</span>: <span class="function">(<span class="params"><span class="variable language_">module</span></span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> resource = <span class="title function_">getModulePath</span>(<span class="variable language_">module</span>)</span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/@xxfe(\\|\/)/</span>.<span class="title function_">test</span>(resource)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">  &#125;,</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">问题简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">3.</span> <span class="toc-text">问题解决</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/09/29/b10/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&text=n.e is not a function 问题记录"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&title=n.e is not a function 问题记录"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&is_video=false&description=n.e is not a function 问题记录"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=n.e is not a function 问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/09/29/b10/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&title=n.e is not a function 问题记录"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&title=n.e is not a function 问题记录"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&title=n.e is not a function 问题记录"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&title=n.e is not a function 问题记录"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/09/29/b10/&name=n.e is not a function 问题记录&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/09/29/b10/&t=n.e is not a function 问题记录"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

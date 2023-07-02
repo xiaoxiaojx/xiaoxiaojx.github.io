@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="近期 iOS 客户端反映 WebView 中打开 h5 页面存在明显">
+<meta property="og:type" content="article">
+<meta property="og:title" content="服务端流式渲染 iOS 中踩坑记">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/06/19/b24/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="近期 iOS 客户端反映 WebView 中打开 h5 页面存在明显">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-06-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-02T15:50:57.394Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="SSR">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>服务端流式渲染 iOS 中踩坑记</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/07/30/b14/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/05/29/b16/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/06/19/b24/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&text=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&title=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&is_video=false&description=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=服务端流式渲染 iOS 中踩坑记&body=Check out this article: https://xiaoxiaojx.github.io/2022/06/19/b24/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&title=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&title=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&title=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&title=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&name=服务端流式渲染 iOS 中踩坑记&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/06/19/b24/&t=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#h5-%E9%A1%B5%E9%9D%A2%E9%A6%96%E5%B1%8F%E6%96%87%E5%AD%97%E7%AD%89%E5%86%85%E5%AE%B9%E8%BE%BE%E5%88%B0-200-%E5%AD%97%E8%8A%82%E8%BF%98%E6%98%AF%E8%BE%83%E5%B0%91%E7%9A%84%EF%BC%8C%E8%AE%BE%E7%BD%AE%E4%B8%BA-display-none-%E6%9D%A5%E5%87%91%E6%95%B0%E7%9A%84-div-%E4%B8%8D%E4%BC%9A%E8%A2%AB%E8%AE%A1%E6%95%B0%E8%BF%9B%E5%8E%BB%EF%BC%8C%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E8%A7%81"><span class="toc-number">1.</span> <span class="toc-text">h5 页面首屏文字等内容达到 200+ 字节还是较少的，设置为 display: none 来凑数的 div 不会被计数进去，相关代码实现见123&#x2F;&#x2F; https:&#x2F;&#x2F;github.com&#x2F;WebKit&#x2F;webkit&#x2F;blob&#x2F;main&#x2F;Source&#x2F;WebCore&#x2F;page&#x2F;FrameView.h#L975static const unsigned visualCharacterThreshold &#x3D; 200;123456789101112131415161718192021222324252627&#x2F;&#x2F; https:&#x2F;&#x2F;github.com&#x2F;WebKit&#x2F;WebKit&#x2F;blob&#x2F;ed7fed17c5ac886890859f1fc8682dba06424616&#x2F;Source&#x2F;WebCore&#x2F;page&#x2F;FrameView.cpp#L4685void FrameView::checkAndDispatchDidReachVisuallyNonEmptyState(){&#x2F;&#x2F; ...&#x2F;&#x2F; The first few hundred characters rarely contain the interesting content of the page.        if (m_visuallyNonEmptyCharacterCount &gt; visualCharacterThreshold)            return true;}void FrameView::incrementVisuallyNonEmptyCharacterCount(const String&amp; inlineText){    if (m_visuallyNonEmptyCharacterCount &gt; visualCharacterThreshold &amp;&amp; m_hasReachedSignificantRenderedTextThreshold)        return;    auto nonWhitespaceLength &#x3D; [](auto&amp; inlineText) {        auto length &#x3D; inlineText.length();        for (unsigned i &#x3D; 0; i &lt; inlineText.length(); ++i) {            if (isNotHTMLSpace(inlineText[i]))                continue;            --length;        }        return length;    };    m_visuallyNonEmptyCharacterCount +&#x3D; nonWhitespaceLength(inlineText);    ++m_textRendererCountForVisuallyNonEmptyCharacters;}</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        服务端流式渲染 iOS 中踩坑记
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-06-18T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-06-19</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/SSR/" rel="tag">SSR</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>近期 iOS 客户端反映 WebView 中打开 h5 页面存在明显的白屏时间, 于是打算把后端接口延时高（&gt; 150ms）的 h5 项目由现在的 SSR 改成 html 请求达到 Node 时率先返回构建时生成的骨架屏 html 主体, 然后再异步请求后端接口数据, 获取到接口数据后再追加到 html 响应流中。这样 Node 能够 1ms 内响应实际内容让用户先看到页面框架, 通过内网并发聚合的接口数据也能让客户端直接复用这部分数据更快展示出最终屏。</p>
+<p>按理来说 h5 不再受限于后端接口的响应时长, 能够第一时间渲染出骨架屏页面, 但是体验后白屏时间好像没怎么缩短? 最后反复删减代码测试发现了一个残酷的现实 👇</p>
+<p><del>iOS WKWebView 不支持流式渲染（分块渲染）, 安卓 WebView 与 PC Chrome 是支持的。</del></p>
+<p><del>即表示 IOS 中会等待 html 请求彻底结束后才开始渲染, 如下是安卓与 IOS 中的效果演示视频，希望其他同学不要再踩坑</del> 🤯</p>
+<p><a target="_blank" rel="noopener" href="https://user-images.githubusercontent.com/23253540/174447134-25daa11b-0be8-4330-85b7-e464c14f6047.mp4">https://user-images.githubusercontent.com/23253540/174447134-25daa11b-0be8-4330-85b7-e464c14f6047.mp4</a></p>
+<p><a target="_blank" rel="noopener" href="https://user-images.githubusercontent.com/23253540/174447157-8ccc2be4-52fe-4d67-a11d-d4701677aa5d.mp4">https://user-images.githubusercontent.com/23253540/174447157-8ccc2be4-52fe-4d67-a11d-d4701677aa5d.mp4</a></p>
+<hr>
+<p>2022-06-20 更新，经过大佬提醒，IOS 中如果返回的 data 是普通文本文字，或返回的数据中包含普通文本文字，那只需要达到非空 200 字节即可以触发渲染，详细见 <a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/331397">iOS之深入解析WKWebView加载的生命周期与代理方法</a></p>
+<p><a target="_blank" rel="noopener" href="https://user-images.githubusercontent.com/23253540/174550696-cb3b54df-6db1-4aff-8adb-b60258461b20.mp4">https://user-images.githubusercontent.com/23253540/174550696-cb3b54df-6db1-4aff-8adb-b60258461b20.mp4</a></p>
+<p><em><strong>所以 IOS chrome 与 safari 也是支持流式渲染（分块渲染），App 中没有效果是有效内容没有达到 200 字节 (innerText)</strong></em></p>
+<h2 id="h5-页面首屏文字等内容达到-200-字节还是较少的，设置为-display-none-来凑数的-div-不会被计数进去，相关代码实现见"><a href="#h5-页面首屏文字等内容达到-200-字节还是较少的，设置为-display-none-来凑数的-div-不会被计数进去，相关代码实现见" class="headerlink" title="h5 页面首屏文字等内容达到 200+ 字节还是较少的，设置为 display: none 来凑数的 div 不会被计数进去，相关代码实现见"></a>h5 页面首屏文字等内容达到 200+ 字节还是较少的，设置为 display: none 来凑数的 div 不会被计数进去，相关代码实现见<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/WebKit/webkit/blob/main/Source/WebCore/page/FrameView.h#L975</span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">unsigned</span> visualCharacterThreshold = <span class="number">200</span>;</span><br></pre></td></tr></table></figure><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/WebKit/WebKit/blob/ed7fed17c5ac886890859f1fc8682dba06424616/Source/WebCore/page/FrameView.cpp#L4685</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">FrameView::checkAndDispatchDidReachVisuallyNonEmptyState</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="comment">// The first few hundred characters rarely contain the interesting content of the page.</span></span><br><span class="line">        <span class="keyword">if</span> (m_visuallyNonEmptyCharacterCount &gt; visualCharacterThreshold)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">FrameView::incrementVisuallyNonEmptyCharacterCount</span><span class="params">(<span class="type">const</span> String&amp; inlineText)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (m_visuallyNonEmptyCharacterCount &gt; visualCharacterThreshold &amp;&amp; m_hasReachedSignificantRenderedTextThreshold)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> nonWhitespaceLength = [](<span class="keyword">auto</span>&amp; inlineText) &#123;</span><br><span class="line">        <span class="keyword">auto</span> length = inlineText.length();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">unsigned</span> i = <span class="number">0</span>; i &lt; inlineText.length(); ++i) &#123;</span><br><span class="line">            <span class="keyword">if</span> (isNotHTMLSpace(inlineText[i]))</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            --length;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> length;</span><br><span class="line">    &#125;;</span><br><span class="line">    m_visuallyNonEmptyCharacterCount += nonWhitespaceLength(inlineText);</span><br><span class="line">    ++m_textRendererCountForVisuallyNonEmptyCharacters;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></h2><p>2022-06-26 更新，最后给 body 标签插入了一个塞了 200 个空格字符的 div 来强制 WKWebView 进行刷新缓存实时渲染，经过一周多的测试，白屏时间明显减少甚至不见 🎉</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="variable constant_">IOS_200</span> = <span class="string">`&lt;div style=&quot;height:0;width:0;&quot;&gt;\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b&lt;/div&gt;`</span></span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#h5-%E9%A1%B5%E9%9D%A2%E9%A6%96%E5%B1%8F%E6%96%87%E5%AD%97%E7%AD%89%E5%86%85%E5%AE%B9%E8%BE%BE%E5%88%B0-200-%E5%AD%97%E8%8A%82%E8%BF%98%E6%98%AF%E8%BE%83%E5%B0%91%E7%9A%84%EF%BC%8C%E8%AE%BE%E7%BD%AE%E4%B8%BA-display-none-%E6%9D%A5%E5%87%91%E6%95%B0%E7%9A%84-div-%E4%B8%8D%E4%BC%9A%E8%A2%AB%E8%AE%A1%E6%95%B0%E8%BF%9B%E5%8E%BB%EF%BC%8C%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E8%A7%81"><span class="toc-number">1.</span> <span class="toc-text">h5 页面首屏文字等内容达到 200+ 字节还是较少的，设置为 display: none 来凑数的 div 不会被计数进去，相关代码实现见123&#x2F;&#x2F; https:&#x2F;&#x2F;github.com&#x2F;WebKit&#x2F;webkit&#x2F;blob&#x2F;main&#x2F;Source&#x2F;WebCore&#x2F;page&#x2F;FrameView.h#L975static const unsigned visualCharacterThreshold &#x3D; 200;123456789101112131415161718192021222324252627&#x2F;&#x2F; https:&#x2F;&#x2F;github.com&#x2F;WebKit&#x2F;WebKit&#x2F;blob&#x2F;ed7fed17c5ac886890859f1fc8682dba06424616&#x2F;Source&#x2F;WebCore&#x2F;page&#x2F;FrameView.cpp#L4685void FrameView::checkAndDispatchDidReachVisuallyNonEmptyState(){&#x2F;&#x2F; ...&#x2F;&#x2F; The first few hundred characters rarely contain the interesting content of the page.        if (m_visuallyNonEmptyCharacterCount &gt; visualCharacterThreshold)            return true;}void FrameView::incrementVisuallyNonEmptyCharacterCount(const String&amp; inlineText){    if (m_visuallyNonEmptyCharacterCount &gt; visualCharacterThreshold &amp;&amp; m_hasReachedSignificantRenderedTextThreshold)        return;    auto nonWhitespaceLength &#x3D; [](auto&amp; inlineText) {        auto length &#x3D; inlineText.length();        for (unsigned i &#x3D; 0; i &lt; inlineText.length(); ++i) {            if (isNotHTMLSpace(inlineText[i]))                continue;            --length;        }        return length;    };    m_visuallyNonEmptyCharacterCount +&#x3D; nonWhitespaceLength(inlineText);    ++m_textRendererCountForVisuallyNonEmptyCharacters;}</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/06/19/b24/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&text=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&title=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&is_video=false&description=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=服务端流式渲染 iOS 中踩坑记&body=Check out this article: https://xiaoxiaojx.github.io/2022/06/19/b24/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&title=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&title=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&title=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&title=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/06/19/b24/&name=服务端流式渲染 iOS 中踩坑记&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/06/19/b24/&t=服务端流式渲染 iOS 中踩坑记"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

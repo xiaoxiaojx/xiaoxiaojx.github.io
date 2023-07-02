@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="M 同学反映自己负责的 Next.js 项目疑似内存泄漏">
+<meta property="og:type" content="article">
+<meta property="og:title" content="全局缓存导致的 Node.js 线上内存泄漏">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2023/06/08/b39/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="M 同学反映自己负责的 Next.js 项目疑似内存泄漏">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/07760205-1a2f-4861-bbc8-85185c10f6d7">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/8bfc218b-1fe5-4194-aad7-4da94cb3724b">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/0cad0bb8-72ae-4a68-bafd-ceba43802108">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/2eeaf875-140c-43c2-a6a8-40b9be09738c">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/80588606-0969-45d8-a3ca-9bef35b60b2c">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/96b71e70-7645-4e45-943e-9cf138f70a61">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/73f127ec-b372-4a40-8d48-cf6f4473167e">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/4cd503a9-6431-43cb-9b0b-211f54badc27">
+<meta property="article:published_time" content="2023-06-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-02T15:50:57.403Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="Node.js">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/07760205-1a2f-4861-bbc8-85185c10f6d7">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>全局缓存导致的 Node.js 线上内存泄漏</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/04/13/b37/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/06/08/b39/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&text=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&title=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&is_video=false&description=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=全局缓存导致的 Node.js 线上内存泄漏&body=Check out this article: https://xiaoxiaojx.github.io/2023/06/08/b39/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&title=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&title=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&title=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&title=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&name=全局缓存导致的 Node.js 线上内存泄漏&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/06/08/b39/&t=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Easy-Monitor-%E4%B8%8B%E8%BD%BD%E5%BF%AB%E7%85%A7"><span class="toc-number">2.1.</span> <span class="toc-text">Easy-Monitor 下载快照</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-devtoolx-%E5%88%86%E6%9E%90"><span class="toc-number">2.2.</span> <span class="toc-text">使用 devtoolx 分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E4%BD%8D%E6%B3%84%E6%BC%8F%E7%82%B9"><span class="toc-number">2.3.</span> <span class="toc-text">定位泄漏点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">问题分析</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        全局缓存导致的 Node.js 线上内存泄漏
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-06-07T16:00:00.000Z" class="dt-published" itemprop="datePublished">2023-06-08</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Node-js/" rel="tag">Node.js</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/07760205-1a2f-4861-bbc8-85185c10f6d7" alt="image"></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>M 同学反映自己负责的 <a target="_blank" rel="noopener" href="https://github.com/vercel/next.js">Next.js</a> 项目疑似内存泄漏, 临近 618 需要尽快解决! 通过查看 <a target="_blank" rel="noopener" href="https://github.com/hyj1991/easy-monitor">Easy-Monitor</a> 上的「堆内存趋势」曲线📈在一直上涨且不会下降就基本确定了是内存泄漏</p>
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><p>M 同学也迅速定位到了造成内存泄漏的 commit, 我仔细 review 了一下并没有发现全局变量缓存、闭包引用等高危操作</p>
+<h3 id="Easy-Monitor-下载快照"><a href="#Easy-Monitor-下载快照" class="headerlink" title="Easy-Monitor 下载快照"></a>Easy-Monitor 下载快照</h3><blockquote>
+<p>💡 下载的两个快照要是同一个实例的同一个进程</p>
+</blockquote>
+<p>接着就只能从 Easy-Monitor 上间隔一段时间前后下载了两个堆快照，最后通过 Chrome Devtool Memory 面板的 Comparison 功能进行对比, 发现 <code>StyleRule</code> 对象净新增了 57042 个 ⚠️ !</p>
+<p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/8bfc218b-1fe5-4194-aad7-4da94cb3724b" alt="image"></p>
+<blockquote>
+<p>这里的一个小技巧是不要总盯着碎片化的<code>(array)</code>、<code>Object</code>、<code>(string)</code>以及系统的<code>(system)</code>、<code>system / Context</code> 等对象的内存变化, 这些对象既不好定位又不容易看懂, 它们通常只是某个对象的属性值, 受其他对象的泄漏而增长可能性大</p>
+</blockquote>
+<blockquote>
+<p>所有我们需要<em><strong>优先关注 App 应用中使用到的对象</strong></em>, 比如上图中只在该项目中出现的 <code>StyleRule</code> 对象</p>
+</blockquote>
+<h3 id="使用-devtoolx-分析"><a href="#使用-devtoolx-分析" class="headerlink" title="使用 devtoolx 分析"></a>使用 devtoolx 分析</h3><p>Chrome Devtool Memory 面板冗余信息多、可读性也较差, 推荐大家使用开源的 <a target="_blank" rel="noopener" href="https://github.com/noslate-project/devtoolx">devtoolx</a> 进行下一步的分析</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm install devtoolx -g</span><br><span class="line"></span><br><span class="line">devtoolx -s &lt;heapsnapshot file&gt; [-p &lt;port&gt;]</span><br></pre></td></tr></table></figure>
+<p>尴尬的是开始跑 devtoolx 命令时遇见了下面的报错<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/0cad0bb8-72ae-4a68-bafd-ceba43802108" alt="image"><br>好吧, 我还是使用 <a target="_blank" rel="noopener" href="https://lldb.llvm.org/">lldb</a> 先定位 devtoolx 启动失败的问题, 结果发现通过 lldb 启动 devtoolx 又能够正常跑起来</p>
+<p>此时排除了 devtoolx 不能识别该 v8 版本的 .heapsnapshot 文件以及系统调用 api 兼容性问题（松了口气, 还是能用 devtoolx ~）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lldb -- /usr/local/bin/node /usr/local/bin/devtoolx -s /Users/duoxiaokai/Downloads/u-b259269e-6bd4-4336-8fc6-f04478496a47-u-x-heapdump-27-20230606-738634.heapsnapshot</span><br></pre></td></tr></table></figure>
+<p>看了一下 devtoolx 的代码, 猜想可能是打开 .heapsnapshot 文件失败了, 于是增加了如下代码再编译运行日志显示 <code>ParseError: Operation not permitted</code></p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">    std::ifstream jsonfile(parser-&gt;filename_);</span><br><span class="line"><span class="addition">+    if (!jsonfile.is_open()) &#123;</span></span><br><span class="line"><span class="addition">+      std::cout &lt;&lt; &quot;\nfailed to open &quot; &lt;&lt; parser-&gt;filename_ &lt;&lt; &#x27;\n&#x27;;</span></span><br><span class="line"><span class="addition">+      std::cerr &lt;&lt; &quot;ParseError: &quot; &lt;&lt; strerror(errno);</span></span><br><span class="line"><span class="addition">+      std::exit(1);</span></span><br><span class="line"><span class="addition">+      return;</span></span><br><span class="line"><span class="addition">+    &#125;</span></span><br><span class="line">    json profile;</span><br><span class="line">    jsonfile &gt;&gt; profile;</span><br></pre></td></tr></table></figure>
+<p>所以把 .heapsnapshot 文件从 Downloads 目录移了出来就愉快的跑了起来, 上面的代码也提交了一个 <a target="_blank" rel="noopener" href="https://github.com/noslate-project/devtoolx/pull/18/files">devtoolx&#x2F;pull&#x2F;18&#x2F;</a>, 最后作者发布了 <code>devtoolx@1.0.2</code> 版本 ❤️<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/2eeaf875-140c-43c2-a6a8-40b9be09738c" alt="image"><br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/80588606-0969-45d8-a3ca-9bef35b60b2c" alt="image"></p>
+<p>回归正题, 通过 devtoolx 分别对两个快照分析发现了</p>
+<ol>
+<li>对象 <code>Object(674385)</code> 的内存由 1.34MB 涨到了 34.95 MB ⚠️, 一展开发现是 <code>StyleRule</code> 的父对象</li>
+<li><code>StyleRule</code> 对象的引用关系是 <code>StyleSheet.RuleList.xxx.StyleRule</code></li>
+</ol>
+<p>此时我们可以看看 Chrome Devtool Memory 面板的 Summary 功能查看是否有更多 <code>Object(674385)</code> 对象的信息, 最终确认了 <code>StyleRule</code> 对象的引用关系是 <code>StyleSheet.RuleList.map.StyleRule</code><br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/96b71e70-7645-4e45-943e-9cf138f70a61" alt="image"><br>接着使用 Chrome Devtool Memory 面板的 Comparison 功能查看发现 <code>StyleRule</code> 的父对象 <code>StyleSheet</code> 与 <code>RuleList</code> 并没有新增</p>
+<h3 id="定位泄漏点"><a href="#定位泄漏点" class="headerlink" title="定位泄漏点"></a>定位泄漏点</h3><p>根据引用关系定位到了 npm 包 <a target="_blank" rel="noopener" href="https://cssinjs.org/?v=v10.10.0">jss</a> 的代码, 我们缩小范围直击 <code>RuleList</code> 对象在何种情况会新增子对象 <code>StyleRule</code> 即可</p>
+<p>于是乎发现 <code>RuleList</code> 对象的 register 函数每调用一次会在 <code>this.map</code> 对象上挂载一个 <code>StyleRule</code> 对象, 这妥妥的是缓存泄漏啊 ?<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/73f127ec-b372-4a40-8d48-cf6f4473167e" alt="image"></p>
+<p>当我本地运行该项目也是印证了 <code>Object.keys(this.map).length</code> 一直在增长</p>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>你和我说一个较为流行的仓库 <a target="_blank" rel="noopener" href="https://github.com/cssinjs/jss">cssinjs&#x2F;jss</a> 会内存泄漏我是不太会相信, 至少可能性很小, 大概率还是业务项目的使用姿势有问题</p>
+<p>让我们看看官方给的 Server-Side Rendering 使用的 demo, demo 代码很容易猜想到该代码的目的, 即每一次调用 render 函数需要先 <code>new SheetsRegistry()</code>, 然后通过 <code>JssProvider</code> 传递给子孙组件进行依赖收集。renderToString 函数运行结束即收集到了运行到的组件需要的样式, 最后通过 <code>sheets.toString()</code> 给吐出来</p>
+<blockquote>
+<p>这个行为和 <a target="_blank" rel="noopener" href="https://github.com/jamiebuilds/react-loadable#picking-up-a-server-side-rendered-app-on-the-client">react-loadable</a> 收集动态模块一毛一样 ~</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span> <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123;renderToString&#125; <span class="keyword">from</span> <span class="string">&#x27;react-dom/server&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">JssProvider</span>, <span class="title class_">SheetsRegistry</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;react-jss&#x27;</span></span><br><span class="line"><span class="keyword">import</span> <span class="title class_">Button</span> <span class="keyword">from</span> <span class="string">&#x27;./Button&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> sheets = <span class="keyword">new</span> <span class="title class_">SheetsRegistry</span>()</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> app = <span class="title function_">renderToString</span>(</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">JssProvider</span> <span class="attr">registry</span>=<span class="string">&#123;sheets&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Button</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">JssProvider</span>&gt;</span></span></span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span> +</span><br><span class="line"><span class="string">`&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="string">  &lt;html&gt;</span></span><br><span class="line"><span class="string">  &lt;head&gt;</span></span><br><span class="line"><span class="string">    &lt;meta charset=&quot;utf-8&quot;&gt;</span></span><br><span class="line"><span class="string">    &lt;title&gt;Server-side rendering with rehydration&lt;/title&gt;</span></span><br><span class="line"><span class="string">    &lt;link rel=&quot;stylesheet&quot; href=&quot;../../example.css&quot; /&gt;</span></span><br><span class="line"><span class="string">    &lt;style type=&quot;text/css&quot; id=&quot;server-side-styles&quot;&gt;</span></span><br><span class="line"><span class="string">      <span class="subst">$&#123;sheets.toString()&#125;</span></span></span><br><span class="line"><span class="string">    &lt;/style&gt;</span></span><br><span class="line"><span class="string">  &lt;/head&gt;</span></span><br><span class="line"><span class="string">  &lt;body&gt;</span></span><br><span class="line"><span class="string">    &lt;a href=&quot;https://github.com/cssinjs/examples/tree/gh-pages/react-ssr&quot; title=&quot;View on Github&quot; class=&quot;github-fork-ribbon&quot; target=&quot;_blank&quot;&gt;View on Github&lt;/a&gt;</span></span><br><span class="line"><span class="string">    &lt;div id=&quot;app&quot;&gt;<span class="subst">$&#123;app&#125;</span>&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;script src=&quot;./app.js&quot;&gt;&lt;/script&gt;</span></span><br><span class="line"><span class="string">  &lt;/body&gt;</span></span><br><span class="line"><span class="string">&lt;/html&gt;`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而 M 同学本次刚好用到了内部组件库二次封装的 jss 组件, node_modules 中相关的代码是这样</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exports</span>.<span class="property">sheetsRegistry</span> = <span class="keyword">new</span> jss_1.<span class="title class_">SheetsRegistry</span>();</span><br></pre></td></tr></table></figure>
+<p>这样串联起来就能破案了。官方是希望每次请求都新 new 一个 <code>SheetsRegistry</code> 进行依赖收集, 在 render 函数结束 <code>SheetsRegistry</code> 对象出了作用域就被 GC 了。而二次封装的 jss 组件却单例化缓存了一个 <code>SheetsRegistry</code> 对象, 导致每个请求都是同一个 SheetsRegistry 对象在收集依赖且由于全局引用不会被释放造成了本次的内存泄漏</p>
+<p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/4cd503a9-6431-43cb-9b0b-211f54badc27" alt="image"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Easy-Monitor-%E4%B8%8B%E8%BD%BD%E5%BF%AB%E7%85%A7"><span class="toc-number">2.1.</span> <span class="toc-text">Easy-Monitor 下载快照</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-devtoolx-%E5%88%86%E6%9E%90"><span class="toc-number">2.2.</span> <span class="toc-text">使用 devtoolx 分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E4%BD%8D%E6%B3%84%E6%BC%8F%E7%82%B9"><span class="toc-number">2.3.</span> <span class="toc-text">定位泄漏点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">问题分析</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/06/08/b39/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&text=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&title=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&is_video=false&description=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=全局缓存导致的 Node.js 线上内存泄漏&body=Check out this article: https://xiaoxiaojx.github.io/2023/06/08/b39/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&title=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&title=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&title=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&title=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/06/08/b39/&name=全局缓存导致的 Node.js 线上内存泄漏&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/06/08/b39/&t=全局缓存导致的 Node.js 线上内存泄漏"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

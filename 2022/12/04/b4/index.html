@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="现有的服务端渲染（Server-side rendering，简称 SSR）的原理是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从业务的角度来看 React18 Suspense SSR 架构">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/12/04/b4/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="现有的服务端渲染（Server-side rendering，简称 SSR）的原理是">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/205350835-ff3f8d06-fa63-4ea4-9138-41a6c4a5980f.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/205345878-4952929d-b3eb-46bd-8de3-12ccb70dc0e1.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/205346406-22140efc-5844-4e9f-848a-242ee102e170.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/205346837-8a77e5ad-92f2-4827-a218-7a28f42b396f.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/205336013-af20351d-9719-48ac-ac05-469e51840fc9.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/205336541-f42ae8f7-7050-48e5-92c3-3533db33e853.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/205347267-453f4391-f7ed-4902-9438-b19e1b4c619b.png">
+<meta property="article:published_time" content="2022-12-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-02T15:50:57.404Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="SSR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/205350835-ff3f8d06-fa63-4ea4-9138-41a6c4a5980f.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>从业务的角度来看 React18 Suspense SSR 架构</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/12/29/b3/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/11/12/b5/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/12/04/b4/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&text=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&title=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&is_video=false&description=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=从业务的角度来看 React18 Suspense SSR 架构&body=Check out this article: https://xiaoxiaojx.github.io/2022/12/04/b4/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&title=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&title=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&title=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&title=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&name=从业务的角度来看 React18 Suspense SSR 架构&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/12/04/b4/&t=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%AE%9E%E9%99%85%E4%B8%9A%E5%8A%A1%E7%9A%84%E5%9B%B0%E5%A2%83"><span class="toc-number">2.</span> <span class="toc-text">1. 实际业务的困境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Suspense-SSR-%E6%9E%B6%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">2. Suspense SSR 架构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%8F%AF%E8%83%BD%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.</span> <span class="toc-text">2.1. 可能存在的问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%BA%94%E7%94%A8%E5%88%B0%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E6%95%88%E6%9E%9C"><span class="toc-number">4.</span> <span class="toc-text">3. 应用到业务中的效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">4. 小结</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Suspense-SSR-%E6%9E%B6%E6%9E%84%E8%A7%A3%E5%86%B3%E4%BA%86%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%B8%B2%E6%9F%93%E5%90%84%E4%B8%AA%E6%B5%81%E7%A8%8B%E4%B8%B2%E8%A1%8C%E7%AD%89%E5%BE%85%E9%97%AE%E9%A2%98%EF%BC%8C%E5%BC%BA%E8%B0%83%E4%B8%80%E5%88%87%E6%8C%89%E9%9C%80%EF%BC%88%E6%87%92%E5%8A%A0%E8%BD%BD%EF%BC%8C%E6%87%92%E7%BC%96%E8%AF%91%EF%BC%8C%E7%8E%B0%E5%9C%A8%E6%98%AF%E6%87%92%E6%B8%B2%E6%9F%93%EF%BC%9F%EF%BC%89%E8%BF%9B%E8%A1%8C"><span class="toc-number">5.0.0.1.</span> <span class="toc-text">Suspense SSR 架构解决了服务端渲染各个流程串行等待问题，强调一切按需（懒加载，懒编译，现在是懒渲染？）进行</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B8%90%E8%BF%9B%E5%BC%8F%E6%B8%B2%E6%9F%93%E9%A6%96%E5%B1%8F%E6%AF%94-Suspense-SSR-%E6%9B%B4%E5%8A%A0%E5%AE%8C%E6%95%B4"><span class="toc-number">5.0.0.2.</span> <span class="toc-text">渐进式渲染首屏比 Suspense SSR 更加完整</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Suspense-SSR-%E7%B1%BB%E4%BC%BC%E4%BA%8E%E6%87%92%E6%B8%B2%E6%9F%93%EF%BC%8C%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5%E6%9B%B4%E5%8A%A0%E7%AC%A6%E5%90%88%E7%8E%B0%E4%BB%A3%E5%8C%96-Web-%E5%BC%80%E5%8F%91"><span class="toc-number">5.0.0.3.</span> <span class="toc-text">Suspense SSR 类似于懒渲染，设计理念更加符合现代化 Web 开发</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%9C%80%E5%90%8E%E7%9A%84%E8%AF%9D"><span class="toc-number">6.</span> <span class="toc-text">5. 最后的话</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        从业务的角度来看 React18 Suspense SSR 架构
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-12-03T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-12-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/SSR/" rel="tag">SSR</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/205350835-ff3f8d06-fa63-4ea4-9138-41a6c4a5980f.png" alt="image"></p>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><!-- vscode-markdown-toc -->
+<ul>
+<li><ol>
+<li><a href="#ssr_1">实际业务的困境</a></li>
+</ol>
+</li>
+<li><ol start="2">
+<li><a href="#SuspenseSSR">Suspense SSR 架构</a></li>
+</ol>
+<ul>
+<li>2.1. <a href="#ssr_21">可能存在的问题</a></li>
+</ul>
+</li>
+<li><ol start="3">
+<li><a href="#ssr_30">应用到业务中的效果</a></li>
+</ol>
+</li>
+<li><ol start="4">
+<li><a href="#ssr_40">小结</a></li>
+</ol>
+</li>
+<li><ol start="5">
+<li><a href="#ssr_50">最后的话</a></li>
+</ol>
+</li>
+</ul>
+<!-- vscode-markdown-toc-config
+    numbering=true
+    autoSave=true
+    /vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+<h2 id="1-实际业务的困境"><a href="#1-实际业务的困境" class="headerlink" title="1. 实际业务的困境"></a>1. <a name='ssr_1'></a>实际业务的困境</h2><p>现有的服务端渲染（Server-side rendering，简称 SSR）的原理是当 HTML 请求到达 Node 端时先等待后端接口数据请求完成（30～300ms），然后再进行渲染（2～5ms），最后再响应渲染完成的页面给浏览器。</p>
+<blockquote>
+<p>大致流程是: fetch data (server) → render to HTML (server) → load code (client) → hydrate (client)</p>
+</blockquote>
+<p>如本文用作示例的<code>商品管理</code>页面，需要并发8个后端接口请求，最慢的接口 <code>/api/xxx/goodsList</code> 延时为 <strong>246.6 ms</strong>，导致<code>Step1阶段</code>用户看到的页面白屏时间至少是 <strong>246.6ms + 5ms</strong>。</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/205345878-4952929d-b3eb-46bd-8de3-12ccb70dc0e1.png" alt="image"></p>
+<blockquote>
+<p>💡 Step2 截图为灰色仅为了区别于 Step3 可交互状态，实际用户看到的效果与 Step3 无差异</p>
+</blockquote>
+<p>为了解决<strong>后端接口延时不可控</strong>造成的 Step1 阶段白屏时间过长的问题，于是我们开发了<code>渐进式渲染</code>功能，优化后的渲染链路变成了如下</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/205346406-22140efc-5844-4e9f-848a-242ee102e170.png" alt="image"></p>
+<h2 id="2-Suspense-SSR-架构"><a href="#2-Suspense-SSR-架构" class="headerlink" title="2. Suspense SSR 架构"></a>2. <a name='SuspenseSSR'></a>Suspense SSR 架构</h2><p>React18 新的 Suspense SSR 架构允许你在服务端使用 <code>Suspense</code> 组件，比如你的 <code>Comments</code> 组件是需要后端接口的数据，那么可以做到后端接口数据仅阻塞 <code>Comments</code> 组件，不会阻塞整个 <code>App</code> 组件的渲染与提前返回</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Layout</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">NavBar</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">Sidebar</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">RightPane</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Post</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Suspense</span> <span class="attr">fallback</span>=<span class="string">&#123;</span>&lt;<span class="attr">Spinner</span> /&gt;</span>&#125;&gt;</span><br><span class="line">      <span class="tag">&lt;<span class="name">Comments</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Suspense</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">RightPane</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Layout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>新 Suspense SSR 架构下的渲染链路变成了如下<br><img src="https://user-images.githubusercontent.com/23253540/205346837-8a77e5ad-92f2-4827-a218-7a28f42b396f.png" alt="image"></p>
+<h3 id="2-1-可能存在的问题"><a href="#2-1-可能存在的问题" class="headerlink" title="2.1. 可能存在的问题"></a>2.1. <a name='ssr_21'></a>可能存在的问题</h3><p>你可能想到部分可交互状态时，如果客户端其他组件响应了事件导致 <code>Comment</code> 组件的 props 变化，而服务端是根据 initProps 对 <code>Comment</code> 进行的渲染，那么 React 会如何取舍</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Content</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> [count, setCount] = <span class="title function_">useState</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Layout</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">NavBar</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Sidebar</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">RightPane</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Post</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">h2</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            <span class="attr">onClick</span>=<span class="string">&#123;()</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="language-xml">              setCount(count + 1)</span></span><br><span class="line"><span class="language-xml">              console.log(&quot;setCount 点击事件测试, count: &quot;, count);</span></span><br><span class="line"><span class="language-xml">            &#125;&#125;</span></span><br><span class="line"><span class="language-xml">          &gt;</span></span><br><span class="line"><span class="language-xml">            setCount 点击事件测试</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Suspense</span> <span class="attr">fallback</span>=<span class="string">&#123;</span>&lt;<span class="attr">Spinner</span> /&gt;</span>&#125;&gt;</span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">Comments</span> <span class="attr">count</span>=<span class="string">&#123;count&#125;/</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">Suspense</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">RightPane</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">Layout</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">Comments</span>(<span class="params">&#123; count &#125;</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> comments = <span class="title function_">useData</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">span</span>&gt;</span>count: &#123;count&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      &#123;comments.map((comment, i) =&gt; (</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">p</span> <span class="attr">className</span>=<span class="string">&quot;comment&quot;</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          &#123;comment&#125;</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      ))&#125;</span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从测试结果来看 Props 发生变化后 React 会以客户端最新渲染的结果为准, 与此同时抛出<code>Uncaught Error: This Suspense boundary received an update before it finished hydrating.</code>错误<br><img src="https://user-images.githubusercontent.com/23253540/205336013-af20351d-9719-48ac-ac05-469e51840fc9.png" alt="image"></p>
+<h2 id="3-应用到业务中的效果"><a href="#3-应用到业务中的效果" class="headerlink" title="3. 应用到业务中的效果"></a>3. <a name='ssr_30'></a>应用到业务中的效果</h2><p>因为 Suspense 支持对于单个组件进行的延迟渲染，首先我们需要对页面组件进行拆分，同时使用 Suspense 进行包裹</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/205336541-f42ae8f7-7050-48e5-92c3-3533db33e853.png" alt="image"></p>
+<p>如果升级到了新 Suspense SSR 架构下的渲染链路变成了如下<br><img src="https://user-images.githubusercontent.com/23253540/205347267-453f4391-f7ed-4902-9438-b19e1b4c619b.png" alt="image"></p>
+<h2 id="4-小结"><a href="#4-小结" class="headerlink" title="4. 小结"></a>4. <a name='ssr_40'></a>小结</h2><h5 id="Suspense-SSR-架构解决了服务端渲染各个流程串行等待问题，强调一切按需（懒加载，懒编译，现在是懒渲染？）进行"><a href="#Suspense-SSR-架构解决了服务端渲染各个流程串行等待问题，强调一切按需（懒加载，懒编译，现在是懒渲染？）进行" class="headerlink" title="Suspense SSR 架构解决了服务端渲染各个流程串行等待问题，强调一切按需（懒加载，懒编译，现在是懒渲染？）进行"></a>Suspense SSR 架构解决了服务端渲染各个流程串行等待问题，强调一切按需（懒加载，懒编译，现在是懒渲染？）进行</h5><ul>
+<li>渐进式渲染像是 React 原生不支持 Suspense SSR 下的模拟实现</li>
+</ul>
+<h5 id="渐进式渲染首屏比-Suspense-SSR-更加完整"><a href="#渐进式渲染首屏比-Suspense-SSR-更加完整" class="headerlink" title="渐进式渲染首屏比 Suspense SSR 更加完整"></a>渐进式渲染首屏比 Suspense SSR 更加完整</h5><ul>
+<li>渐进式渲染: 服务端渲染时虽然没有接口数据，但根据 initState 能够渲染出较完整的首屏</li>
+<li>Suspense SSR: 需要接口数据的组件首屏都是渲染的占位组件，如 Spinner</li>
+</ul>
+<h5 id="Suspense-SSR-类似于懒渲染，设计理念更加符合现代化-Web-开发"><a href="#Suspense-SSR-类似于懒渲染，设计理念更加符合现代化-Web-开发" class="headerlink" title="Suspense SSR 类似于懒渲染，设计理念更加符合现代化 Web 开发"></a>Suspense SSR 类似于懒渲染，设计理念更加符合现代化 Web 开发</h5><ul>
+<li>更多特性见: <a target="_blank" rel="noopener" href="https://github.com/reactwg/react-18/discussions/37">New Suspense SSR Architecture in React 18</a></li>
+</ul>
+<h2 id="5-最后的话"><a href="#5-最后的话" class="headerlink" title="5. 最后的话"></a>5. <a name='ssr_50'></a>最后的话</h2><p>如果发现升级后页面没有进行分块渲染, 或许你要继续阅读 👉 <a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/blog/issues/37">服务端流式渲染 iOS 中踩坑记</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%AE%9E%E9%99%85%E4%B8%9A%E5%8A%A1%E7%9A%84%E5%9B%B0%E5%A2%83"><span class="toc-number">2.</span> <span class="toc-text">1. 实际业务的困境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Suspense-SSR-%E6%9E%B6%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">2. Suspense SSR 架构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%8F%AF%E8%83%BD%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.</span> <span class="toc-text">2.1. 可能存在的问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%BA%94%E7%94%A8%E5%88%B0%E4%B8%9A%E5%8A%A1%E4%B8%AD%E7%9A%84%E6%95%88%E6%9E%9C"><span class="toc-number">4.</span> <span class="toc-text">3. 应用到业务中的效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">4. 小结</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Suspense-SSR-%E6%9E%B6%E6%9E%84%E8%A7%A3%E5%86%B3%E4%BA%86%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%B8%B2%E6%9F%93%E5%90%84%E4%B8%AA%E6%B5%81%E7%A8%8B%E4%B8%B2%E8%A1%8C%E7%AD%89%E5%BE%85%E9%97%AE%E9%A2%98%EF%BC%8C%E5%BC%BA%E8%B0%83%E4%B8%80%E5%88%87%E6%8C%89%E9%9C%80%EF%BC%88%E6%87%92%E5%8A%A0%E8%BD%BD%EF%BC%8C%E6%87%92%E7%BC%96%E8%AF%91%EF%BC%8C%E7%8E%B0%E5%9C%A8%E6%98%AF%E6%87%92%E6%B8%B2%E6%9F%93%EF%BC%9F%EF%BC%89%E8%BF%9B%E8%A1%8C"><span class="toc-number">5.0.0.1.</span> <span class="toc-text">Suspense SSR 架构解决了服务端渲染各个流程串行等待问题，强调一切按需（懒加载，懒编译，现在是懒渲染？）进行</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B8%90%E8%BF%9B%E5%BC%8F%E6%B8%B2%E6%9F%93%E9%A6%96%E5%B1%8F%E6%AF%94-Suspense-SSR-%E6%9B%B4%E5%8A%A0%E5%AE%8C%E6%95%B4"><span class="toc-number">5.0.0.2.</span> <span class="toc-text">渐进式渲染首屏比 Suspense SSR 更加完整</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Suspense-SSR-%E7%B1%BB%E4%BC%BC%E4%BA%8E%E6%87%92%E6%B8%B2%E6%9F%93%EF%BC%8C%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5%E6%9B%B4%E5%8A%A0%E7%AC%A6%E5%90%88%E7%8E%B0%E4%BB%A3%E5%8C%96-Web-%E5%BC%80%E5%8F%91"><span class="toc-number">5.0.0.3.</span> <span class="toc-text">Suspense SSR 类似于懒渲染，设计理念更加符合现代化 Web 开发</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%9C%80%E5%90%8E%E7%9A%84%E8%AF%9D"><span class="toc-number">6.</span> <span class="toc-text">5. 最后的话</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/12/04/b4/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&text=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&title=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&is_video=false&description=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=从业务的角度来看 React18 Suspense SSR 架构&body=Check out this article: https://xiaoxiaojx.github.io/2022/12/04/b4/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&title=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&title=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&title=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&title=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/12/04/b4/&name=从业务的角度来看 React18 Suspense SSR 架构&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/12/04/b4/&t=从业务的角度来看 React18 Suspense SSR 架构"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

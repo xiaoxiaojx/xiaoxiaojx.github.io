@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="服务端渲染的项目本地模拟线上环境运行报了如下的一个错误">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React SSR 子组件获取不到 Context 问题记录">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/03/12/b19/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="服务端渲染的项目本地模拟线上环境运行报了如下的一个错误">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/158014929-cefd5457-8452-4064-8d8b-f3486f1baedc.png">
+<meta property="article:published_time" content="2022-03-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-02T15:50:57.390Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="SSR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/158014929-cefd5457-8452-4064-8d8b-f3486f1baedc.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>React SSR 子组件获取不到 Context 问题记录</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/04/09/b18/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/03/05/b20/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/03/12/b19/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&text=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&title=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&is_video=false&description=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=React SSR 子组件获取不到 Context 问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/03/12/b19/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&title=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&title=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&title=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&title=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&name=React SSR 子组件获取不到 Context 问题记录&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/03/12/b19/&t=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%AE%80%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">问题简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">3.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%A1%AE%E8%AE%A4-RouterContext-%E6%98%AF%E5%90%8C%E4%B8%80%E4%B8%AA%E5%BC%95%E7%94%A8"><span class="toc-number">3.1.</span> <span class="toc-text">1. 确认 RouterContext 是同一个引用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-React-%E7%9A%84-bug"><span class="toc-number">3.2.</span> <span class="toc-text">2. React 的 bug ?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%AF%B9%E6%AF%94%E5%85%B3%E9%94%AE%E4%BF%A1%E6%81%AF%E7%9A%84%E5%BC%82%E5%90%8C"><span class="toc-number">3.3.</span> <span class="toc-text">3. 对比关键信息的异同</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        React SSR 子组件获取不到 Context 问题记录
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-03-11T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-03-12</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/SSR/" rel="tag">SSR</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/158014929-cefd5457-8452-4064-8d8b-f3486f1baedc.png" alt="image"></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>服务端渲染的项目本地模拟线上环境运行报了如下的一个错误，然而本地开发模式运行和真实的线上生产模式运行均没有问题。当听到这个问题描述时，我只觉得这个临床表现透露着诡异的氛围 😢</p>
+<blockquote>
+<p>本地模拟线上环境是先构建出生产模式的代码，然后运行 SSR Server 。其目的是更接近真实的线上生产环境的效果, 通常用于复现与 debug 线上环境出现的问题。</p>
+</blockquote>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 错误信息</span><br><span class="line"></span><br><span class="line">Invariant Violation: You should not use <span class="tag">&lt;<span class="name">Switch</span>&gt;</span> outside a <span class="tag">&lt;<span class="name">Router</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="问题简述"><a href="#问题简述" class="headerlink" title="问题简述"></a>问题简述</h2><p>上面的错误信息造成原因通常有两个</p>
+<ol>
+<li>Switch 组件的上层没有 Router 组件，解决办法是使用基于 Router 组件的 BrowserRouter 组件或 HashRouter 组件作为 Switch 的父组件<blockquote>
+<p>服务端运行使用的其实是 StaticRouter, 服务端渲染的是一个请求 path 的页面快照, 不存在客户端路由会切换的情况</p>
+</blockquote>
+</li>
+<li>node_modules 中 react-router 有多个版本，解决办法是收拢依赖，只能允许一个版本</li>
+</ol>
+<blockquote>
+<p>如果 react-router 有多个版本, 使用 Router 组件的 RouterContext 与使用 Switch 组件的 RouterContext 将会是在两个版本的文件中，造成 RouterContext 不是同一个引用，平时这一点较难发现</p>
+</blockquote>
+<p>熟悉 React 的同学应该知道, 子组件要能从 RouterContext.Consumer 中获取到父组件 RouterContext.Provider 注入的数据， 其 RouterContext 必须是同一个对象才行</p>
+<p>如下 react-router 的代码, 说明了 Switch 组件是需要从 Router 组件获取必要的 context 信息, context 不存在则抛错</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react-router</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Router</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.Component</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      <span class="language-xml"><span class="tag">&lt;<span class="name">RouterContext.Provider</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        <span class="attr">value</span>=<span class="string">&#123;&#123;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">history:</span> <span class="attr">this.props.history</span>,</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">location:</span> <span class="attr">this.state.location</span>,</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">match:</span> <span class="attr">Router.computeRootMatch</span>(<span class="attr">this.state.location.pathname</span>),</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">staticContext:</span> <span class="attr">this.props.staticContext</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        &#125;&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">      &gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">HistoryContext.Provider</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">children</span>=<span class="string">&#123;this.props.children</span> || <span class="attr">null</span>&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">value</span>=<span class="string">&#123;this.props.history&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        /&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">RouterContext.Provider</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Switch</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.Component</span> &#123;</span><br><span class="line">  <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;RouterContext.Consumer&gt;</span><br><span class="line">        &#123;context =&gt; &#123;</span><br><span class="line">          // 抛错处 👇</span><br><span class="line">          invariant(context, &quot;You should not use &lt;Switch&gt; outside a &lt;Router&gt;&quot;);</span><br><span class="line"></span><br><span class="line">          const location = this.props.location || context.location;</span><br><span class="line"></span><br><span class="line">          let element, match;</span><br><span class="line"></span><br><span class="line">          // We use React.Children.forEach instead of React.Children.toArray().find()</span><br><span class="line">          // here because toArray adds keys to all child elements and we do not want</span><br><span class="line">          // to trigger an unmount/remount for two &lt;Route&gt;s that render the same</span><br><span class="line">          // component at different URLs.</span><br><span class="line">          React.Children.forEach(this.props.children, child =&gt; &#123;</span><br><span class="line">            if (match == null &amp;&amp; React.isValidElement(child)) &#123;</span><br><span class="line">              element = child;</span><br><span class="line"></span><br><span class="line">              const path = child.props.path || child.props.from;</span><br><span class="line"></span><br><span class="line">              match = path</span><br><span class="line">                ? matchPath(location.pathname, &#123; ...child.props, path &#125;)</span><br><span class="line">                : context.match;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;);</span><br><span class="line"></span><br><span class="line">          return match</span><br><span class="line">            ? React.cloneElement(element, &#123; location, computedMatch: match &#125;)</span><br><span class="line">            : null;</span><br><span class="line">        &#125;&#125;</span><br><span class="line">      &lt;/RouterContext.Consumer&gt;</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><h3 id="1-确认-RouterContext-是同一个引用"><a href="#1-确认-RouterContext-是同一个引用" class="headerlink" title="1. 确认 RouterContext 是同一个引用"></a>1. 确认 RouterContext 是同一个引用</h3><p>从 yarn.lock 文件看出 react-router 确实只有一个版本，不过仍然存在 node_modules 文件缓存没有删除成功，导致残留了旧版本的可能性。此时我们需要分别在 Router 和 Switch render 时加上 debugger, 确认代码运行时 RouterContext.Provider 与 RouterContext.Consumer 是同一个 RouterContext 引用</p>
+<p>通过 debugger 断点也确认了 RouterContext 是同一个引用, 那么子组件通过 Consumer 仍然拿不到 context 岂不是 React 的 bug ?</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react-router</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Switch</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.Component</span> &#123;</span><br><span class="line">  <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;RouterContext.Consumer&gt;</span><br><span class="line">        &#123;context =&gt; &#123;</span><br><span class="line">          // 抛错处 👇</span><br><span class="line">          invariant(context, &quot;You should not use &lt;Switch&gt; outside a &lt;Router&gt;&quot;);</span><br><span class="line"></span><br><span class="line">		  // ...</span><br><span class="line">      &lt;/RouterContext.Consumer&gt;</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-React-的-bug"><a href="#2-React-的-bug" class="headerlink" title="2. React 的 bug ?"></a>2. React 的 bug ?</h3><p>此时我们还不能确认是 React 的 bug, 要先摆脱 react-router 的嫌疑。写了如下的 demo, 发现 console.log 依然没有值，不过把 demo 复制到相同 react 版本的另一个 SSR 项目中 console.log 是有值的，得出不是 React 的 bug</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span> <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title class_">MyRouterContext</span> = <span class="title class_">React</span>.<span class="title function_">createContext</span>(&#123;&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">App</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">MyRouterContext.Provider</span> <span class="attr">value</span>=<span class="string">&#123;&#123;</span> <span class="attr">test:</span> <span class="attr">1</span> &#125;&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">MyRouterContext.Consumer</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        &#123;(ctx) =&gt; &#123;</span></span><br><span class="line"><span class="language-xml">          console.log(ctx)</span></span><br><span class="line"><span class="language-xml">          return 11111</span></span><br><span class="line"><span class="language-xml">        &#125;&#125;</span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">MyRouterContext.Consumer</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">MyRouterContext.Provider</span>&gt;</span></span></span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>排查了一圈下来发现大家都是被冤枉的 😢</p>
+<ul>
+<li>react 和 react-router 没有问题</li>
+<li>本地开发模式运行和真实的线上生产模式运行也没有问题</li>
+</ul>
+<h3 id="3-对比关键信息的异同"><a href="#3-对比关键信息的异同" class="headerlink" title="3. 对比关键信息的异同"></a>3. 对比关键信息的异同</h3><p>最后只能和正常能运行的 SSR 项目来进行不同了，排查重点在于</p>
+<ol>
+<li>package.json 中的依赖</li>
+<li>脚手架配置文件的配置信息</li>
+</ol>
+<p>在一阵对比后, 还是发现了关键的信息。本地模拟线上环境运行的是下面的命令</p>
+<blockquote>
+<p>模拟线上 NODE_ENV 最好是应该设置成 production, 这里却设置成了 development</p>
+</blockquote>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;co-start&quot;</span><span class="punctuation">:</span> <span class="string">&quot;yarn build &amp;&amp; NODE_ENV=development DOCKER=true yarn start&quot;</span></span><br></pre></td></tr></table></figure>
+<p>生产环境 yarn build 打包后，代码开始按如下顺序运行</p>
+<ol>
+<li>读取脚手架配置文件的配置信息</li>
+<li>创建 SSR Server 实例<ul>
+<li>一些初始化操作, 生产模式运行会强制初始化 NODE_ENV 为 production</li>
+<li>创建实例, 开始监听端口</li>
+</ul>
+</li>
+</ol>
+<p>在步骤1中, NODE_ENV 是 co-start 命令设置的 development, 该配置文件 import 了一个包 packageA, packageA 下某个包又 import 了 react , 所以此时 Node.js 缓存住了 react  模块, 其值为 development 环境的 .&#x2F;cjs&#x2F;react.development.js 的模块导出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// react/index.js</span><br><span class="line"></span><br><span class="line">&#x27;use strict&#x27;;</span><br><span class="line"></span><br><span class="line">if (process.env.NODE_ENV === &#x27;production&#x27;) &#123;</span><br><span class="line">  module.exports = require(&#x27;./cjs/react.production.min.js&#x27;);</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  module.exports = require(&#x27;./cjs/react.development.js&#x27;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在步骤 2 中, 判断此时是生产模式运行就强制初始化 NODE_ENV 为 production, 使得后面运行的 import { renderToString } from ‘react-dom&#x2F;server’ 部分的代码, react-dom 的值为 production 环境下 .&#x2F;cjs&#x2F;react-dom-server.node.production.min.js 的模块导出</p>
+<p><em><strong>react 和 react-dom 一个使用的是开发版本, 一个使用的是生产版本</strong></em></p>
+<p>此时我们篡改 node_modules 中 react-dom 与 react 的代码, 统一替换 process.env.NODE_ENV &#x3D;&#x3D;&#x3D; ‘production’ 为 true 或者 false, 使得 react-dom 与 react 引用环境保持一致, 发现一切就能正常运行了 ✅</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// react-dom/server.node.js</span><br><span class="line"></span><br><span class="line">&#x27;use strict&#x27;;</span><br><span class="line"></span><br><span class="line">if (process.env.NODE_ENV === &#x27;production&#x27;) &#123;</span><br><span class="line">  module.exports = require(&#x27;./cjs/react-dom-server.node.production.min.js&#x27;);</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  module.exports = require(&#x27;./cjs/react-dom-server.node.development.js&#x27;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><blockquote>
+<p>版本信息: <a href="mailto:&#x72;&#x65;&#97;&#x63;&#116;&#64;&#49;&#x36;&#46;&#x31;&#x34;&#46;&#x30;">&#x72;&#x65;&#97;&#x63;&#116;&#64;&#49;&#x36;&#46;&#x31;&#x34;&#46;&#x30;</a> <a href="mailto:&#x72;&#x65;&#x61;&#99;&#116;&#x2d;&#100;&#x6f;&#109;&#64;&#x31;&#x36;&#46;&#49;&#52;&#46;&#x30;">&#x72;&#x65;&#x61;&#99;&#116;&#x2d;&#100;&#x6f;&#109;&#64;&#x31;&#x36;&#46;&#49;&#52;&#46;&#x30;</a> <a href="mailto:&#x6e;&#111;&#x64;&#101;&#x40;&#49;&#x32;&#x2e;&#50;&#x30;&#x2e;&#x31;">&#x6e;&#111;&#x64;&#101;&#x40;&#49;&#x32;&#x2e;&#50;&#x30;&#x2e;&#x31;</a></p>
+</blockquote>
+<p>运行 react 与 react-dom 时的 process.env.NODE_ENV 的值不一致将会导致服务端渲染时 Consumer 组件拿不到 Provider 组件透传下来的 Context</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%AE%80%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">问题简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">3.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%A1%AE%E8%AE%A4-RouterContext-%E6%98%AF%E5%90%8C%E4%B8%80%E4%B8%AA%E5%BC%95%E7%94%A8"><span class="toc-number">3.1.</span> <span class="toc-text">1. 确认 RouterContext 是同一个引用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-React-%E7%9A%84-bug"><span class="toc-number">3.2.</span> <span class="toc-text">2. React 的 bug ?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%AF%B9%E6%AF%94%E5%85%B3%E9%94%AE%E4%BF%A1%E6%81%AF%E7%9A%84%E5%BC%82%E5%90%8C"><span class="toc-number">3.3.</span> <span class="toc-text">3. 对比关键信息的异同</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/03/12/b19/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&text=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&title=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&is_video=false&description=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=React SSR 子组件获取不到 Context 问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/03/12/b19/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&title=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&title=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&title=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&title=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/03/12/b19/&name=React SSR 子组件获取不到 Context 问题记录&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/03/12/b19/&t=React SSR 子组件获取不到 Context 问题记录"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
