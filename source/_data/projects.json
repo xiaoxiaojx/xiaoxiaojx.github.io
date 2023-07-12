@@ -13,10 +13,5 @@
       "name": "pure",
       "url": "https://github.com/xiaoxiaojx/pure",
       "desc": "a lightweight JavaScript runtime（just for learning 📖）"
-   },
-   {
-      "name": "nodehttp.h",
-      "url": "https://github.com/xiaoxiaojx/nodehttp.h",
-      "desc": "Node.js style http server implemented in C（just for learning 📖）"
    }
 ]
