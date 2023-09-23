@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Node.js 源码对这块封装的比较复杂, 弯弯绕绕的一下子很难看明白">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js Inspector 的实现原理">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2023/04/09/b36/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="Node.js 源码对这块封装的比较复杂, 弯弯绕绕的一下子很难看明白">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/230777366-610cf7d8-0612-4e60-ba01-7b54eddd4484.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/230804334-7f0dfa79-123b-4d1a-95e6-02459bab94b1.png">
+<meta property="article:published_time" content="2023-04-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.932Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="Node.js">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/230777366-610cf7d8-0612-4e60-ba01-7b54eddd4484.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Node.js Inspector 的实现原理</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/04/13/b37/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/02/16/b34/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/04/09/b36/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&text=Node.js Inspector 的实现原理"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&title=Node.js Inspector 的实现原理"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&is_video=false&description=Node.js Inspector 的实现原理"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Node.js Inspector 的实现原理&body=Check out this article: https://xiaoxiaojx.github.io/2023/04/09/b36/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&title=Node.js Inspector 的实现原理"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&title=Node.js Inspector 的实现原理"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&title=Node.js Inspector 的实现原理"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&title=Node.js Inspector 的实现原理"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&name=Node.js Inspector 的实现原理&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/04/09/b36/&t=Node.js Inspector 的实现原理"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.</span> <span class="toc-text">核心实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E8%AF%95%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%90%91-v8-%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF"><span class="toc-number">1.1.</span> <span class="toc-text">调试客户端向 v8 发送消息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#v8-%E7%BB%99%E8%B0%83%E8%AF%95%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF"><span class="toc-number">1.2.</span> <span class="toc-text">v8 给调试客户端发送消息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E5%AD%90"><span class="toc-number">2.</span> <span class="toc-text">例子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">通信过程</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Node.js Inspector 的实现原理
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-04-08T16:00:00.000Z" class="dt-published" itemprop="datePublished">2023-04-09</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Node-js/" rel="tag">Node.js</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/230777366-610cf7d8-0612-4e60-ba01-7b54eddd4484.png" alt="image"></p>
+<blockquote>
+<p>封面图拍摄于 2023-04-08 <a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E4%B8%8A%E6%B5%B7%E9%97%B5%E8%A1%8C%E6%96%87%E5%8C%96%E5%85%AC%E5%9B%AD/20790050">闵行文化公园</a></p>
+</blockquote>
+<p>Node.js 内置的 <a target="_blank" rel="noopener" href="https://nodejs.org/dist/latest-v18.x/docs/api/inspector.html#inspector">Inspector</a> 模块可以轻易的让开发者去调试一个 Node.js 程序, 常见的场景比如断点调试、查看内存占用与 CPU Profiler 等。下面简单记录一下它的实现原理</p>
+<h2 id="核心实现"><a href="#核心实现" class="headerlink" title="核心实现"></a>核心实现</h2><p>Node.js 源码对这块封装的比较复杂, 弯弯绕绕的一下子很难看明白。拨开层层云雾其实 Node.js 只是在调试客户端比如 Chrome Devtool 与 v8 之间作了一层代理</p>
+<h3 id="调试客户端向-v8-发送消息"><a href="#调试客户端向-v8-发送消息" class="headerlink" title="调试客户端向 v8 发送消息"></a>调试客户端向 v8 发送消息</h3><p>Node.js 通过调用 V8Inspector 的 connect 方法即可获得一个与 v8 通信的会话 V8InspectorSession, 把需要调试的指令通过 dispatchProtocolMessage 方法即可告知到 v8</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// node/src/inspector_agent.cc</span></span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;V8Inspector&gt;&amp; inspector</span><br><span class="line">session_ = inspector-&gt;connect(CONTEXT_GROUP_ID, this, StringView());</span><br><span class="line">session_-&gt;dispatchProtocolMessage(message);</span><br></pre></td></tr></table></figure>
+<h3 id="v8-给调试客户端发送消息"><a href="#v8-给调试客户端发送消息" class="headerlink" title="v8 给调试客户端发送消息"></a>v8 给调试客户端发送消息</h3><p>connect 方法的第二个参数 ChannelImpl 的类型定义可知, v8 的任何响应结果会通过调用传入的 ChannelImpl 实例的 sendResponse 方法来告知到调试客户端</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// v8/include/v8-inspector.h</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">V8_EXPORT</span> <span class="title">Channel</span> &#123;</span></span><br><span class="line">  public:</span><br><span class="line">  virtual ~Channel() = <span class="keyword">default</span>;</span><br><span class="line">  virtual <span class="type">void</span> <span class="title function_">sendResponse</span><span class="params">(<span class="type">int</span> callId,</span></span><br><span class="line"><span class="params">                            <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;StringBuffer&gt; message)</span> = <span class="number">0</span>;</span><br><span class="line">  virtual <span class="type">void</span> <span class="title function_">sendNotification</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;StringBuffer&gt; message)</span> = <span class="number">0</span>;</span><br><span class="line">  virtual <span class="type">void</span> <span class="title function_">flushProtocolNotifications</span><span class="params">()</span> = <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p>以下是 Node.js 官方的示例, 如何借助 inspector api 直接获取到当前进程的 CPU Profiler。<code>Profiler.enable</code>、<code>Profiler.start</code>、<code>Profiler.stop</code>等调试指令 Node.js 都会通过 dispatchProtocolMessage 发送给 v8</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> inspector = <span class="built_in">require</span>(<span class="string">&#x27;node:inspector&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;node:fs&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> session = <span class="keyword">new</span> inspector.<span class="title class_">Session</span>();</span><br><span class="line">session.<span class="title function_">connect</span>();</span><br><span class="line"></span><br><span class="line">session.<span class="title function_">post</span>(<span class="string">&#x27;Profiler.enable&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  session.<span class="title function_">post</span>(<span class="string">&#x27;Profiler.start&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// Invoke business logic under measurement here...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// some time later...</span></span><br><span class="line">    session.<span class="title function_">post</span>(<span class="string">&#x27;Profiler.stop&#x27;</span>, <span class="function">(<span class="params">err, &#123; profile &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// Write profile to disk, upload, etc.</span></span><br><span class="line">      <span class="keyword">if</span> (!err) &#123;</span><br><span class="line">        fs.<span class="title function_">writeFileSync</span>(<span class="string">&#x27;./profile.cpuprofile&#x27;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(profile));</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="通信过程"><a href="#通信过程" class="headerlink" title="通信过程"></a>通信过程</h2><p>上面的例子在当前线程内直接通过 api 即可通知到 v8。如果是通过客户端 Chrome Devtool 去调试 Node.js 程序就是另外的实现</p>
+<p>此时 Node.js 是在子线程中起了一个 WebSocket Server, 来处理调试客户端 Chrome Devtool 发送来的调试指令, 然后通知主线程, 最后再发送给 v8</p>
+<ol>
+<li>WebSocket Server 接收到请求</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/inspector_socket_server.cc</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> SocketSession::Delegate::OnWsFrame(<span class="type">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">char</span>&gt;&amp; data) &#123;</span><br><span class="line">  server_-&gt;MessageReceived(session_id_,</span><br><span class="line">                           <span class="built_in">std</span>::<span class="built_in">string</span>(data.data(), data.size()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>通知主线程<br>通过 CrossThreadInspectorSession 类进行实现<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/inspector/main_thread_interface.cc</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CrossThreadInspectorSession</span> :</span> public InspectorSession &#123;</span><br><span class="line"></span><br><span class="line">  <span class="type">void</span> <span class="title function_">Dispatch</span><span class="params">(<span class="type">const</span> StringView&amp; message)</span> override &#123;</span><br><span class="line">    state_.Call(&amp;MainThreadSessionState::Dispatch,</span><br><span class="line">                StringBuffer::create(message));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> private:</span><br><span class="line">  AnotherThreadObjectReference&lt;MainThreadSessionState&gt; state_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+AnotherThreadObjectReference 类调用了 Post 方法, 该方法中通过 agent_-&gt;env()-&gt;RequestInterrupt 方法向 env-&gt;native_immediates_interrupts_ 队列 push 了一个数据<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">MainThreadInterface::Post</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Request&gt; request)</span> &#123;</span><br><span class="line">  CHECK_NOT_NULL(agent_);</span><br><span class="line">  Mutex::ScopedLock <span class="title function_">scoped_lock</span><span class="params">(requests_lock_)</span>;</span><br><span class="line">  <span class="type">bool</span> needs_notify = requests_.empty();</span><br><span class="line">  requests_.push_back(<span class="built_in">std</span>::move(request));</span><br><span class="line">  <span class="keyword">if</span> (needs_notify) &#123;</span><br><span class="line">    <span class="built_in">std</span>::weak_ptr&lt;MainThreadInterface&gt; weak_self &#123;shared_from_this()&#125;;</span><br><span class="line">    agent_-&gt;env()-&gt;RequestInterrupt([weak_self](Environment*) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">auto</span> iface = weak_self.lock()) iface-&gt;DispatchMessages();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  incoming_message_cond_.Broadcast(scoped_lock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+然后就是经典的 libuv 异步 i&#x2F;o 通信模型, 在子线程中通过 uv_async_send 标识 task_queues_async_ 有数据可读<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">template &lt;typename Fn&gt;</span><br><span class="line"><span class="type">void</span> <span class="title function_">Environment::RequestInterrupt</span><span class="params">(Fn&amp;&amp; cb)</span> &#123;</span><br><span class="line">  <span class="keyword">auto</span> callback = native_immediates_interrupts_.CreateCallback(</span><br><span class="line">      <span class="built_in">std</span>::move(cb), CallbackFlags::kRefed);</span><br><span class="line">  &#123;</span><br><span class="line">    Mutex::ScopedLock <span class="title function_">lock</span><span class="params">(native_immediates_threadsafe_mutex_)</span>;</span><br><span class="line">    native_immediates_interrupts_.Push(<span class="built_in">std</span>::move(callback));</span><br><span class="line">    <span class="keyword">if</span> (task_queues_async_initialized_)</span><br><span class="line">      uv_async_send(&amp;task_queues_async_);</span><br><span class="line">  &#125;</span><br><span class="line">  RequestInterruptFromV8();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+在主线程中的事件循环 epoll 阶段发现 task_queues_async_ 处于兴奋状态, 于是运行事先通过 uv_async_init 注册的回调函数<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">uv_async_init(event_loop(), &amp;task_queues_async_, [](<span class="type">uv_async_t</span>* async) &#123;</span><br><span class="line">  Environment* env = ContainerOf(&amp;Environment::task_queues_async_, async);</span><br><span class="line">  HandleScope handle_scope(env-&gt;isolate());</span><br><span class="line">  Context::Scope context_scope(env-&gt;context());</span><br><span class="line">  env-&gt;RunAndClearNativeImmediates();</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></li>
+<li>发送给 v8<br>此时代码运行到主线程的回调函数 Dispatch, 如下 dispatchMessageFromFrontend 方法最终调用了 dispatchProtocolMessage 发送给 v8<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">SameThreadInspectorSession::Dispatch</span><span class="params">(</span></span><br><span class="line"><span class="params">    <span class="type">const</span> v8_inspector::StringView&amp; message)</span> &#123;</span><br><span class="line">  <span class="keyword">auto</span> client = client_.lock();</span><br><span class="line">  <span class="keyword">if</span> (client)</span><br><span class="line">    client-&gt;dispatchMessageFromFrontend(session_id_, message);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+v8 响应数据从主线程发送给子线程 WebSocket Server 的跨线程通信方式与之类似, 最后 WebSocket Server 把数据发送给调试客户端 Chrome Devtool</li>
+</ol>
+<p><img src="https://user-images.githubusercontent.com/23253540/230804334-7f0dfa79-123b-4d1a-95e6-02459bab94b1.png" alt="image"></p>
+<p>WebSocket Server 与 Chrome Devtool 的数据请求可以通过 More tools &gt; Protocol monitor 面板进行查看, 需要先在 Settings &gt; Experiments 中 ☑️ 开启 Protocol monitor</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.</span> <span class="toc-text">核心实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E8%AF%95%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%90%91-v8-%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF"><span class="toc-number">1.1.</span> <span class="toc-text">调试客户端向 v8 发送消息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#v8-%E7%BB%99%E8%B0%83%E8%AF%95%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF"><span class="toc-number">1.2.</span> <span class="toc-text">v8 给调试客户端发送消息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E5%AD%90"><span class="toc-number">2.</span> <span class="toc-text">例子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">通信过程</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/04/09/b36/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&text=Node.js Inspector 的实现原理"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&title=Node.js Inspector 的实现原理"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&is_video=false&description=Node.js Inspector 的实现原理"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Node.js Inspector 的实现原理&body=Check out this article: https://xiaoxiaojx.github.io/2023/04/09/b36/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&title=Node.js Inspector 的实现原理"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&title=Node.js Inspector 的实现原理"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&title=Node.js Inspector 的实现原理"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&title=Node.js Inspector 的实现原理"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/04/09/b36/&name=Node.js Inspector 的实现原理&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/04/09/b36/&t=Node.js Inspector 的实现原理"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

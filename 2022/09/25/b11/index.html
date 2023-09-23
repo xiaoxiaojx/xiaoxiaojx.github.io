@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="不常见 api 偶尔在某些库中看到有使用, 只能回头看看 uv 代码与文档">
+<meta property="og:type" content="article">
+<meta property="og:title" content="libuv 不常见 api 记录">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/09/25/b11/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="不常见 api 偶尔在某些库中看到有使用, 只能回头看看 uv 代码与文档">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-09-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.929Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="libuv, C++">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>libuv 不常见 api 记录</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/09/29/b10/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/08/25/b12/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/09/25/b11/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&text=libuv 不常见 api 记录"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&title=libuv 不常见 api 记录"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&is_video=false&description=libuv 不常见 api 记录"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=libuv 不常见 api 记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/09/25/b11/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&title=libuv 不常见 api 记录"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&title=libuv 不常见 api 记录"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&title=libuv 不常见 api 记录"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&title=libuv 不常见 api 记录"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&name=libuv 不常见 api 记录&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/09/25/b11/&t=libuv 不常见 api 记录"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#uv-unref"><span class="toc-number">1.</span> <span class="toc-text">uv_unref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#uv-close"><span class="toc-number">2.</span> <span class="toc-text">uv_close</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#uv-tty-reset-mode"><span class="toc-number">3.</span> <span class="toc-text">uv_tty_reset_mode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#uv-library-shutdown"><span class="toc-number">4.</span> <span class="toc-text">uv_library_shutdown</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        libuv 不常见 api 记录
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-09-24T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-09-25</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/libuv-C/" rel="tag">libuv, C++</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>不常见 api 偶尔在某些库中看到有使用, 只能回头看看 uv 代码与文档。隔一阵子又忘记了, 于是决定记录一下 📝</p>
+</blockquote>
+<h3 id="uv-unref"><a href="#uv-unref" class="headerlink" title="uv_unref"></a>uv_unref</h3><ul>
+<li>使用的库: <a target="_blank" rel="noopener" href="https://github.com/fuse-friends/fuse-native/blob/master/fuse-native.c">fuse-native</a><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// demo</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> err = uv_async_init(uv_default_loop(), &amp;(l-&gt;async), (uv_async_cb) fuse_native_dispatch);</span><br><span class="line">assert(err &gt;= <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">uv_unref((<span class="type">uv_handle_t</span> *) &amp;(l-&gt;async));</span><br></pre></td></tr></table></figure>
+在 uv 代码中看到 uv_unref 其实是把当前的活跃句柄给减 1, 活跃句柄的数量是决定事件循环是否继续 uv__loop_alive 判断的条件之一, 所以如果当前任务是事件循环中剩下的最后一个任务时, 则事件循环可以不用考虑该任务, 直接进入退出程序。</li>
+</ul>
+<p>为什么少见 uv_ref 的调用, 可以认为 uv_async_init 等操作中已经包含了给活跃句柄加 1 的功能。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// uv 实现</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">uv_unref</span><span class="params">(<span class="type">uv_handle_t</span>* handle)</span> &#123;</span><br><span class="line">  uv__handle_unref(handle);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> uv__handle_unref(h)                                                   \</span></span><br><span class="line"><span class="meta">  do &#123;                                                                        \</span></span><br><span class="line"><span class="meta">    <span class="keyword">if</span> (((h)-&gt;flags &amp; UV_HANDLE_REF) == 0) break;                             \</span></span><br><span class="line"><span class="meta">    (h)-&gt;flags &amp;= ~UV_HANDLE_REF;                                             \</span></span><br><span class="line"><span class="meta">    <span class="keyword">if</span> (((h)-&gt;flags &amp; UV_HANDLE_CLOSING) != 0) break;                         \</span></span><br><span class="line"><span class="meta">    <span class="keyword">if</span> (((h)-&gt;flags &amp; UV_HANDLE_ACTIVE) != 0) uv__active_handle_rm(h);        \</span></span><br><span class="line"><span class="meta">  &#125;                                                                           \</span></span><br><span class="line"><span class="meta">  while (0)</span></span><br><span class="line">  </span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">uv__loop_alive</span><span class="params">(<span class="type">const</span> <span class="type">uv_loop_t</span>* loop)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> uv__has_active_handles(loop) ||</span><br><span class="line">         uv__has_active_reqs(loop) ||</span><br><span class="line">         loop-&gt;closing_handles != <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="uv-close"><a href="#uv-close" class="headerlink" title="uv_close"></a>uv_close</h3><ul>
+<li>使用的库: <a target="_blank" rel="noopener" href="https://github.com/theanarkh/test_worker_thread/blob/main/binding/event_loop.cc">test_worker_thread</a></li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// demo</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">on_close</span><span class="params">(<span class="type">uv_handle_t</span> *handle)</span></span><br><span class="line">&#123;</span><br><span class="line">    delete handle;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">cleanup</span><span class="params">(<span class="type">void</span>* data)</span></span><br><span class="line">&#123;</span><br><span class="line">    uv_close((<span class="type">uv_handle_t</span> *)data, on_close);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Start</span><span class="params">(<span class="type">const</span> Napi::CallbackInfo &amp;args)</span></span><br><span class="line">&#123;</span><br><span class="line">    Napi::Env env = args.Env();</span><br><span class="line">    <span class="type">uv_loop_t</span> *loop;</span><br><span class="line">    v8::Isolate* isolate = v8::Isolate::GetCurrent();</span><br><span class="line">    napi_get_uv_event_loop(env, &amp;loop);</span><br><span class="line">    <span class="type">uv_prepare_t</span>* prepare_handle = new <span class="type">uv_prepare_t</span>;</span><br><span class="line">    uv_prepare_init(loop, prepare_handle);</span><br><span class="line">    uv_unref((<span class="type">uv_handle_t</span> *)prepare_handle);</span><br><span class="line">    uv_prepare_start(prepare_handle, [](<span class="type">uv_prepare_t</span> *handle) &#123;&#125;);</span><br><span class="line">    node::AddEnvironmentCleanupHook(isolate, cleanup, prepare_handle);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以使用 uv_close 轻易代替 uv_##name##<em>close &#x2F; uv</em>##name##_stop, 通过如下 uv_close 的实现可知</p>
+<ul>
+<li>uv_close 相比 uv_##name##_close 可以挂载一个回调函数 close_cb（close_cb 将在<a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/blog/issues/1#Callclosecallbacks">事件循环 阶段七 Call close callbacks</a> 被调用<br>）</li>
+<li>uv_close 实现了任意 handle 的 close<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// uv 实现</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">uv_close</span><span class="params">(<span class="type">uv_handle_t</span>* handle, uv_close_cb close_cb)</span> &#123;</span><br><span class="line">  assert(!uv__is_closing(handle));</span><br><span class="line"></span><br><span class="line">  handle-&gt;flags |= UV_HANDLE_CLOSING;</span><br><span class="line">  handle-&gt;close_cb = close_cb;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">switch</span> (handle-&gt;type) &#123;</span><br><span class="line">  <span class="keyword">case</span> UV_NAMED_PIPE:</span><br><span class="line">    uv__pipe_close((<span class="type">uv_pipe_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_TTY:</span><br><span class="line">    uv__stream_close((<span class="type">uv_stream_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_TCP:</span><br><span class="line">    uv__tcp_close((<span class="type">uv_tcp_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_UDP:</span><br><span class="line">    uv__udp_close((<span class="type">uv_udp_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_PREPARE:</span><br><span class="line">    uv__prepare_close((<span class="type">uv_prepare_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_CHECK:</span><br><span class="line">    uv__check_close((<span class="type">uv_check_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_IDLE:</span><br><span class="line">    uv__idle_close((<span class="type">uv_idle_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_ASYNC:</span><br><span class="line">    uv__async_close((<span class="type">uv_async_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_TIMER:</span><br><span class="line">    uv__timer_close((<span class="type">uv_timer_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_PROCESS:</span><br><span class="line">    uv__process_close((<span class="type">uv_process_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_FS_EVENT:</span><br><span class="line">    uv__fs_event_close((<span class="type">uv_fs_event_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_POLL:</span><br><span class="line">    uv__poll_close((<span class="type">uv_poll_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_FS_POLL:</span><br><span class="line">    uv__fs_poll_close((<span class="type">uv_fs_poll_t</span>*)handle);</span><br><span class="line">    <span class="comment">/* Poll handles use file system requests, and one of them may still be</span></span><br><span class="line"><span class="comment">     * running. The poll code will call uv__make_close_pending() for us. */</span></span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_SIGNAL:</span><br><span class="line">    uv__signal_close((<span class="type">uv_signal_t</span>*) handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    assert(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  uv__make_close_pending(handle);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="uv-tty-reset-mode"><a href="#uv-tty-reset-mode" class="headerlink" title="uv_tty_reset_mode"></a>uv_tty_reset_mode</h3><p>最终是调用 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhouhbing/p/4129280.html"> tcgetattr 函数与 tcsetattr 函数</a>控制终端。 如果在某处通过 <a target="_blank" rel="noopener" href="http://docs.libuv.org/en/v1.x/tty.html?highlight=uv_tty_reset_mode#c.uv_tty_reset_mode">uv_tty_set_mode</a> 修改了终端参数, 此处用于复原。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/node.cc</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">ResetStdio</span><span class="params">()</span> &#123;</span><br><span class="line">  uv_tty_reset_mode();</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> __POSIX__</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; s : stdio) &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> fd = &amp;s - stdio;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">stat</span> <span class="title">tmp</span>;</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="number">-1</span> == fstat(fd, &amp;tmp)) &#123;</span><br><span class="line">      CHECK_EQ(errno, EBADF);  <span class="comment">// Program closed file descriptor.</span></span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>  <span class="comment">// __POSIX__</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="uv-library-shutdown"><a href="#uv-library-shutdown" class="headerlink" title="uv_library_shutdown"></a>uv_library_shutdown</h3><p>释放 uv 持有的任何全局状态。 uv 通常会在卸载时自动执行此操作，但可以指示它手动执行清理。调用<br>  uv_library_shutdown() 后不能继续调用 uv 函数</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#uv-unref"><span class="toc-number">1.</span> <span class="toc-text">uv_unref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#uv-close"><span class="toc-number">2.</span> <span class="toc-text">uv_close</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#uv-tty-reset-mode"><span class="toc-number">3.</span> <span class="toc-text">uv_tty_reset_mode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#uv-library-shutdown"><span class="toc-number">4.</span> <span class="toc-text">uv_library_shutdown</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/09/25/b11/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&text=libuv 不常见 api 记录"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&title=libuv 不常见 api 记录"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&is_video=false&description=libuv 不常见 api 记录"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=libuv 不常见 api 记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/09/25/b11/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&title=libuv 不常见 api 记录"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&title=libuv 不常见 api 记录"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&title=libuv 不常见 api 记录"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&title=libuv 不常见 api 记录"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/09/25/b11/&name=libuv 不常见 api 记录&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/09/25/b11/&t=libuv 不常见 api 记录"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

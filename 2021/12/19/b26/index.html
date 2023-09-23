@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="使用 pnpm 后，原有的 jest 单测失败了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pnpm 问题记录">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2021/12/19/b26/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="使用 pnpm 后，原有的 jest 单测失败了">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/146678508-48e8fa8a-835f-4735-b9ab-c04d540c108b.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/146667443-8fe7609d-8659-4973-8566-c04d2f9d4778.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/143979554-083009de-e027-461a-aa85-1c982491e043.png">
+<meta property="article:published_time" content="2021-12-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.931Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="pnpm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/146678508-48e8fa8a-835f-4735-b9ab-c04d540c108b.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>pnpm 问题记录</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/12/19/b27/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/11/15/b28/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2021/12/19/b26/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&text=pnpm 问题记录"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&title=pnpm 问题记录"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&is_video=false&description=pnpm 问题记录"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=pnpm 问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2021/12/19/b26/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&title=pnpm 问题记录"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&title=pnpm 问题记录"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&title=pnpm 问题记录"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&title=pnpm 问题记录"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&name=pnpm 问题记录&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2021/12/19/b26/&t=pnpm 问题记录"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9C%85-%E5%B7%B2%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">2.</span> <span class="toc-text">✅ 已解决的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jest-%E5%8D%95%E6%B5%8B%E8%BF%90%E8%A1%8C%E5%A4%B1%E8%B4%A5"><span class="toc-number">2.1.</span> <span class="toc-text">jest 单测运行失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#node-gyp-rebuild-failures"><span class="toc-number">2.2.</span> <span class="toc-text">node-gyp rebuild failures</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E4%B8%80%E4%B8%AA%E7%89%88%E6%9C%AC%E7%9A%84%E5%8C%85%E6%9C%89%E4%B8%A4%E4%BB%BD%E5%89%AF%E6%9C%AC"><span class="toc-number">2.3.</span> <span class="toc-text">同一个版本的包有两份副本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#only-allow-%E5%91%BD%E4%BB%A4%E5%BD%B1%E5%93%8D%E5%88%B0%E4%BA%86%E4%B8%9A%E5%8A%A1%E9%A1%B9%E7%9B%AE"><span class="toc-number">2.4.</span> <span class="toc-text">only-allow 命令影响到了业务项目</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%8C-%E6%9C%AA%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">3.</span> <span class="toc-text">❌ 未解决的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pnpm-add-%E4%B8%8E-pnpm-i-%E5%91%BD%E4%BB%A4%E4%B8%8D%E4%BC%9A%E5%8E%BB%E9%87%8D"><span class="toc-number">3.1.</span> <span class="toc-text">pnpm add 与 pnpm i 命令不会去重</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cypress-e2e-%E6%B5%8B%E8%AF%95%E8%BF%90%E8%A1%8C%E5%A4%B1%E8%B4%A5"><span class="toc-number">3.2.</span> <span class="toc-text">cypress e2e 测试运行失败</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        pnpm 问题记录
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-12-18T16:00:00.000Z" class="dt-published" itemprop="datePublished">2021-12-19</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/pnpm/" rel="tag">pnpm</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/146678508-48e8fa8a-835f-4735-b9ab-c04d540c108b.png" alt="image"></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在 <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/493891614/answer/2268212740">2022 前端技术领域会有哪些新的变化？</a> 话题中我曾回答到，越来越多的项目会开始使用 pnpm。</p>
+<blockquote>
+<p>这是我正在推动的一件事，使用 pnpm 替换现在的 yarn 。无论是 csr 、ssr、monorepos 等类型项目都正在进行中，有近 10个项目已经迁移完成。<br>当时 yarn 的 pnp 特性出来的时候，观望过一阵子，没有大面积火起来，遂放弃 …<br>现在是注意到 vite、modernjs 等使用了 pnpm，其设计理念与node_modules的目录结构也能让业务更加快速安全，所以决定开始全面使用 pnpm。</p>
+</blockquote>
+<p>下面记录与分享一下最近使用 pnpm 遇到的问题与解决的过程~</p>
+<h2 id="✅-已解决的问题"><a href="#✅-已解决的问题" class="headerlink" title="✅ 已解决的问题"></a>✅ 已解决的问题</h2><h3 id="jest-单测运行失败"><a href="#jest-单测运行失败" class="headerlink" title="jest 单测运行失败"></a>jest 单测运行失败</h3><ul>
+<li>问题描叙: 使用 pnpm 后，原有的 jest 单测失败了</li>
+<li>问题解决: jest 低版本不支持软链接, 升级 jest 大于等于 25.2.0 版本即可</li>
+<li>报错信息:<br><img src="https://user-images.githubusercontent.com/23253540/146667443-8fe7609d-8659-4973-8566-c04d2f9d4778.png" alt="ca958dffa2ef75ad06f068262b471a7ea952fc25"></li>
+<li>问题分析:<ol>
+<li>根据报错的堆栈找到报错的包，发现其 packge.json dependencies 字段明确声明了依赖的 @xxx&#x2F;fetch 的版本。但是从报错的信息看，实际运行测试时 import 的却是错误的版本了!</li>
+<li>这里就需要思考一下 jest 是如何运行一个单测用例。如果是简单的 node xxx.test.js 运行一个单测那就不会有上面引用到错误版本依赖的问题，因为按照 node require 模块的规则是不会解析出错。</li>
+<li>让我们回头看一个简单的 jest 单测用例，可以大胆推测一下每个 describe 或者是 it 语句就是一个单独的沙盒环境。如果简单的运行 node xxx.test.js 那就只会存在一个沙盒环境，所有的测试用例会共用一个上下文，这样明显不利于 jest 每个单测隔离的原则</li>
+<li>所以我们初步判断 jest 会自己创建若干个沙盒环境去运行对应的测试代码。而用户的 src 待测试的代码在 jest 看来会通过 fs.readFileSync 去获取到内容字符串，然后不同类型文件经过 babelTransform 或者 tsTransform 得到 js 代码，最后通过 vm 或者 eval, new Function 这样去运行。</li>
+<li>所以说代码中的 import require 等语句的路径是 jest 去静态分析补充完整的，低版本的 jest resolve 不支持软链接是完全有可能的，所以我们顺着 jest 的发版日志，找到最近支持软链接的版本问题解决。</li>
+<li>同理 nextjs 等项目如果有问题也需要找到最近支持软链接的版本进行升级</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Copyright 2004-present Facebook. All Rights Reserved.</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">&#x27;use strict&#x27;</span>;</span><br><span class="line"></span><br><span class="line">jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line"></span><br><span class="line"><span class="title function_">describe</span>(<span class="string">&#x27;timerGame&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">beforeEach</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    jest.<span class="title function_">spyOn</span>(<span class="variable language_">global</span>, <span class="string">&#x27;setTimeout&#x27;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="title function_">it</span>(<span class="string">&#x27;waits 1 second before ending the game&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> timerGame = <span class="built_in">require</span>(<span class="string">&#x27;../timerGame&#x27;</span>);</span><br><span class="line">    <span class="title function_">timerGame</span>();</span><br><span class="line"></span><br><span class="line">    <span class="title function_">expect</span>(<span class="built_in">setTimeout</span>).<span class="title function_">toBeCalledTimes</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="title function_">expect</span>(<span class="built_in">setTimeout</span>).<span class="title function_">toBeCalledWith</span>(expect.<span class="title function_">any</span>(<span class="title class_">Function</span>), <span class="number">1000</span>);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">it</span>(<span class="string">&#x27;calls the callback after 1 second via runAllTimers&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> timerGame = <span class="built_in">require</span>(<span class="string">&#x27;../timerGame&#x27;</span>);</span><br><span class="line">    <span class="keyword">const</span> callback = jest.<span class="title function_">fn</span>();</span><br><span class="line"></span><br><span class="line">    <span class="title function_">timerGame</span>(callback);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// At this point in time, the callback should not have been called yet</span></span><br><span class="line">    <span class="title function_">expect</span>(callback).<span class="property">not</span>.<span class="title function_">toBeCalled</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Fast-forward until all timers have been executed</span></span><br><span class="line">    jest.<span class="title function_">runAllTimers</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Now our callback should have been called!</span></span><br><span class="line">    <span class="title function_">expect</span>(callback).<span class="title function_">toBeCalled</span>();</span><br><span class="line">    <span class="title function_">expect</span>(callback).<span class="title function_">toBeCalledTimes</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="node-gyp-rebuild-failures"><a href="#node-gyp-rebuild-failures" class="headerlink" title="node-gyp rebuild failures"></a>node-gyp rebuild failures</h3><ul>
+<li>问题描叙: 使用 pnpm 后，项目中依赖的 Node.js C++ 插件 rebuild 失败</li>
+<li>问题解决: pnpm 低版本 bug，升级 pnpm 大于等于 6.23.1 版本即可，相关 issue <a target="_blank" rel="noopener" href="https://github.com/pnpm/pnpm/issues/2135">issues&#x2F;2135</a></li>
+<li>报错信息:<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pnpm i better-sqlite3</span></span><br><span class="line">Packages: +11</span><br><span class="line">+++++++++++</span><br><span class="line">Resolving: total 11, reused 11, downloaded 0, <span class="keyword">done</span></span><br><span class="line">node_modules/.pnpm/registry.npmjs.org/integer/2.1.0/node_modules/integer: Running install script, <span class="keyword">done</span> <span class="keyword">in</span> 2s</span><br><span class="line">node_modules/.pnpm/registry.npmjs.org/better-sqlite3/5.4.3/node_modules/better-sqlite3: Running install script, failed <span class="keyword">in</span> 393ms</span><br><span class="line">.../5.4.3/node_modules/better-sqlite3 install$ node-gyp rebuild</span><br><span class="line">│ gyp info it worked <span class="keyword">if</span> it ends with ok</span><br><span class="line">│ gyp info using node-gyp@6.0.0</span><br><span class="line">│ gyp info using node@12.13.0 | linux | x64</span><br><span class="line">│ gyp info find Python using Python version 3.6.8 found at <span class="string">&quot;/usr/bin/python3&quot;</span></span><br><span class="line">│ gyp info spawn /usr/bin/python3</span><br><span class="line">│ gyp info spawn args [</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/gyp/gyp_main.py&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;binding.gyp&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-f&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;make&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-I&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;/root/2/node_modules/.pnpm/registry.npmjs.org/better-sqlite3/5.4.3/node_modules/better-sqlite3/build/config.gypi&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-I&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/addon.gypi&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-I&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;/root/.cache/node-gyp/12.13.0/include/node/common.gypi&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-Dlibrary=shared_library&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-Dvisibility=default&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-Dnode_root_dir=/root/.cache/node-gyp/12.13.0&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-Dnode_gyp_dir=/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-Dnode_lib_file=/root/.cache/node-gyp/12.13.0/&lt;(target_arch)/node.lib&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-Dmodule_root_dir=/root/2/node_modules/.pnpm/registry.npmjs.org/better-sqlite3/5.4.3/node_modules/better-sqlite3&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-Dnode_engine=v8&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;--depth=.&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;--no-parallel&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;--generator-output&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;build&#x27;</span>,</span><br><span class="line">│ gyp info spawn args   <span class="string">&#x27;-Goutput_dir=.&#x27;</span></span><br><span class="line">│ gyp info spawn args ]</span><br><span class="line">│ Traceback (most recent call last):</span><br><span class="line">│   File <span class="string">&quot;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/gyp/gyp_main.py&quot;</span>, line 50, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">│     sys.exit(gyp.script_main())</span><br><span class="line">│   File <span class="string">&quot;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/gyp/pylib/gyp/__init__.py&quot;</span>, line 554, <span class="keyword">in</span> script_main</span><br><span class="line">│     <span class="built_in">return</span> main(sys.argv[1:])</span><br><span class="line">│   File <span class="string">&quot;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/gyp/pylib/gyp/__init__.py&quot;</span>, line 547, <span class="keyword">in</span> main</span><br><span class="line">│     <span class="built_in">return</span> gyp_main(args)</span><br><span class="line">│   File <span class="string">&quot;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/gyp/pylib/gyp/__init__.py&quot;</span>, line 532, <span class="keyword">in</span> gyp_main</span><br><span class="line">│     generator.GenerateOutput(flat_list, targets, data, params)</span><br><span class="line">│   File <span class="string">&quot;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/gyp/pylib/gyp/generator/make.py&quot;</span>, line 2215, <span class="keyword">in</span> GenerateOutput</span><br><span class="line">│     part_of_all=qualified_target <span class="keyword">in</span> needed_targets)</span><br><span class="line">│   File <span class="string">&quot;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/gyp/pylib/gyp/generator/make.py&quot;</span>, line 794, <span class="keyword">in</span> Write</span><br><span class="line">│     extra_mac_bundle_resources, part_of_all)</span><br><span class="line">│   File <span class="string">&quot;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/gyp/pylib/gyp/generator/make.py&quot;</span>, line 978, <span class="keyword">in</span> WriteActions</span><br><span class="line">│     part_of_all=part_of_all, <span class="built_in">command</span>=name)</span><br><span class="line">│   File <span class="string">&quot;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/gyp/pylib/gyp/generator/make.py&quot;</span>, line 1724, <span class="keyword">in</span> WriteDoCmd</span><br><span class="line">│     force = True)</span><br><span class="line">│   File <span class="string">&quot;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/gyp/pylib/gyp/generator/make.py&quot;</span>, line 1779, <span class="keyword">in</span> WriteMakeRule</span><br><span class="line">│     cmddigest = hashlib.sha1(<span class="built_in">command</span> <span class="keyword">if</span> <span class="built_in">command</span> <span class="keyword">else</span> self.target).hexdigest()</span><br><span class="line">│ TypeError: Unicode-objects must be encoded before hashing</span><br><span class="line">│ gyp ERR! configure error</span><br><span class="line">│ gyp ERR! stack Error: `gyp` failed with <span class="built_in">exit</span> code: 1</span><br><span class="line">│ gyp ERR! stack     at ChildProcess.onCpExit (/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/lib/configure.js:351:16)</span><br><span class="line">│ gyp ERR! stack     at ChildProcess.emit (events.js:210:5)</span><br><span class="line">│ gyp ERR! stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:272:12)</span><br><span class="line">│ gyp ERR! System Linux 4.15.0-33-generic</span><br><span class="line">│ gyp ERR! <span class="built_in">command</span> <span class="string">&quot;/usr/bin/node&quot;</span> <span class="string">&quot;/usr/lib/node_modules/pnpm/lib/node_modules/node-gyp/bin/node-gyp.js&quot;</span> <span class="string">&quot;rebuild&quot;</span></span><br><span class="line">│ gyp ERR! cwd /root/2/node_modules/.pnpm/registry.npmjs.org/better-sqlite3/5.4.3/node_modules/better-sqlite3</span><br><span class="line">│ gyp ERR! node -v v12.13.0</span><br><span class="line">│ gyp ERR! node-gyp -v v6.0.0</span><br><span class="line">│ gyp ERR! not ok</span><br><span class="line">└─ Failed <span class="keyword">in</span> 393ms</span><br><span class="line"> ERROR  Command failed with <span class="built_in">exit</span> code 1.</span><br></pre></td></tr></table></figure></li>
+<li>问题分析: 会不会是 c++ 版本的问题？而得到的信息为该镜像使用 yarn 却是好的! 最终换了同一个 Node.js 版本的镜像又好了，辗转反侧才在 pnpm 的 issue 中找到真正的原因，为 pnpm 低版本的 bug。</li>
+</ul>
+<h3 id="同一个版本的包有两份副本"><a href="#同一个版本的包有两份副本" class="headerlink" title="同一个版本的包有两份副本"></a>同一个版本的包有两份副本</h3><ul>
+<li>问题描述: 同一个版本的包在 .pnpm 目录下却有两份副本</li>
+<li>问题解决: 添加 .pnpmfile.cjs 文件，忽略 peerDependencies，使其对 peer 的处理与 yarn 保持一致<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// .pnpmfile.cjs</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">readPackage</span>(<span class="params">pkg, context</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (pkg.<span class="property">name</span> &amp;&amp; pkg.<span class="property">peerDependencies</span>) &#123;</span><br><span class="line">    <span class="comment">// https://pnpm.io/zh/how-peers-are-resolved</span></span><br><span class="line">    pkg.<span class="property">peerDependencies</span> = &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> pkg</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">hooks</span>: &#123;</span><br><span class="line">    readPackage,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li>报错信息:<br><img src="https://user-images.githubusercontent.com/23253540/143979554-083009de-e027-461a-aa85-1c982491e043.png" alt="img"></li>
+<li>问题分析: 这个问题困扰了很久，后仔细阅读了 pnpm 的 <a target="_blank" rel="noopener" href="https://www.pnpm.cn/how-peers-are-resolved">How peers are resolved</a> 文档，确认了造成的原因。详细的讨论可见: <a target="_blank" rel="noopener" href="https://github.com/pnpm/pnpm/discussions/4051">discussions&#x2F;4051</a></li>
+</ul>
+<h3 id="only-allow-命令影响到了业务项目"><a href="#only-allow-命令影响到了业务项目" class="headerlink" title="only-allow 命令影响到了业务项目"></a>only-allow 命令影响到了业务项目</h3><ul>
+<li>问题描叙: 当你在一个公共包的项目中添加了 preinstall 的勾子，但是实际依赖该包的业务并未使用 pnpm，造成报错</li>
+<li>问题解决: only-allow 当作为依赖时不应该进行检查，暂时使用支持了该功能的 only-allow-test 包代替。对应的讨论见 : <a target="_blank" rel="noopener" href="https://github.com/pnpm/pnpm/discussions/4131">discussions&#x2F;4131</a><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;preinstall&quot;</span><span class="punctuation">:</span> <span class="string">&quot;npx only-allow pnpm&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="❌-未解决的问题"><a href="#❌-未解决的问题" class="headerlink" title="❌ 未解决的问题"></a>❌ 未解决的问题</h2><h3 id="pnpm-add-与-pnpm-i-命令不会去重"><a href="#pnpm-add-与-pnpm-i-命令不会去重" class="headerlink" title="pnpm add 与 pnpm i 命令不会去重"></a>pnpm add 与 pnpm i 命令不会去重</h3><ul>
+<li>问题描叙: 当使用 pnpm add 或者 pnpm i 升级某个包时，会存在某几个版本兼容的包没有进行合并，导致存在多个版本。如 sass: ^1.30.0 和 sass: ‘^1.44.0’没有被合并，但是使用 pnpm update 去升级这个包是会进行合并</li>
+<li>问题分析: 由于使用 yarn 的习惯不小心就会发生这种情况，所以希望支持 pnpm deduplicate 去重的命令，每次构建前强制运行一次，反馈后作者表示 pnpm add 命令会保持和 update 命令同样的行为。对应的讨论见 <a target="_blank" rel="noopener" href="https://github.com/pnpm/pnpm/discussions/4143">discussions&#x2F;4143</a></li>
+<li>临时解决: 找到了一个 pnpm update &#x2F; install &#x2F; add 命令后都会运行的一个勾子，在其中写了一个自定义的校验函数，如果pkgName 存在 dependencies 或者 devDependencies 中，就只能使用 pnpm update 命令去更新升级<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// .pnpmfile.cjs</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> argv = process.<span class="property">argv</span>.<span class="title function_">slice</span>(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">readPackage</span>(<span class="params">pkg, context</span>) &#123;</span><br><span class="line">  <span class="comment">// Override the manifest of foo@1.x after downloading it from the registry</span></span><br><span class="line">  <span class="keyword">if</span> (pkg.<span class="property">name</span> &amp;&amp; pkg.<span class="property">peerDependencies</span>) &#123;</span><br><span class="line">    <span class="comment">// Replace bar@x.x.x with bar@2.0.0</span></span><br><span class="line">    pkg.<span class="property">peerDependencies</span> = &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> pkg</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">checkCommand</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> command = argv[<span class="number">0</span>]</span><br><span class="line">  <span class="keyword">const</span> pkgJson = <span class="built_in">require</span>(<span class="string">&#x27;./package.json&#x27;</span>)</span><br><span class="line">  <span class="keyword">const</span> deps = <span class="title class_">Object</span>.<span class="title function_">assign</span>(&#123;&#125;, pkgJson.<span class="property">dependencies</span> || &#123;&#125;, pkgJson.<span class="property">devDependencies</span> || &#123;&#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ([<span class="string">&#x27;add&#x27;</span>, <span class="string">&#x27;i&#x27;</span>, <span class="string">&#x27;install&#x27;</span>].<span class="title function_">some</span>(<span class="function">(<span class="params">name</span>) =&gt;</span> command === name) &amp;&amp; <span class="keyword">typeof</span> argv[<span class="number">1</span>] === <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; name, version &#125; = <span class="title function_">getNameAndVersion</span>(argv[<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (deps[name]) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(</span><br><span class="line">        <span class="string">`【Inspector 依赖检查】: 更新升级依赖请用 &quot;pnpm update <span class="subst">$&#123;name&#125;</span><span class="subst">$&#123;</span></span></span><br><span class="line"><span class="subst"><span class="string">          version ? <span class="string">&#x27;@&#x27;</span> + version : <span class="string">&#x27;&#x27;</span></span></span></span><br><span class="line"><span class="subst"><span class="string">        &#125;</span>&quot; 命令 !!!`</span></span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getNameAndVersion</span>(<span class="params">nameAndVersion</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> name = <span class="string">&#x27;&#x27;</span></span><br><span class="line">  <span class="keyword">let</span> version = <span class="string">&#x27;&#x27;</span></span><br><span class="line">  <span class="keyword">let</span> splitName = nameAndVersion.<span class="title function_">split</span>(<span class="string">&#x27;@&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (nameAndVersion.<span class="title function_">startsWith</span>(<span class="string">&#x27;@&#x27;</span>)) &#123;</span><br><span class="line">    <span class="comment">// @xxxx/pkg@latest or @xxxx/pkg</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (splitName.<span class="property">length</span> === <span class="number">3</span>) &#123;</span><br><span class="line">      <span class="comment">// @xxxx/pkg@latest</span></span><br><span class="line">      name = <span class="string">`@`</span> + splitName[<span class="number">1</span>]</span><br><span class="line">      version = splitName[splitName.<span class="property">length</span> - <span class="number">1</span>]</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// @xxxx/pkg</span></span><br><span class="line">      name = <span class="string">`@`</span> + splitName[<span class="number">1</span>]</span><br><span class="line">      version = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// react@latest or react</span></span><br><span class="line">    <span class="keyword">if</span> (splitName.<span class="property">length</span> === <span class="number">2</span>) &#123;</span><br><span class="line">      <span class="comment">// @xxxx/pkg@latest</span></span><br><span class="line">      name = splitName[<span class="number">0</span>]</span><br><span class="line">      version = splitName[<span class="number">1</span>]</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// @xxxx/pkg</span></span><br><span class="line">      name = splitName[<span class="number">0</span>]</span><br><span class="line">      version = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    name,</span><br><span class="line">    <span class="attr">version</span>: version || <span class="string">&#x27;latest&#x27;</span>,</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">hooks</span>: &#123;</span><br><span class="line">    readPackage,</span><br><span class="line">    <span class="title function_">afterAllResolved</span>(<span class="params">lockfile</span>) &#123;</span><br><span class="line">      <span class="title function_">checkCommand</span>()</span><br><span class="line">      <span class="keyword">return</span> lockfile</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="cypress-e2e-测试运行失败"><a href="#cypress-e2e-测试运行失败" class="headerlink" title="cypress e2e 测试运行失败"></a>cypress e2e 测试运行失败</h3><ul>
+<li>问题描叙: 使用 pnpm 后，原有的 cypress e2e 测试失败了</li>
+<li>问题分析: 经过 debug 发现 cypress 还不支持 pnpm, 于是提了一个 <a target="_blank" rel="noopener" href="https://github.com/cypress-io/cypress/pull/19189">pr</a>，cypress 处理跟进较慢，还未解决</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9C%85-%E5%B7%B2%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">2.</span> <span class="toc-text">✅ 已解决的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jest-%E5%8D%95%E6%B5%8B%E8%BF%90%E8%A1%8C%E5%A4%B1%E8%B4%A5"><span class="toc-number">2.1.</span> <span class="toc-text">jest 单测运行失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#node-gyp-rebuild-failures"><span class="toc-number">2.2.</span> <span class="toc-text">node-gyp rebuild failures</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E4%B8%80%E4%B8%AA%E7%89%88%E6%9C%AC%E7%9A%84%E5%8C%85%E6%9C%89%E4%B8%A4%E4%BB%BD%E5%89%AF%E6%9C%AC"><span class="toc-number">2.3.</span> <span class="toc-text">同一个版本的包有两份副本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#only-allow-%E5%91%BD%E4%BB%A4%E5%BD%B1%E5%93%8D%E5%88%B0%E4%BA%86%E4%B8%9A%E5%8A%A1%E9%A1%B9%E7%9B%AE"><span class="toc-number">2.4.</span> <span class="toc-text">only-allow 命令影响到了业务项目</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%8C-%E6%9C%AA%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">3.</span> <span class="toc-text">❌ 未解决的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pnpm-add-%E4%B8%8E-pnpm-i-%E5%91%BD%E4%BB%A4%E4%B8%8D%E4%BC%9A%E5%8E%BB%E9%87%8D"><span class="toc-number">3.1.</span> <span class="toc-text">pnpm add 与 pnpm i 命令不会去重</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cypress-e2e-%E6%B5%8B%E8%AF%95%E8%BF%90%E8%A1%8C%E5%A4%B1%E8%B4%A5"><span class="toc-number">3.2.</span> <span class="toc-text">cypress e2e 测试运行失败</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2021/12/19/b26/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&text=pnpm 问题记录"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&title=pnpm 问题记录"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&is_video=false&description=pnpm 问题记录"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=pnpm 问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2021/12/19/b26/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&title=pnpm 问题记录"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&title=pnpm 问题记录"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&title=pnpm 问题记录"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&title=pnpm 问题记录"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2021/12/19/b26/&name=pnpm 问题记录&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2021/12/19/b26/&t=pnpm 问题记录"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

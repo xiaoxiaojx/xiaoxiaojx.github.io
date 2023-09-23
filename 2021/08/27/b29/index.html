@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="无意间听到同学 A 说开发项目 B 这么久了, 开发时修改代码后页面内容">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Next.js 项目热更新失败排查">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2021/08/27/b29/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="无意间听到同学 A 说开发项目 B 这么久了, 开发时修改代码后页面内容">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/131141575-17cf74cd-403e-4834-802f-c9e298446457.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/131143429-a66fb619-7aef-464d-af21-6de6eb7a1aec.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/131175957-7f820f04-c1a4-49b2-988e-f8410948495c.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/131147707-9bd3014f-860a-43c0-b872-461309df6c94.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/131149190-295af96c-2a93-466b-a98f-22b512204260.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/131171371-fc3193f3-2f74-4dc8-a591-1beae470be33.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/131155297-f30b39aa-3424-43a7-b8a0-2a67c8868043.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/131166454-5e6678b4-cd67-436a-951c-bd0e85dee484.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/131168073-406987e4-6ed7-4e4f-80b2-3b8a5826ad18.png">
+<meta property="article:published_time" content="2021-08-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.932Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="SSR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/131141575-17cf74cd-403e-4834-802f-c9e298446457.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Next.js 项目热更新失败排查</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/10/14/b1/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/08/11/b30/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2021/08/27/b29/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&text=Next.js 项目热更新失败排查"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&title=Next.js 项目热更新失败排查"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&is_video=false&description=Next.js 项目热更新失败排查"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Next.js 项目热更新失败排查&body=Check out this article: https://xiaoxiaojx.github.io/2021/08/27/b29/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&title=Next.js 项目热更新失败排查"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&title=Next.js 项目热更新失败排查"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&title=Next.js 项目热更新失败排查"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&title=Next.js 项目热更新失败排查"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&name=Next.js 项目热更新失败排查&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2021/08/27/b29/&t=Next.js 项目热更新失败排查"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%83%AD%E6%9B%B4%E6%96%B0%E5%A4%B1%E8%B4%A5"><span class="toc-number">1.</span> <span class="toc-text">热更新失败</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%83%AD%E6%9B%B4%E6%96%B0%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.</span> <span class="toc-text">热更新介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">问题复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D"><span class="toc-number">4.</span> <span class="toc-text">问题定位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BF%AE%E6%94%B9%E5%90%8E%E8%BF%94%E5%9B%9E%E7%9A%84%E6%98%AF%E6%97%A7%E4%BB%A3%E7%A0%81-%EF%BC%9F"><span class="toc-number">4.1.</span> <span class="toc-text">1. 修改后返回的是旧代码 ？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%BA%94%E7%94%A8%E6%96%B0%E4%BB%A3%E7%A0%81%E7%9A%84%E6%9F%90%E4%B8%AA%E6%B5%81%E7%A8%8B%E5%87%BA%E9%94%99%E4%BA%86-%EF%BC%9F"><span class="toc-number">4.2.</span> <span class="toc-text">2. 应用新代码的某个流程出错了 ？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-nextjs-%E5%86%85%E9%83%A8%E7%BB%84%E4%BB%B6%E5%87%BA%E4%BA%86%E9%97%AE%E9%A2%98"><span class="toc-number">4.3.</span> <span class="toc-text">3. nextjs 内部组件出了问题 ?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-react-refresh-webpack-plugin-%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">4.4.</span> <span class="toc-text">4. react-refresh-webpack-plugin 的问题 ?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%A3%80%E6%9F%A5-next-config-js"><span class="toc-number">4.5.</span> <span class="toc-text">5. 检查 next.config.js</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Next.js 项目热更新失败排查
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-08-26T16:00:00.000Z" class="dt-published" itemprop="datePublished">2021-08-27</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/SSR/" rel="tag">SSR</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/131141575-17cf74cd-403e-4834-802f-c9e298446457.png" alt="image"></p>
+<h2 id="热更新失败"><a href="#热更新失败" class="headerlink" title="热更新失败"></a>热更新失败</h2><p>无意间听到同学 A 说开发项目 B 这么久了, 开发时修改代码后页面内容未进行重新渲染, 甚至页面连刷新也没有 😨, 所以平时是手动刷新了一次浏览器, 惊讶之余就得快速解决这个问题。</p>
+<h2 id="热更新介绍"><a href="#热更新介绍" class="headerlink" title="热更新介绍"></a>热更新介绍</h2><p>不同于 nodejs 项目修改代码后 pm2, nodemon, forever 等会对进程进行一下重启生效, 前端代码修改后的热更新流程还是比较长的, 主要为 webpack-dev-server 通过 websocket 去通知到浏览器, 参考图如下</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/131143429-a66fb619-7aef-464d-af21-6de6eb7a1aec.png" alt="image"></p>
+<blockquote>
+<p>图片来自于 <a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000020310371">https://segmentfault.com/a/1190000020310371</a></p>
+</blockquote>
+<p>前端代码热更新除了上图其实还有另一种方式, 即没有使用 webpack-dev-server, 而是自己写的一个 dev-server, 热更新方面集成了 webpack-hot-middleware 实现, 后者通知到浏览器是使用了 <a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Server-sent_events/Using_server-sent_events">SSE 服务器推送事件</a>, 因为有 dev-server 去单向通知浏览器就可以了, 不需要双向的 websocket</p>
+<p>本次有问题的项目是一个比较旧的 nextjs 项目, 其采用的就是后者 SSE 的方式, SSE 服务端的核心这里也简单说一下</p>
+<ul>
+<li>主要还是 Content-Type 的设置需要为 text&#x2F;event-stream</li>
+<li>其次是 X-Accel-Buffering, 通常是不需要的, 主要用于中间还有 nginx 代理的情况, 让 nginx 有数据直接就发送出去, 不需要囤着, 之前做 node 流输出数据时就被坑过<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SSE 服务端实现</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> headers = &#123;</span><br><span class="line">  <span class="string">&#x27;Access-Control-Allow-Origin&#x27;</span>: <span class="string">&#x27;*&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;text/event-stream;charset=utf-8&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;Cache-Control&#x27;</span>: <span class="string">&#x27;no-cache, no-transform&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;X-Accel-Buffering&#x27;</span>: <span class="string">&#x27;no&#x27;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">res.<span class="title function_">writeHead</span>(<span class="number">200</span>, headers);</span><br><span class="line">res.<span class="title function_">write</span>(<span class="string">&#x27;\n&#x27;</span>);</span><br></pre></td></tr></table></figure>
+devtool 中查看如下图示<br><img src="https://user-images.githubusercontent.com/23253540/131175957-7f820f04-c1a4-49b2-988e-f8410948495c.png" alt="image"></li>
+</ul>
+<h2 id="问题复现"><a href="#问题复现" class="headerlink" title="问题复现"></a>问题复现</h2><p>启动问题项目, 修改代码后也是在进行正常的重新编译, 编译完成后浏览器也貌似收到了信息, 最后的日志停止在了 [Fast Refresh] done, 就没有下文了, 页面内容没有进行更新, 浏览器也没刷新<br><img src="https://user-images.githubusercontent.com/23253540/131147707-9bd3014f-860a-43c0-b872-461309df6c94.png" alt="image"></p>
+<h2 id="问题定位"><a href="#问题定位" class="headerlink" title="问题定位"></a>问题定位</h2><h3 id="1-修改后返回的是旧代码-？"><a href="#1-修改后返回的是旧代码-？" class="headerlink" title="1. 修改后返回的是旧代码 ？"></a>1. 修改后返回的是旧代码 ？</h3><ul>
+<li>分析: 通常修改代码后, <a target="_blank" rel="noopener" href="https://webpack.js.org/plugins/hot-module-replacement-plugin/">HotModuleReplacementPlugin</a> 会生成一个 xxx.hot-update.js, 如果它出了故障, 返回的这个 js 有问题的话就能解释热更新失败<br><img src="https://user-images.githubusercontent.com/23253540/131149190-295af96c-2a93-466b-a98f-22b512204260.png" alt="image"></li>
+<li>结论: ❌ 仔细看了 .hot-update.js 内容后, 发现其实是带上了最新改动的内容, 故排除这个可能<br><img src="https://user-images.githubusercontent.com/23253540/131171371-fc3193f3-2f74-4dc8-a591-1beae470be33.png" alt="image"></li>
+</ul>
+<h3 id="2-应用新代码的某个流程出错了-？"><a href="#2-应用新代码的某个流程出错了-？" class="headerlink" title="2. 应用新代码的某个流程出错了 ？"></a>2. 应用新代码的某个流程出错了 ？</h3><p>这里就需要对 nextjs 客户端 SSE 部分的代码从起点开始进行一个 debug</p>
+<ol>
+<li>SSE 客户端的实现文件, 这部分通常是标准的 api 调用不会有什么问题<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packages/next/client/dev/error-overlay/eventsource.js</span></span><br><span class="line"></span><br><span class="line">source = <span class="keyword">new</span> <span class="variable language_">window</span>.<span class="title class_">EventSource</span>(options.<span class="property">path</span>)</span><br><span class="line">source.<span class="property">onopen</span> = handleOnline</span><br><span class="line">source.<span class="property">onerror</span> = handleDisconnect</span><br><span class="line">source.<span class="property">onmessage</span> = handleMessage</span><br></pre></td></tr></table></figure></li>
+<li>收到服务器消息增加关键的监听函数, 发现了关键的 ⚠️ [Fast Refresh] done 日志, 继续挖 onRefresh 函数实现<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">packages/next/client/dev/error-overlay/hot-dev-client.<span class="property">js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">onFastRefresh</span>(<span class="params">hasUpdates</span>) &#123;</span><br><span class="line">  <span class="title class_">DevOverlay</span>.<span class="title function_">onBuildOk</span>()</span><br><span class="line">  <span class="keyword">if</span> (hasUpdates) &#123;</span><br><span class="line">    <span class="title class_">DevOverlay</span>.<span class="title function_">onRefresh</span>()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;[Fast Refresh] done&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>看样子 nextjs 实现了一个简单的 event, onRefresh 函数的作用为发布 TYPE_REFFRESH 事件<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packages/react-dev-overlay/src/client.ts</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">onRefresh</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="title class_">Bus</span>.<span class="title function_">emit</span>(&#123; <span class="attr">type</span>: <span class="title class_">Bus</span>.<span class="property">TYPE_REFFRESH</span> &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>App 最顶层的 ReactDevOverlay 组件订阅了 TYPE_REFFRESH 事件, 然后 state 状态发生变化, 触发重新渲染<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packages/react-dev-overlay/src/internal/ReactDevOverlay.tsx</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title class_">ReactDevOverlay</span>: <span class="title class_">React</span>.<span class="property">FunctionComponent</span> = <span class="keyword">function</span> <span class="title function_">ReactDevOverlay</span>(<span class="params">&#123;</span></span><br><span class="line"><span class="params">  children,</span></span><br><span class="line"><span class="params">&#125;</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> [state, dispatch] = <span class="title class_">React</span>.<span class="property">useReducer</span>&lt;</span><br><span class="line">    <span class="title class_">React</span>.<span class="property">Reducer</span>&lt;<span class="title class_">OverlayState</span>, <span class="title class_">Bus</span>.<span class="property">BusEvent</span>&gt;</span><br><span class="line">  &gt;(reducer, &#123; <span class="attr">nextId</span>: <span class="number">1</span>, <span class="attr">buildError</span>: <span class="literal">null</span>, <span class="attr">errors</span>: [] &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="title class_">React</span>.<span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title class_">Bus</span>.<span class="title function_">on</span>(dispatch)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      <span class="title class_">Bus</span>.<span class="title function_">off</span>(dispatch)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, [dispatch])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> isMounted = hasBuildError || hasRuntimeErrors</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">React.Fragment</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">ErrorBoundary</span> <span class="attr">onError</span>=<span class="string">&#123;onComponentError&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        &#123;children ?? null&#125;</span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">ErrorBoundary</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      &#123;isMounted ? (</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">ShadowPortal</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">CssReset</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">Base</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">ComponentStyles</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">          &#123;hasBuildError ? (</span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">BuildError</span> <span class="attr">message</span>=<span class="string">&#123;state.buildError!&#125;</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">          ) : hasRuntimeErrors ? (</span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">Errors</span> <span class="attr">errors</span>=<span class="string">&#123;state.errors&#125;</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">          ) : undefined&#125;</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">ShadowPortal</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      ) : undefined&#125;</span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">React.Fragment</span>&gt;</span></span></span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<ul>
+<li>结论:  ❌ 到第 4 步打个断点发现能够顺利运行, 既然热更新的 xxx.hot-update.js 是最新的, 客户端收到消息后最顶层组件也触发了重新渲染, 那么问题出现在哪了 ?</li>
+</ul>
+<h3 id="3-nextjs-内部组件出了问题"><a href="#3-nextjs-内部组件出了问题" class="headerlink" title="3. nextjs 内部组件出了问题 ?"></a>3. nextjs 内部组件出了问题 ?</h3><ul>
+<li>分析: 这个可能性主要由于 nextjs 在用户的组件上包裹了太多层父组件, 如果某个父组件出了问题也是能造成热更新失败<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packages/next/next-server/server/render.tsx</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">AppContainer</span> = (<span class="params">&#123; children &#125;: <span class="built_in">any</span></span>) =&gt; (</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">RouterContext.Provider</span> <span class="attr">value</span>=<span class="string">&#123;router&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">AmpStateContext.Provider</span> <span class="attr">value</span>=<span class="string">&#123;ampState&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">HeadManagerContext.Provider</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        <span class="attr">value</span>=<span class="string">&#123;&#123;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">updateHead:</span> (<span class="attr">state</span>) =&gt;</span> &#123;</span></span><br><span class="line"><span class="language-xml">            head = state</span></span><br><span class="line"><span class="language-xml">          &#125;,</span></span><br><span class="line"><span class="language-xml">          updateScripts: (scripts) =&gt; &#123;</span></span><br><span class="line"><span class="language-xml">            scriptLoader = scripts</span></span><br><span class="line"><span class="language-xml">          &#125;,</span></span><br><span class="line"><span class="language-xml">          scripts: &#123;&#125;,</span></span><br><span class="line"><span class="language-xml">          mountedInstances: new Set(),</span></span><br><span class="line"><span class="language-xml">        &#125;&#125;</span></span><br><span class="line"><span class="language-xml">      &gt;</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">LoadableContext.Provider</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">value</span>=<span class="string">&#123;(moduleName)</span> =&gt;</span> reactLoadableModules.push(moduleName)&#125;</span></span><br><span class="line"><span class="language-xml">        &gt;</span></span><br><span class="line"><span class="language-xml">          &#123;children&#125;</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">LoadableContext.Provider</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">HeadManagerContext.Provider</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">AmpStateContext.Provider</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;/<span class="name">RouterContext.Provider</span>&gt;</span></span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<img src="https://user-images.githubusercontent.com/23253540/131155297-f30b39aa-3424-43a7-b8a0-2a67c8868043.png" alt="image"></li>
+</ul>
+<p>🐛 debug 问题比较重要的一点是分段排查, 就像网络了出了问题, 专业维修人员总会分段去检查, 直到排查到最近未通的线路</p>
+<p>这里我们把 nextjs 内部的热更新监听的代码给搬移到我们自己的组件中来, 测试我们自己的线路, 然后在 TYPE_REFFRESH 事件后进行一个强制渲染的操作, 看是否能热更新生效</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">componentDidMount</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (process.<span class="property">env</span>.<span class="property">NODE_ENV</span> === <span class="string">&quot;development&quot;</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="title class_">Bus</span> = <span class="built_in">require</span>(<span class="string">&quot;@next/react-dev-overlay/lib/internal/bus&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="title class_">Bus</span>.<span class="title function_">on</span>(<span class="function">(<span class="params">event: Record&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (event.<span class="property">type</span> === <span class="title class_">Bus</span>.<span class="property">TYPE_REFFRESH</span>) &#123;</span><br><span class="line">      	<span class="variable language_">this</span>.<span class="title function_">forceUpdate</span>()</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>❌ 答案是还是未能热更新, 其实到这里需要 🤔 思考一下 <em><strong>热更新的本质</strong></em> ?</p>
+<ul>
+<li>当我们这个组件的子组件代码更新后, 父组件 forceUpdate 为什么没有导致页面重新渲染了</li>
+</ul>
+<p>当客户端收到的 xxx.hot-update.js 代码执行后, 内存里面缓存所有模块的 installedModules 对象如下就会把 key 值为 @components&#x2F;App 的值给更新了, 但是如果不在热更新的回调中重新 require 一次来取到最新赋的值, 其如果存在父组件等还是<em><strong>引用的是旧的值</strong></em></p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 一个简单的热替换的实现的例子</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">__enableHotModuleReplacement</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">module</span>.<span class="property">hot</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">module</span>.<span class="property">hot</span>.<span class="property">_acceptedDependencies</span>[<span class="string">&#x27;@components/App&#x27;</span>]) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">warn</span>(<span class="string">&#x27;[$&#123;PKG_NAME&#125;]: Hot updates have already been registered&#x27;</span>)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable language_">module</span>.<span class="property">hot</span>.<span class="title function_">accept</span>(<span class="string">&#x27;@components/App&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">                <span class="keyword">const</span> _App = <span class="built_in">require</span>(<span class="string">&#x27;@components/App&#x27;</span>).<span class="property">default</span></span><br><span class="line">                <span class="keyword">if</span> (_App) &#123;</span><br><span class="line">                  <span class="title class_">ReactDOM</span>.<span class="title function_">render</span>(<span class="language-xml"><span class="tag">&lt;<span class="name">_App</span> /&gt;</span></span>, <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;root&#x27;</span>))</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                  location.<span class="title function_">reload</span>()</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;[$&#123;PKG_NAME&#125;]: Hot Update Registration Successful&#x27;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line"><span class="title function_">__enableHotModuleReplacement</span>()</span><br></pre></td></tr></table></figure>
+<p>通过上面的例子的分析, 我们补丁代码需要下面的改动才能更新成功</p>
+<ul>
+<li>在更新订阅的回调中重新 require 来获取最新的引用值</li>
+<li>通过 setState 去更新渲染最新的子组件 Component<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">componentDidMount</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (process.<span class="property">env</span>.<span class="property">NODE_ENV</span> === <span class="string">&quot;development&quot;</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="title class_">Bus</span> = <span class="built_in">require</span>(<span class="string">&quot;@next/react-dev-overlay/lib/internal/bus&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="title class_">Bus</span>.<span class="title function_">on</span>(<span class="function">(<span class="params">event: Record&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (event.<span class="property">type</span> === <span class="title class_">Bus</span>.<span class="property">TYPE_REFFRESH</span>) &#123;</span><br><span class="line">      	<span class="keyword">const</span> <span class="title class_">NewComponent</span> = <span class="built_in">require</span>(<span class="string">&#x27;views&#x27;</span>).<span class="property">default</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123; <span class="title class_">Component</span>: <span class="title class_">NewComponent</span> &#125;)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; <span class="title class_">Component</span> &#125; = <span class="variable language_">this</span>.<span class="property">state</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">Component</span> &#123;<span class="attr">...this.props</span>&#125;/&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+到这里我们在自己的代码中打了一个补丁, 修复了热更新的能力, 不过我们还需要测试一下该组件的孙子组件修改后, 是否也能正常生效 ？</li>
+</ul>
+<p>❌ 答案是否定的, 孙子组件未能生效! 那么结论是 nextjs 内部组件没有出问题, 是谁把这个 installedModules 缓存给破坏了 ？</p>
+<h3 id="4-react-refresh-webpack-plugin-的问题"><a href="#4-react-refresh-webpack-plugin-的问题" class="headerlink" title="4. react-refresh-webpack-plugin 的问题 ?"></a>4. react-refresh-webpack-plugin 的问题 ?</h3><ul>
+<li>分析: 当从 NewComponent 起点重新往下执行后, 其 import 的组件引用应该都是最新的才对, 是谁动了 installedModules 的缓存数据 ? 而 react-refresh 为了最小的局部更新, 会在构建时给每个文件的前后加了一些注册代码, 这部分小料如果逻辑不够缜密可能是原因</li>
+<li>结论: ❌ 把 react-refresh-webpack-plugin 升级到小版本最新, 发现并非解决, 该猜想某小版本 bug 大概率不成立</li>
+</ul>
+<p>那么我们把上面的代码补丁继续完善一下, 自己手动清除所有模块缓存解决仅存的问题</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">componentDidMount</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (process.<span class="property">env</span>.<span class="property">NODE_ENV</span> === <span class="string">&quot;development&quot;</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="title class_">Bus</span> = <span class="built_in">require</span>(<span class="string">&quot;@next/react-dev-overlay/lib/internal/bus&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="title class_">Bus</span>.<span class="title function_">on</span>(<span class="function">(<span class="params">event: Record&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (event.<span class="property">type</span> === <span class="title class_">Bus</span>.<span class="property">TYPE_REFFRESH</span>) &#123;</span><br><span class="line">      	<span class="title class_">Object</span>.<span class="title function_">keys</span>(<span class="built_in">require</span>.<span class="property">cache</span>).<span class="title function_">forEach</span>(<span class="function"><span class="params">key</span> =&gt;</span> &#123;</span><br><span class="line">      	  <span class="keyword">delete</span> <span class="built_in">require</span>.<span class="property">cache</span>[key]</span><br><span class="line">       	&#125;)</span><br><span class="line">      	<span class="keyword">const</span> <span class="title class_">NewComponent</span> = <span class="built_in">require</span>(<span class="string">&#x27;views&#x27;</span>).<span class="property">default</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123; <span class="title class_">Component</span>: <span class="title class_">NewComponent</span> &#125;)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; <span class="title class_">Component</span> &#125; = <span class="variable language_">this</span>.<span class="property">state</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">Component</span> &#123;<span class="attr">...this.props</span>&#125;/&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://user-images.githubusercontent.com/23253540/131166454-5e6678b4-cd67-436a-951c-bd0e85dee484.png" alt="image"><br>是的, 虽然我们此时还未找到真正的问题, 但是根据问题反映的种种现象使用一个粗糙的补丁给解决了。</p>
+<h3 id="5-检查-next-config-js"><a href="#5-检查-next-config-js" class="headerlink" title="5. 检查 next.config.js"></a>5. 检查 next.config.js</h3><blockquote>
+<p>到第 4 步, 本已经打算按现有的补丁结案, 不成想因为另一个小问题发现了热更新失败的真正原因</p>
+</blockquote>
+<p>在 next.config.js 中有一个 externals 的配置, 有过了解的同学应该知道配置了 externals 是需要到模版的 html 中手动引入带有 externals 配置包的 cdn js 文件</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// next.config.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!isServer) &#123;</span><br><span class="line">  <span class="keyword">const</span> e = &#123;</span><br><span class="line">    <span class="attr">react</span>: <span class="string">&quot;React&quot;</span>,</span><br><span class="line">    <span class="string">&quot;react-dom&quot;</span>: <span class="string">&quot;ReactDOM&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">  config.<span class="property">externals</span>.<span class="title function_">unshift</span>(e)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是发现 nextjs 代码中尽然写死了 react, react-dom 作为 dll entry, 了解 dll 的同学应该知道, 它会把配置的入口前置构建一次, 且 autodll 插件会把它自动插入到模版 html 文件中<br><img src="https://user-images.githubusercontent.com/23253540/131168073-406987e4-6ed7-4e4f-80b2-3b8a5826ad18.png" alt="image"></p>
+<p>⚠️ 这不就一下有了两份 react, react-dom 了吗 ? 那么我们把 externals 相关的给去掉试试, 使得只有一份 react, react-dom 了?</p>
+<p>✅ 发现去掉补丁后, 热更新也能正常运行了, 问题解决 ～</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>老项目虽然有些坑, 尽量要做到通过一些粗糙的补丁基本解决问题, 有些黑盒不可能花过多时间去研究。其次是找异同点, 比如 nextjs 项目, 最大的不同无异于配置文件 next.config.js 与包的版本, 这些关键地方需要重点去排查。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%83%AD%E6%9B%B4%E6%96%B0%E5%A4%B1%E8%B4%A5"><span class="toc-number">1.</span> <span class="toc-text">热更新失败</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%83%AD%E6%9B%B4%E6%96%B0%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.</span> <span class="toc-text">热更新介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">问题复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D"><span class="toc-number">4.</span> <span class="toc-text">问题定位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BF%AE%E6%94%B9%E5%90%8E%E8%BF%94%E5%9B%9E%E7%9A%84%E6%98%AF%E6%97%A7%E4%BB%A3%E7%A0%81-%EF%BC%9F"><span class="toc-number">4.1.</span> <span class="toc-text">1. 修改后返回的是旧代码 ？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%BA%94%E7%94%A8%E6%96%B0%E4%BB%A3%E7%A0%81%E7%9A%84%E6%9F%90%E4%B8%AA%E6%B5%81%E7%A8%8B%E5%87%BA%E9%94%99%E4%BA%86-%EF%BC%9F"><span class="toc-number">4.2.</span> <span class="toc-text">2. 应用新代码的某个流程出错了 ？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-nextjs-%E5%86%85%E9%83%A8%E7%BB%84%E4%BB%B6%E5%87%BA%E4%BA%86%E9%97%AE%E9%A2%98"><span class="toc-number">4.3.</span> <span class="toc-text">3. nextjs 内部组件出了问题 ?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-react-refresh-webpack-plugin-%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">4.4.</span> <span class="toc-text">4. react-refresh-webpack-plugin 的问题 ?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%A3%80%E6%9F%A5-next-config-js"><span class="toc-number">4.5.</span> <span class="toc-text">5. 检查 next.config.js</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2021/08/27/b29/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&text=Next.js 项目热更新失败排查"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&title=Next.js 项目热更新失败排查"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&is_video=false&description=Next.js 项目热更新失败排查"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Next.js 项目热更新失败排查&body=Check out this article: https://xiaoxiaojx.github.io/2021/08/27/b29/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&title=Next.js 项目热更新失败排查"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&title=Next.js 项目热更新失败排查"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&title=Next.js 项目热更新失败排查"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&title=Next.js 项目热更新失败排查"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2021/08/27/b29/&name=Next.js 项目热更新失败排查&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2021/08/27/b29/&t=Next.js 项目热更新失败排查"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

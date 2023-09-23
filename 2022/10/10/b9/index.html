@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Next.js 是约定式路由, 如果你的 pages 目录是下面这样">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Next.js 多页应用的设计与实现">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/10/10/b9/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="Next.js 是约定式路由, 如果你的 pages 目录是下面这样">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/194765145-91211a2d-6beb-4b1c-9915-db45052e7fed.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/194760220-aed82677-ab5b-45cf-859b-2d6c3a51aead.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/194763735-46279bbf-ca35-4890-96dd-c91716c95342.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/194764744-345e092f-e9cf-459a-9267-d69a58d6e504.png">
+<meta property="article:published_time" content="2022-10-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.934Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="SSR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/194765145-91211a2d-6beb-4b1c-9915-db45052e7fed.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Next.js 多页应用的设计与实现</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/10/16/b8/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/09/29/b10/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/10/10/b9/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&text=Next.js 多页应用的设计与实现"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&title=Next.js 多页应用的设计与实现"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&is_video=false&description=Next.js 多页应用的设计与实现"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Next.js 多页应用的设计与实现&body=Check out this article: https://xiaoxiaojx.github.io/2022/10/10/b9/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&title=Next.js 多页应用的设计与实现"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&title=Next.js 多页应用的设计与实现"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&title=Next.js 多页应用的设计与实现"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&title=Next.js 多页应用的设计与实现"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&name=Next.js 多页应用的设计与实现&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/10/10/b9/&t=Next.js 多页应用的设计与实现"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Next-%E5%A4%9A%E9%A1%B5%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">Next 多页介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Next-%E5%A4%9A%E9%A1%B5%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">Next 多页实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Next-SPA"><span class="toc-number">3.</span> <span class="toc-text">Next SPA ?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Next-%E4%B8%BA%E4%BD%95%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1"><span class="toc-number">4.</span> <span class="toc-text">Next 为何这样设计</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Next.js 多页应用的设计与实现
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-10-09T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-10-10</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/SSR/" rel="tag">SSR</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/194765145-91211a2d-6beb-4b1c-9915-db45052e7fed.png" alt="image"></p>
+<h2 id="Next-多页介绍"><a href="#Next-多页介绍" class="headerlink" title="Next 多页介绍"></a>Next 多页介绍</h2><p>Next.js 是约定式路由, 如果你的 pages 目录是下面这样</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">├── pages </span><br><span class="line">│   ├── index.tsx</span><br><span class="line">│   ├── blog</span><br><span class="line">│   │   └── first-post.tsx</span><br><span class="line">│   │   └── index.tsx</span><br></pre></td></tr></table></figure>
+<p>那么将得到 3 个页面, 开发环境可通过如下链接去访问</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://localhost:3000/">http://localhost:3000/</a></li>
+<li><a target="_blank" rel="noopener" href="http://localhost:3000/blog">http://localhost:3000/blog</a></li>
+<li><a target="_blank" rel="noopener" href="http://localhost:3000/blog/first-post">http://localhost:3000/blog/first-post</a></li>
+</ul>
+<h2 id="Next-多页实现"><a href="#Next-多页实现" class="headerlink" title="Next 多页实现"></a>Next 多页实现</h2><p>实际上 Next.js 生成的 webpackConfig.entry 并不是如下这样简单</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpackConfig.entry</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;index&quot;</span>: <span class="string">&quot;./pages/index.tsx&quot;</span>,</span><br><span class="line">  <span class="string">&quot;blogIndex&quot;</span>: <span class="string">&quot;./pages/blog/index.tsx&quot;</span>,</span><br><span class="line">  <span class="string">&quot;blogFirstPost&quot;</span>: <span class="string">&quot;./pages/blog/first-post.tsx&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而是具有一定的依赖关系 depenOn 属性的对象, 并且入口文件 pages&#x2F;** 的内容还会被 next-client-pages-loader 代理修改<br><img src="https://user-images.githubusercontent.com/23253540/194760220-aed82677-ab5b-45cf-859b-2d6c3a51aead.png" alt="image"></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://webpack.js.org/concepts/entry-points#entrydescription-object">webpackConfig.entry.{xxx}.dependOn</a> 表示当前入口文件依赖的入口文件, 必须在加载此入口文件之前加载它们。</p>
+</blockquote>
+<p>根据 depenOn 的解释, 我们知道了 3 个页面实际都是依赖于 next&#x2F;dist&#x2F;client&#x2F;next.js 先行执行, 然后再执行 pages&#x2F;_app.tsx, 最后才是执行页面的 pages&#x2F;***&#x2F;*.tsx</p>
+<p>如页面 “.&#x2F;pages&#x2F;blog&#x2F;index.tsx” 被 next-client-pages-loader 代理修改后, 打包的入口内容变成了如下。所做的工作只是在 window.__NEXT_P 中 push 了一个数组, 相当于只进行了一个模块的注册</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(<span class="variable language_">window</span>.<span class="property">__NEXT_P</span> = <span class="variable language_">window</span>.<span class="property">__NEXT_P</span> || []).<span class="title function_">push</span>([</span><br><span class="line">      <span class="string">&quot;/blog&quot;</span>,</span><br><span class="line">      <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">require</span>(<span class="string">&quot;private-next-pages/blog/index.tsx&quot;</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    ]);</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable language_">module</span>.<span class="property">hot</span>) &#123;</span><br><span class="line">      <span class="variable language_">module</span>.<span class="property">hot</span>.<span class="title function_">dispose</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">window</span>.<span class="property">__NEXT_P</span>.<span class="title function_">push</span>([<span class="string">&quot;/blog&quot;</span>])</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>到这里知道了 Next.js 多页应用的入口文件并非是最先执行的 js 代码, 而 next&#x2F;dist&#x2F;client&#x2F;next.js 才是客户端执行的入口, 一切运行逻辑由它进行调度与初始化操作, Next.js 相当于很好的为多页应用制造了一个 CommonEntry 来存放公共逻辑。</p>
+<h2 id="Next-SPA"><a href="#Next-SPA" class="headerlink" title="Next SPA ?"></a>Next SPA ?</h2><p>既然 Next.js 是多页应用, 那么为什么通过 <a target="_blank" rel="noopener" href="https://nextjs.org/docs/api-reference/next/link">Link 组件</a>能在页面不刷新的情况下从 Home 页面跳转到 Blog list 页面了, 完全类似于 SPA 的用户体验?</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">Link</span> <span class="keyword">from</span> <span class="string">&#x27;next/link&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">Home</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">li</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Link</span> <span class="attr">href</span>=<span class="string">&quot;/&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">a</span>&gt;</span>Home<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">Link</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">li</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Link</span> <span class="attr">href</span>=<span class="string">&quot;/blog&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">a</span>&gt;</span>Blog list<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">Link</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">li</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Link</span> <span class="attr">href</span>=<span class="string">&quot;/blog/first-post&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">a</span>&gt;</span>Blog first-post<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">Link</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span></span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">Home</span></span><br></pre></td></tr></table></figure>
+<p>其实 Next.js 这里是类似于微前端的实现, 把多个页面给聚合在了一个容器 AppContainer 里面。比如在 Blog list 页面点击 Blog first-post, 此时会去通过动态创建一个 script 加载 pages&#x2F;blog&#x2F;first-post.js, script load 后拿到 js 文件的导出的 App 组件再渲染到页面</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// next/client/index.tsx</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">AppContainer</span>(<span class="params">&#123;</span></span><br><span class="line"><span class="params">  children,</span></span><br><span class="line"><span class="params">&#125;: React.PropsWithChildren&lt;&#123;&#125;&gt;</span>): <span class="title class_">React</span>.<span class="property">ReactElement</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Container</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">      <span class="attr">fn</span>=<span class="string">&#123;(error)</span> =&gt;</span></span></span><br><span class="line"><span class="language-xml">        renderError(&#123; App: CachedApp, err: error &#125;).catch((err) =&gt;</span></span><br><span class="line"><span class="language-xml">          console.error(&#x27;Error rendering page: &#x27;, err)</span></span><br><span class="line"><span class="language-xml">        )</span></span><br><span class="line"><span class="language-xml">      &#125;</span></span><br><span class="line"><span class="language-xml">    &gt;</span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">RouterContext.Provider</span> <span class="attr">value</span>=<span class="string">&#123;makePublicRouterInstance(router)&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">HeadManagerContext.Provider</span> <span class="attr">value</span>=<span class="string">&#123;headManager&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">ImageConfigContext.Provider</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            <span class="attr">value</span>=<span class="string">&#123;process.env.__NEXT_IMAGE_OPTS</span> <span class="attr">as</span> <span class="attr">any</span> <span class="attr">as</span> <span class="attr">ImageConfigComplete</span>&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          &gt;</span></span></span><br><span class="line"><span class="language-xml">            &#123;children&#125;</span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;/<span class="name">ImageConfigContext.Provider</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">HeadManagerContext.Provider</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">RouterContext.Provider</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">Container</span>&gt;</span></span></span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如下的调用栈可以看到 Next.js 的渲染过程。<br><img src="https://user-images.githubusercontent.com/23253540/194763735-46279bbf-ca35-4890-96dd-c91716c95342.png" alt="image"></p>
+<p>那么 Next.js 如何通过 &#x2F;blog&#x2F;first-post 这个页面地址就能准确找到对应的 first-post.js 的链接地址, 如果是生产环境则是带了 hash 的 first-post.{hash}.js 又该如何找到了?</p>
+<p>真相是在构建时 Next.js 生成一份 _buildManifest.js, 里面携带了本次构建产物的信息, 功能类似于我们常见的 <a target="_blank" rel="noopener" href="https://www.npmjs.com/package/webpack-manifest-plugin">asset-manifest.json</a></p>
+<p><img src="https://user-images.githubusercontent.com/23253540/194764744-345e092f-e9cf-459a-9267-d69a58d6e504.png" alt="image"></p>
+<p>不得不说 Next.js 在一个独立的应用中都能想到实现成微前端的模样 ~</p>
+<h2 id="Next-为何这样设计"><a href="#Next-为何这样设计" class="headerlink" title="Next 为何这样设计"></a>Next 为何这样设计</h2><p>SSR 中对于 SPA 应用, 多个子路由均不使用动态 import 而采用 require 或者静态 import 倒是无需额外兼容, 但为了性能考虑, 作为有追求的技术人显然要保留动态 import 来进行懒加载。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">Loadable</span> <span class="keyword">from</span> <span class="string">&#x27;react-loadable&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">load</span> = (<span class="params">loader: any</span>) =&gt;</span><br><span class="line">  <span class="title class_">Loadable</span>(&#123;</span><br><span class="line">    loader,</span><br><span class="line">    <span class="attr">loading</span>: <span class="title class_">Loading</span></span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> routes = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;/list&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title function_">load</span>(<span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./list&#x27;</span>))</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;/detail&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title function_">load</span>(<span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./detail&#x27;</span>))</span><br><span class="line">  &#125;,</span><br><span class="line">  ...</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>那么你将面临如下的问题</p>
+<ul>
+<li>Node 直出时子路由如 &#x2F;list 只会渲染出 Loading 组件</li>
+<li>即使 Node 端顺利直出了, 到了客户端渲染又会发现 list 组件缺少了样式, 因为动态 import 本身就是非首屏的异步加载。</li>
+</ul>
+<p>所以 Next.js 未支持 SPA 多路由应用也算规避了这个问题, 亦或许是 Next.js 认为 SSR 场景下干脆就不需要 SPA 的概念了, 一切皆独立的页面。</p>
+<p>那么有不修改源码的情况下解决这个问题么? </p>
+<p>当然可以, 写一个 webpack plugin 对动态 import 语法的行为进行控制, 对于首屏的 cssChunk 进行重新分配即可, 这部分内容比较多以后有机会再介绍吧 ~</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Next-%E5%A4%9A%E9%A1%B5%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">Next 多页介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Next-%E5%A4%9A%E9%A1%B5%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">Next 多页实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Next-SPA"><span class="toc-number">3.</span> <span class="toc-text">Next SPA ?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Next-%E4%B8%BA%E4%BD%95%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1"><span class="toc-number">4.</span> <span class="toc-text">Next 为何这样设计</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/10/10/b9/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&text=Next.js 多页应用的设计与实现"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&title=Next.js 多页应用的设计与实现"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&is_video=false&description=Next.js 多页应用的设计与实现"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Next.js 多页应用的设计与实现&body=Check out this article: https://xiaoxiaojx.github.io/2022/10/10/b9/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&title=Next.js 多页应用的设计与实现"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&title=Next.js 多页应用的设计与实现"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&title=Next.js 多页应用的设计与实现"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&title=Next.js 多页应用的设计与实现"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/10/10/b9/&name=Next.js 多页应用的设计与实现&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/10/10/b9/&t=Next.js 多页应用的设计与实现"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

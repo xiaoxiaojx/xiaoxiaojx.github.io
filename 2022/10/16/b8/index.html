@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="由于本人 C++ 段位仅为初级 👷, 所以记录一下写">
+<meta property="og:type" content="article">
+<meta property="og:title" content="写 Pure 过程中的问题记录">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/10/16/b8/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="由于本人 C++ 段位仅为初级 👷, 所以记录一下写">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-10-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.934Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="Node.js, C++">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>写 Pure 过程中的问题记录</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/11/02/b7/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/10/10/b9/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/10/16/b8/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&text=写 Pure 过程中的问题记录"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&title=写 Pure 过程中的问题记录"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&is_video=false&description=写 Pure 过程中的问题记录"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=写 Pure 过程中的问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/10/16/b8/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&title=写 Pure 过程中的问题记录"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&title=写 Pure 过程中的问题记录"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&title=写 Pure 过程中的问题记录"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&title=写 Pure 过程中的问题记录"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&name=写 Pure 过程中的问题记录&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/10/16/b8/&t=写 Pure 过程中的问题记录"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Pure"><span class="toc-number">1.</span> <span class="toc-text">Pure</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="toc-number">2.</span> <span class="toc-text">常见问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Embedder-vs-V8-build-configuration-mismatch"><span class="toc-number">2.1.</span> <span class="toc-text">Embedder-vs-V8 build configuration mismatch.</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FailureMessage-Object-0x16fdfed98Process-97650-stopped"><span class="toc-number">2.2.</span> <span class="toc-text">FailureMessage Object: 0x16fdfed98Process 97650 stopped</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Undefined-symbols-for-architecture-arm64"><span class="toc-number">2.3.</span> <span class="toc-text">Undefined symbols for architecture arm64</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        写 Pure 过程中的问题记录
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-10-15T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-10-16</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Node-js-C/" rel="tag">Node.js, C++</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="Pure"><a href="#Pure" class="headerlink" title="Pure"></a>Pure</h2><p><a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/pure">Pure</a> 是我写的一个轻量级的 JavaScript runtime, 写的动机是最近先后出现了 <a target="_blank" rel="noopener" href="https://nextjs.org/docs/api-reference/edge-runtime">Next.js Edge Runtime</a>、<a target="_blank" rel="noopener" href="https://github.com/cloudflare/workerd">cloudflare workerd</a>、<a target="_blank" rel="noopener" href="https://github.com/noslate-project/aworker">Noslate JavaScript worker</a> 等 3 个相似的产品, 所以我想通过写 <a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/pure">Pure</a> 与写完后它的性能表现来感受为何大家都会投入进来 🤔</p>
+<blockquote>
+<p>由于本人 C++ 段位仅为初级 👷, 所以记录一下写 <a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/pure">Pure</a> 遇见的一些坑与解决的办法</p>
+</blockquote>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><blockquote>
+<p>v8 编译问题见: <a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/blog/issues/36">MacBook M1 编译 v8 问题记录</a></p>
+</blockquote>
+<h3 id="Embedder-vs-V8-build-configuration-mismatch"><a href="#Embedder-vs-V8-build-configuration-mismatch" class="headerlink" title="Embedder-vs-V8 build configuration mismatch."></a>Embedder-vs-V8 build configuration mismatch.</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Fatal error in , line 0</span></span><br><span class="line"><span class="comment"># Embedder-vs-V8 build configuration mismatch. On embedder side pointer compression is DISABLED while on V8 side it&#x27;s ENABLED.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#FailureMessage Object: 0x16fc2a918</span></span><br></pre></td></tr></table></figure>
+<p>问题解决: 编译参数加上 -DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">g++ src/pure.cc -g -I deps/v8/include/ -o pure -L lib/ -lv8_monolith -pthread -std=c++17 -DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="FailureMessage-Object-0x16fdfed98Process-97650-stopped"><a href="#FailureMessage-Object-0x16fdfed98Process-97650-stopped" class="headerlink" title="FailureMessage Object: 0x16fdfed98Process 97650 stopped"></a>FailureMessage Object: 0x16fdfed98Process 97650 stopped</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Fatal error in , line 0</span></span><br><span class="line"><span class="comment"># Check failed: GetProcessWidePtrComprCage()-&gt;IsReserved().</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#FailureMessage Object: 0x16fc4aea8/bin/sh: line 1: 95665 Abort trap: 6           ./pure</span></span><br></pre></td></tr></table></figure>
+<p>问题解决:</p>
+<ol>
+<li>运行如下命令使用lldb 开始调试<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lldb -- ./pure</span><br></pre></td></tr></table></figure>
+将会打印如下日志<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">* thread <span class="comment">#1, queue = &#x27;com.apple.main-thread&#x27;, stop reason = signal SIGABRT</span></span><br><span class="line">    frame <span class="comment">#0: 0x00000001877799b8 libsystem_kernel.dylib`__pthread_kill + 8</span></span><br><span class="line">libsystem_kernel.dylib`__pthread_kill:</span><br><span class="line">-&gt;  0x1877799b8 &lt;+8&gt;:  b.lo   0x1877799d8               ; &lt;+40&gt;</span><br><span class="line">    0x1877799bc &lt;+12&gt;: pacibsp </span><br><span class="line">    0x1877799c0 &lt;+16&gt;: stp    x29, x30, [sp, <span class="comment">#-0x10]!</span></span><br><span class="line">    0x1877799c4 &lt;+20&gt;: mov    x29, sp</span><br><span class="line">Target 0: (pure) stopped.</span><br></pre></td></tr></table></figure></li>
+<li>运行如下命令显示当前线程的堆栈回溯<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">thread backtrace</span><br></pre></td></tr></table></figure>
+将会打印如下日志, 即可找到源码开始报错的地方进行修复<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">* thread <span class="comment">#1, queue = &#x27;com.apple.main-thread&#x27;, stop reason = signal SIGABRT</span></span><br><span class="line">  * frame <span class="comment">#0: 0x00000001877799b8 libsystem_kernel.dylib`__pthread_kill + 8</span></span><br><span class="line">    frame <span class="comment">#1: 0x00000001877aceb0 libsystem_pthread.dylib`pthread_kill + 288</span></span><br><span class="line">    frame <span class="comment">#2: 0x00000001876ea314 libsystem_c.dylib`abort + 164</span></span><br><span class="line">    frame <span class="comment">#3: 0x00000001000250b0 pure`v8::base::OS::Abort() at platform-posix.cc:677:3 [opt]</span></span><br><span class="line">    frame <span class="comment">#4: 0x000000010001aa30 pure`V8_Fatal(format=&lt;unavailable&gt;) at logging.cc:167:3 [opt]</span></span><br><span class="line">    frame <span class="comment">#5: 0x000000010037fce4 pure`v8::internal::IsolateAllocator::IsolateAllocator(this=0x0000000102704250) at isolate-allocator.cc:0 [opt]</span></span><br><span class="line">    frame <span class="comment">#6: 0x00000001001f92c4 pure`v8::internal::Isolate::New() [inlined] std::__1::__unique_if&lt;v8::internal::IsolateAllocator&gt;::__unique_single std::__1::make_unique&lt;v8::internal::IsolateAllocator&gt;() at unique_ptr.h:728:32 [opt]</span></span><br><span class="line">    frame <span class="comment">#7: 0x00000001001f92b8 pure`v8::internal::Isolate::New() [inlined] v8::internal::Isolate::Allocate(is_shared=false) at isolate.cc:3353:7 [opt]</span></span><br><span class="line">    frame <span class="comment">#8: 0x00000001001f92b8 pure`v8::internal::Isolate::New() at isolate.cc:3335:22 [opt]</span></span><br><span class="line">    frame <span class="comment">#9: 0x000000010000b380 pure`pure::PureMainInstance::PureMainInstance(this=0x000000016fdff128, event_loop=0x0000000101236858, args=size=0, exec_args=size=0) at pure_main_instance.cc:90:16</span></span><br><span class="line">    frame <span class="comment">#10: 0x000000010000b574 pure`pure::PureMainInstance::PureMainInstance(this=0x000000016fdff128, event_loop=0x0000000101236858, args=size=0, exec_args=size=0) at pure_main_instance.cc:88:3</span></span><br><span class="line">    frame <span class="comment">#11: 0x00000001000080e0 pure`pure::Start(argc=1, argv=0x000000016fdff398) at pure.cc:80:26</span></span><br><span class="line">    frame <span class="comment">#12: 0x000000010000b164 pure`main(argc=1, argv=0x000000016fdff398) at pure_main.cc:10:12</span></span><br><span class="line">    frame <span class="comment">#13: 0x00000001023050f4 dyld`start + 520</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="Undefined-symbols-for-architecture-arm64"><a href="#Undefined-symbols-for-architecture-arm64" class="headerlink" title="Undefined symbols for architecture arm64"></a>Undefined symbols for architecture arm64</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Undefined symbols <span class="keyword">for</span> architecture arm64:</span><br><span class="line">  <span class="string">&quot;pure::Environment::GetCurrent(v8::Isolate*)&quot;</span>, referenced from:</span><br><span class="line">      pure::errors::PerIsolateMessageListener(v8::Local&lt;v8::Message&gt;, v8::Local&lt;v8::Value&gt;) <span class="keyword">in</span> pure_errors-ecfe77.o</span><br><span class="line">  <span class="string">&quot;pure::Environment::context() const&quot;</span>, referenced from:</span><br><span class="line">      pure::errors::PerIsolateMessageListener(v8::Local&lt;v8::Message&gt;, v8::Local&lt;v8::Value&gt;) <span class="keyword">in</span> pure_errors-ecfe77.o</span><br><span class="line">ld: symbol(s) not found <span class="keyword">for</span> architecture arm64</span><br><span class="line">clang: error: linker <span class="built_in">command</span> failed with <span class="built_in">exit</span> code 1 (use -v to see invocation)</span><br></pre></td></tr></table></figure>
+<p>问题解决: 通常是头文件中定义了类型, 却没有具体实现。找到未实现的定义, 在 .cc 或者 .inl.h 中实现即可。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Pure"><span class="toc-number">1.</span> <span class="toc-text">Pure</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="toc-number">2.</span> <span class="toc-text">常见问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Embedder-vs-V8-build-configuration-mismatch"><span class="toc-number">2.1.</span> <span class="toc-text">Embedder-vs-V8 build configuration mismatch.</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FailureMessage-Object-0x16fdfed98Process-97650-stopped"><span class="toc-number">2.2.</span> <span class="toc-text">FailureMessage Object: 0x16fdfed98Process 97650 stopped</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Undefined-symbols-for-architecture-arm64"><span class="toc-number">2.3.</span> <span class="toc-text">Undefined symbols for architecture arm64</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/10/16/b8/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&text=写 Pure 过程中的问题记录"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&title=写 Pure 过程中的问题记录"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&is_video=false&description=写 Pure 过程中的问题记录"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=写 Pure 过程中的问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/10/16/b8/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&title=写 Pure 过程中的问题记录"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&title=写 Pure 过程中的问题记录"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&title=写 Pure 过程中的问题记录"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&title=写 Pure 过程中的问题记录"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/10/16/b8/&name=写 Pure 过程中的问题记录&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/10/16/b8/&t=写 Pure 过程中的问题记录"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

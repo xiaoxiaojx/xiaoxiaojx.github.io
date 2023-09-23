@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="最近一段时间陆续有同学吐槽，现有的开发环境打包太慢了，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2021-10-14 巨石应用解决方案 nopack">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2021/10/14/b1/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="最近一段时间陆续有同学吐槽，现有的开发环境打包太慢了，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/140098710-57b43962-4c24-449b-a799-164fa85642bc.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/139096712-0820fd05-b088-4504-ae7b-7ed0dbe8e161.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/142038899-940f587e-3bae-4583-a84f-f125b5f16359.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/159294569-4705b6c3-7481-405b-a249-a0858b4cc201.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/143553680-db671e18-3248-4490-afce-7b470c784794.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/141148154-4b117402-f05b-420b-ae5f-37bbde878d76.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/139574362-47435c1a-1bf7-4340-a2ad-d47beb72af10.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/142039206-864d3192-3610-4e81-b343-3601484eb097.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/143618287-df4f2018-f031-4461-9450-304a8d3c7121.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/143618387-528f8e49-c02a-464a-9fde-9ba135bc0032.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/143618829-53740637-0fa3-411d-9ed4-0c1becfa170d.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/143617268-d57da61d-784a-4918-a013-2faccc5a6ead.png">
+<meta property="article:published_time" content="2021-10-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.929Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="bundless">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/140098710-57b43962-4c24-449b-a799-164fa85642bc.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>2021-10-14 巨石应用解决方案 nopack</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/11/15/b28/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/08/27/b29/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2021/10/14/b1/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&text=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&title=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&is_video=false&description=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=2021-10-14 巨石应用解决方案 nopack&body=Check out this article: https://xiaoxiaojx.github.io/2021/10/14/b1/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&title=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&title=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&title=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&title=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&name=2021-10-14 巨石应用解决方案 nopack&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2021/10/14/b1/&t=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">1. 背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-vite-%E4%B8%8E-snowpack"><span class="toc-number">2.</span> <span class="toc-text">2. vite 与 snowpack</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-nopack"><span class="toc-number">3.</span> <span class="toc-text">3. nopack</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%8E%9F%E7%90%86%E5%9B%BE"><span class="toc-number">3.1.</span> <span class="toc-text">3.1. 原理图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E6%97%B6%E5%BA%8F%E5%9B%BE"><span class="toc-number">3.2.</span> <span class="toc-text">3.2. 时序图</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-Q-%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%B0%E9%A1%B9%E7%9B%AE-0-%E6%94%B9%E5%8A%A8%E6%8E%A5%E5%85%A5"><span class="toc-number">3.2.1.</span> <span class="toc-text">3.3. Q: 如何做到项目 0 改动接入 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-Q-nopack-%E8%BF%99%E4%B8%AA%E5%90%8D%E5%AD%97%E6%98%AF%E5%95%A5%E6%84%8F%E6%80%9D"><span class="toc-number">3.2.2.</span> <span class="toc-text">3.4. Q: nopack 这个名字是啥意思 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-Q-%E5%A6%82%E4%BD%95%E5%BD%BB%E5%BA%95%E6%B6%88%E9%99%A4-CommonJs-%E8%BF%99%E4%BA%9B%E8%AF%AD%E6%B3%95%E4%BA%86"><span class="toc-number">3.2.3.</span> <span class="toc-text">3.5. Q: 如何彻底消除 CommonJs 这些语法了 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-6-Q-nopack-%E4%B8%8D%E6%98%AF%E5%9D%9A%E5%86%B3%E4%B8%8D%E6%89%93%E5%8C%85%E5%90%97"><span class="toc-number">3.2.4.</span> <span class="toc-text">3.6. Q: nopack 不是坚决不打包吗 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-7-Q-%E8%BF%99%E6%A0%B7%E7%9C%8B%E6%9D%A5%E6%AF%94-vite-%E6%9B%B4%E5%BF%AB"><span class="toc-number">3.2.5.</span> <span class="toc-text">3.7. Q: 这样看来比 vite 更快 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-8-Q-%E6%9C%80%E7%BB%88%E6%8E%A5%E5%85%A5%E7%9A%84%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95"><span class="toc-number">3.2.6.</span> <span class="toc-text">3.8. Q: 最终接入的效果如何 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-9-Q-ES-Module-%E5%BC%80%E5%8F%91%E7%9A%84%E5%8A%A3%E5%8A%BF"><span class="toc-number">3.2.7.</span> <span class="toc-text">3.9. Q: ES Module 开发的劣势?</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-swc-%E4%B8%8E-esbuild"><span class="toc-number">4.</span> <span class="toc-text">4. swc 与 esbuild</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-swc"><span class="toc-number">4.1.</span> <span class="toc-text">4.1. swc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-esbuild"><span class="toc-number">4.2.</span> <span class="toc-text">4.2. esbuild</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE"><span class="toc-number">4.3.</span> <span class="toc-text">4.3. 测试数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%9C%80%E5%90%8E%E7%9A%84%E8%AF%9D"><span class="toc-number">5.</span> <span class="toc-text">5. 最后的话</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        2021-10-14 巨石应用解决方案 nopack
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-10-13T16:00:00.000Z" class="dt-published" itemprop="datePublished">2021-10-14</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/bundless/" rel="tag">bundless</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/140098710-57b43962-4c24-449b-a799-164fa85642bc.png" alt="image"></p>
+<h2 id="1-背景"><a href="#1-背景" class="headerlink" title="1. 背景"></a>1. <a name='1.0'></a>背景</h2><p>最近一段时间陆续有同学吐槽，现有的开发环境打包 📦 太慢了，原话如下</p>
+<ul>
+<li>同学 a: xxx 项目冷启动，刚刚计时是 3 分 45 秒 左右，有空看看是否有优化空间哈。<br>视频是 xxx 项目 f-xxx-6196 分支（yarn dev 回车后开始计时）</li>
+<li>同学 b: 本地运行太慢了，想砍人</li>
+<li>同学 c: 我们项目启动很慢，咋整</li>
+<li>同学 d: xxx 项目编译时间太长了，改个东西容易电脑卡，不排除我的电脑问题，体验很差</li>
+</ul>
+<p>也确实，3 分 45 秒 🐢🐢🐢 的等待时间谁又受得了 😣！ 那么我们现在的脚手架的问题出在哪里 🤔?</p>
+<p>现有脚手架是基于 <a target="_blank" rel="noopener" href="https://webpack.js.org/">webpack</a> 打包，对于 <a target="_blank" rel="noopener" href="https://babeljs.io/">babel</a>，<a target="_blank" rel="noopener" href="https://www.typescriptlang.org/">TypeScript</a> 等编译做了缓存优化，甚至 <a target="_blank" rel="noopener" href="https://github.com/mzgoddard/hard-source-webpack-plugin">hard-source</a> 这样的持久缓存。但是由于业务需求的快速迭代，一切换分支导致大量 node_modules 依赖变化使得大部分缓存都未能命中 ❌</p>
+<p>所以当现有的优化手段都命中 ✅ 的时候，时间才能勉强减少到 40 秒 🐢 左右。</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/139096712-0820fd05-b088-4504-ae7b-7ed0dbe8e161.png" alt="image"></p>
+<p>webpack5 也尝试去解决慢的这个问题，比如新增了比较重量级的持久缓存 <a target="_blank" rel="noopener" href="https://webpack.js.org/configuration/cache/#cachetype">cache.type: filesystem </a> 功能以及仍在实验中的懒编译 <a target="_blank" rel="noopener" href="https://webpack.js.org/configuration/experiments/#experimentslazycompilation">experiments.lazyCompilation</a> 功能，不过从 <a target="_blank" rel="noopener" href="https://esbuild.github.io/">esbuild</a> 官方给大家的数据来看，webpack5 却是最慢的 😢!</p>
+<blockquote>
+<p>关于 webpack 的 experiments.lazyCompilation 功能, 在内网的同学可以继续阅读 <em><strong>2019-09-10 凯多 动态路由插件</strong></em> 分享, 其实两年前我已经实现了该功能来解决巨石应用的打包慢的问题，只是最后的提升很有限。</p>
+</blockquote>
+<p>这可能是 webpack5 被黑得最惨的一次… 因为第一次打包有一部分时间是在生成与写入缓存，怎么不拿第二次缓存生效后的时间来遛一遛比一比了？在这种情况下，我们升级 webpack5 可能还是解决不了痛点，频繁的分支切换又会回到解放前 !</p>
+<p>当项目逐渐膨胀时，似乎是已经到了 webpack 的瓶颈，近期特别火的 <a target="_blank" rel="noopener" href="https://vitejs.dev/">Vite</a> 与 <a target="_blank" rel="noopener" href="https://www.snowpack.dev/">Snowpack</a> 或许才是真正的解决方案 🤔?</p>
+<h2 id="2-vite-与-snowpack"><a href="#2-vite-与-snowpack" class="headerlink" title="2. vite 与 snowpack"></a>2. <a name='vitesnowpack'></a>vite 与 snowpack</h2><p><img src="https://user-images.githubusercontent.com/23253540/142038899-940f587e-3bae-4583-a84f-f125b5f16359.png" alt="image"><br>最初我想到的是接入 Vite 或者 Snowpack 解决现有的问题，关于提到的这些工具的原理，有不少文章都讲得很好了，这里就不做过多的介绍。</p>
+<p>Snowpack 刚出来不久就认真充满好奇的读了它的代码，发现里面有不少 hack 的实现，比如 <a target="_blank" rel="noopener" href="https://webpack.js.org/plugins/define-plugin/">define</a> 是通过字符串的替换去实现（这明显就会误伤无辜），css 文件中的 import 也没处理，最近作者说会交给社区去维护，自己有些力不从心了。</p>
+<blockquote>
+<p>Real-world testing is super important. I’m sure that sounds cliche，but its true. We had a few starter projects that we could test Snowpack against，but they were all small and simple. This created a huge experience gap between our internal projects and our actual users.</p>
+</blockquote>
+<p>文章出自 <a target="_blank" rel="noopener" href="https://dev.to/fredkschott/5-more-things-i-learned-building-snowpack-to-20-000-stars-5dc9">6 More Things I Learned Building Snowpack to 20,000 Stars (Part 2)</a>，而我们就是实际的业务，近 100 个大型项目，包含各类系统与 h5，几乎能踩完所有的坑。</p>
+<blockquote>
+<p>To be honest，I’m not sure where Snowpack goes from here. I burnt out on it at the end of last year，and haven’t found the energy to return. Usage and downloads began to trend down and the community has gotten quieter.</p>
+</blockquote>
+<blockquote>
+<p>At the same time，Vite (that Snowpack alternative that now powers SvelteKit) is taking off. To their credit，they do a lot of things really well. The good news is that two tools are very similar and easy to switch out. Even Astro is experimenting with moving from Snowpack to Vite in a future release.</p>
+</blockquote>
+<p>虽如此 Snowpack 依然是个可敬的先行者 ❤️</p>
+<p>所以综合体验下来还是 Vite 值得信赖，如果此时是新项目毫无疑问我推荐大家使用 Vite，但是我们这是老项目…</p>
+<p>何为老项目? 就是前阵子升级了一个 ts-loader 的大版本，有俩项目测试环境白屏了 😨。在试图接入 Vite 时遇见了各种奇怪的编译错误 ❌ 以及未能正确找到目标 js 与 scss 文件路径 ❌ 等问题。</p>
+<p>到这里我认为 Vite 是没有任何问题的，有些稀奇古怪，百花齐放的问题的代码就得你自己去改，当然实际继续挣扎下去可能会发现更多的奇葩问题，其解决沟通成本和时间成本是无法估计的。</p>
+<h2 id="3-nopack"><a href="#3-nopack" class="headerlink" title="3. nopack"></a>3. <a name='nopack'></a>nopack</h2><p><img src="https://user-images.githubusercontent.com/23253540/159294569-4705b6c3-7481-405b-a249-a0858b4cc201.png" alt="image"></p>
+<p>最终我决定自己开发，并且业务项目可以随意切换新的 ES Module 开发模式与现有的 webpack 开发模式。</p>
+<p>nopack 将以全局安装的形式存在，即对现有项目 **<em>0 侵入</em>**，对线上环境 **<em>0 危险</em>**， <strong><em>0 修改</em></strong> 即可接入。</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>nopack</th>
+<th>Vite</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>定位</td>
+<td>让存量 webpack 强绑定的项目<em><strong>开发体验</strong></em>由 🐢 变为 ⚡️</td>
+<td><em><strong>功能全面</strong></em>，下一代前端构建工具 ⚡️</td>
+</tr>
+<tr>
+<td>开发环境</td>
+<td>✅ ES Module + esbuild 编译</td>
+<td>✅ ES Module + esbuild 编译</td>
+</tr>
+<tr>
+<td>生产环境</td>
+<td>❌ 不支持（⚠️  生产环境无需变化）</td>
+<td>✅ rollup 打包（💡 类似于 webpack 的生产打包）</td>
+</tr>
+</tbody></table>
+<h3 id="3-1-原理图"><a href="#3-1-原理图" class="headerlink" title="3.1. 原理图"></a>3.1. <a name='3.1'></a>原理图</h3><p><img src="https://user-images.githubusercontent.com/23253540/143553680-db671e18-3248-4490-afce-7b470c784794.png" alt="image"></p>
+<h3 id="3-2-时序图"><a href="#3-2-时序图" class="headerlink" title="3.2. 时序图"></a>3.2. <a name='3.2'></a>时序图</h3><p><img src="https://user-images.githubusercontent.com/23253540/141148154-4b117402-f05b-420b-ae5f-37bbde878d76.png" alt="image"></p>
+<h4 id="3-3-Q-如何做到项目-0-改动接入"><a href="#3-3-Q-如何做到项目-0-改动接入" class="headerlink" title="3.3. Q: 如何做到项目 0 改动接入 ?"></a>3.3. <a name='Q:0'></a>Q: 如何做到项目 0 改动接入 ?</h4><ul>
+<li>Vite 的大部分零件是偏向于 <a target="_blank" rel="noopener" href="https://rollupjs.org/">Rollup</a> 体系。要想无缝兼容现在项目中配置的 _moduleAliases 与 sass 文件中各种 import 路径寻找，于是这部分我采用的 webpack 的零件，主要是 <a target="_blank" rel="noopener" href="https://www.npmjs.com/package/enhanced-resolve">enhanced-resolve</a> 与 <a target="_blank" rel="noopener" href="https://www.npmjs.com/package/sass-loader">sass-loader</a> 的处理逻辑。</li>
+<li>对于不规范的 npm 包, nopack 会对其进行硬编码矫正。主要考虑的问题是升级该包到最新版本可能会带来较多的 BREAK-CHANGE, 甚至最新版本可能都没修复, 业务回归测试任务较重可能就会放弃接入 nopack</li>
+<li>通过 <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap">importmap</a> 与 <a target="_blank" rel="noopener" href="https://webpack.js.org/configuration/externals/">externals </a> 等技术方案来兼容使用了内部微前端架构、<a target="_blank" rel="noopener" href="https://qiankun.umijs.org/zh/guide">qiankun</a> 微前端架构、<a target="_blank" rel="noopener" href="https://webpack.js.org/concepts/module-federation/">Module Federation</a> 架构的项目</li>
+<li>如果存在必需的 babel 插件, nopack 会简单的实现该插件同样的功能</li>
+</ul>
+<h4 id="3-4-Q-nopack-这个名字是啥意思"><a href="#3-4-Q-nopack-这个名字是啥意思" class="headerlink" title="3.4. Q: nopack 这个名字是啥意思 ?"></a>3.4. <a name='Q:nopack'></a>Q: nopack 这个名字是啥意思 ?</h4><ul>
+<li><p>只想做一个纯净的文件转译服务（理念类似于 <a target="_blank" rel="noopener" href="https://esm.sh/">esm.sh</a>），竭尽全力的不打包 ❌📦 。想法还是天真了，因为有太多 CommonJs 的 npm 包, 而 CommonJs to ES Module 又是一个不成立的事情，require 是运行时的，import 是静态的，可能你想到了 import() 函数不也是运行时的吗 ? 不过 import() 返回的却是 Promise …</p>
+</li>
+<li><p>只想做转译的想法行不通 ❌<br><img src="https://user-images.githubusercontent.com/23253540/139574362-47435c1a-1bf7-4340-a2ad-d47beb72af10.png" alt="image"></p>
+</li>
+</ul>
+<h4 id="3-5-Q-如何彻底消除-CommonJs-这些语法了"><a href="#3-5-Q-如何彻底消除-CommonJs-这些语法了" class="headerlink" title="3.5. Q: 如何彻底消除 CommonJs 这些语法了 ?"></a>3.5. <a name='Q:cjs'></a>Q: 如何彻底消除 CommonJs 这些语法了 ?</h4><ul>
+<li>那就只有预构建打包 📦 了，合成一个文件，require 的代码直接塞在对应的位置了，哪还会有 require 这些东西了</li>
+</ul>
+<h4 id="3-6-Q-nopack-不是坚决不打包吗"><a href="#3-6-Q-nopack-不是坚决不打包吗" class="headerlink" title="3.6. Q: nopack 不是坚决不打包吗 ?"></a>3.6. <a name='Q:nopack-1'></a>Q: nopack 不是坚决不打包吗 ?</h4><ul>
+<li>为了这些不规范的 npm 包，只能忍气吞声了，起初 nopack 与 Vite 这里有些区别，nopack 会试图判断这个 npm 包是不是 ES Module 的包，比如 package.json 中有 module 或者 browser 字段，或者 import 的路径包含 es，esm 目录的文件如 <code>packageA/es/a.js</code> 这种或许也是 ES Module 就不进行预构建了。这样下来比如 a 项目 🔍 扫描到了 336 个 npm 包，最后只会对 199 个包进行预构建 📦 。</li>
+</ul>
+<h4 id="3-7-Q-这样看来比-vite-更快"><a href="#3-7-Q-这样看来比-vite-更快" class="headerlink" title="3.7. Q: 这样看来比 vite 更快 ?"></a>3.7. <a name='Q:vite'></a>Q: 这样看来比 vite 更快 ?</h4><ul>
+<li>快是快了，但是具有迷惑性行为的包也不少，比如某个包也声明了 module 字段，但我其实是 CommonJs 的代码。更有甚者一个包中大部分文件是 ES Module 的，有 1 - 2 文件个是 CommonJs 的 🤯! 没办法，你不是 nopack 吗，这些包我忍你了，我 hardcode 到一个数组中把你们加入黑名单。</li>
+</ul>
+<h4 id="3-8-Q-最终接入的效果如何"><a href="#3-8-Q-最终接入的效果如何" class="headerlink" title="3.8. Q: 最终接入的效果如何 ?"></a>3.8. <a name='Q:'></a>Q: 最终接入的效果如何 ?</h4><ul>
+<li>号称 3 分 45 秒 的项目通过 esbuild 预构建大概只花 8s 左右，然后页面刷新时会对 src 下的 ts 与 jsx 通过 esbuid 进行转译，大概 4s 的时间，所以最终开始预构建到页面完全展示出来只花了 12s，esbuild 远比我想象中的更快 ⚡️。</li>
+</ul>
+<h4 id="3-9-Q-ES-Module-开发的劣势"><a href="#3-9-Q-ES-Module-开发的劣势" class="headerlink" title="3.9. Q: ES Module 开发的劣势?"></a>3.9. <a name='Q:esm'></a>Q: ES Module 开发的劣势?</h4><ol>
+<li><p>刷新页面的等待时间会慢一点</p>
+<ul>
+<li>ES Module 模式强调即时转译，浏览器运行阶段代码从入口文件开始运行的时候，会不断有 import 语法发起新的文件请求，对于 jsx 与 ts 文件的请求还需要通过 esbuild 进行转译，对于 scss 请求需要 dart-sass 转译，直到所有的代码运行完成。</li>
+<li>webpack 模式强调打包，打包阶段会把入口文件开始依赖分析，最后打包出一个 main.js 交给浏览器运行，所以浏览器运行阶段就会快很多。</li>
+</ul>
+</li>
+<li><p>对性能有一定的要求</p>
+<ul>
+<li>在其中一个项目接入时，使用 windows 开发的同学说快是快了，但是页面刷新的那一刻有点卡 🤔，排查时发现这个项目 network 中发了 3000 多个 js 的请求，Chrome 把 CPU 拉满了。所以 nopack 不得不又退步 😢，只能把 node_modules 的包进行全量的预构建来达到合并更多的文件，一下请求数降低到了 700，Chrome 即使拉满了 CPU 也是短暂就下来了。所以最终 nopack 又进行了妥协，采用了全量预构建的方式。事实证明文件请求减少页面刷新时白屏时间减少了，预构建也只增加了 2s 左右的时间，开发体验会更好一点。</li>
+</ul>
+</li>
+<li><p>esbuild 不会对 ts 类型进行检查</p>
+<ul>
+<li>可以参考 <a target="_blank" rel="noopener" href="https://github.com/TypeStrong/fork-ts-checker-webpack-plugin">fork-ts-checker-webpack-plugin</a> 实现一个插件来配合 esbuild 检查</li>
+</ul>
+</li>
+</ol>
+<h2 id="4-swc-与-esbuild"><a href="#4-swc-与-esbuild" class="headerlink" title="4. swc 与 esbuild"></a>4. <a name='swcesbuild'></a>swc 与 esbuild</h2><p><img src="https://user-images.githubusercontent.com/23253540/142039206-864d3192-3610-4e81-b343-3601484eb097.png" alt="image"><br>选择编译器的时候，调研了 swc 与 esbuild</p>
+<h3 id="4-1-swc"><a href="#4-1-swc" class="headerlink" title="4.1. swc"></a>4.1. <a name='swc'></a>swc</h3><p><a target="_blank" rel="noopener" href="https://nextjs.org/">Next.js</a> 已经实验性使用 <a target="_blank" rel="noopener" href="https://swc.rs/">swc</a>。</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/143618287-df4f2018-f031-4461-9450-304a8d3c7121.png" alt="image"></p>
+<h3 id="4-2-esbuild"><a href="#4-2-esbuild" class="headerlink" title="4.2. esbuild"></a>4.2. <a name='esbuild'></a>esbuild</h3><p>Vite 与 Snowpack 都是使用的 esbuild。</p>
+<blockquote>
+<p>目前仅发现范型函数赋值给变量编译会有问题。</p>
+</blockquote>
+<p><img src="https://user-images.githubusercontent.com/23253540/143618387-528f8e49-c02a-464a-9fde-9ba135bc0032.png" alt="image"></p>
+<h3 id="4-3-测试数据"><a href="#4-3-测试数据" class="headerlink" title="4.3. 测试数据"></a>4.3. <a name='4.3'></a>测试数据</h3><p>下面是 webpack 模式下测试 esbuild 与 swc 相关的测试数据</p>
+<ul>
+<li>项目: xxx</li>
+<li>版本: 91a69d4e</li>
+<li>编译速度: 首次无缓存状态下的构建时间</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/23253540/143618829-53740637-0fa3-411d-9ed4-0c1becfa170d.png" alt="image"></p>
+<ul>
+<li><p>编译兼容:</p>
+<ul>
+<li>swc: 编译 componets&#x2F;*.js 多个文件存在问题</li>
+<li>esbuild: js 模式下不支持编译装饰器，故疑似存在装饰器的文件换成 ts 模式进行编译</li>
+</ul>
+</li>
+<li><p>小结:</p>
+<ul>
+<li>esbuild 与 swc 速度相差无几，但是 esbuild 对老项目的编译兼容性高于 swc。</li>
+</ul>
+</li>
+</ul>
+<h2 id="5-最后的话"><a href="#5-最后的话" class="headerlink" title="5. 最后的话"></a>5. <a name='5.0'></a>最后的话</h2><p>站在巨人的肩膀总是能看得更远，首先感谢 Vite 与 Snowpack 从 CommonJs 到 ES Module 过渡时期提供的各种解决方案，最后感谢背后的 esbuild 与 swc 提供的强大心脏 ⚡️</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/143617268-d57da61d-784a-4918-a013-2faccc5a6ead.png" alt="image"></p>
+<p>谢谢阅读 ~</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">1. 背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-vite-%E4%B8%8E-snowpack"><span class="toc-number">2.</span> <span class="toc-text">2. vite 与 snowpack</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-nopack"><span class="toc-number">3.</span> <span class="toc-text">3. nopack</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%8E%9F%E7%90%86%E5%9B%BE"><span class="toc-number">3.1.</span> <span class="toc-text">3.1. 原理图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E6%97%B6%E5%BA%8F%E5%9B%BE"><span class="toc-number">3.2.</span> <span class="toc-text">3.2. 时序图</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-Q-%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%B0%E9%A1%B9%E7%9B%AE-0-%E6%94%B9%E5%8A%A8%E6%8E%A5%E5%85%A5"><span class="toc-number">3.2.1.</span> <span class="toc-text">3.3. Q: 如何做到项目 0 改动接入 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-Q-nopack-%E8%BF%99%E4%B8%AA%E5%90%8D%E5%AD%97%E6%98%AF%E5%95%A5%E6%84%8F%E6%80%9D"><span class="toc-number">3.2.2.</span> <span class="toc-text">3.4. Q: nopack 这个名字是啥意思 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-Q-%E5%A6%82%E4%BD%95%E5%BD%BB%E5%BA%95%E6%B6%88%E9%99%A4-CommonJs-%E8%BF%99%E4%BA%9B%E8%AF%AD%E6%B3%95%E4%BA%86"><span class="toc-number">3.2.3.</span> <span class="toc-text">3.5. Q: 如何彻底消除 CommonJs 这些语法了 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-6-Q-nopack-%E4%B8%8D%E6%98%AF%E5%9D%9A%E5%86%B3%E4%B8%8D%E6%89%93%E5%8C%85%E5%90%97"><span class="toc-number">3.2.4.</span> <span class="toc-text">3.6. Q: nopack 不是坚决不打包吗 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-7-Q-%E8%BF%99%E6%A0%B7%E7%9C%8B%E6%9D%A5%E6%AF%94-vite-%E6%9B%B4%E5%BF%AB"><span class="toc-number">3.2.5.</span> <span class="toc-text">3.7. Q: 这样看来比 vite 更快 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-8-Q-%E6%9C%80%E7%BB%88%E6%8E%A5%E5%85%A5%E7%9A%84%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95"><span class="toc-number">3.2.6.</span> <span class="toc-text">3.8. Q: 最终接入的效果如何 ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-9-Q-ES-Module-%E5%BC%80%E5%8F%91%E7%9A%84%E5%8A%A3%E5%8A%BF"><span class="toc-number">3.2.7.</span> <span class="toc-text">3.9. Q: ES Module 开发的劣势?</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-swc-%E4%B8%8E-esbuild"><span class="toc-number">4.</span> <span class="toc-text">4. swc 与 esbuild</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-swc"><span class="toc-number">4.1.</span> <span class="toc-text">4.1. swc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-esbuild"><span class="toc-number">4.2.</span> <span class="toc-text">4.2. esbuild</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE"><span class="toc-number">4.3.</span> <span class="toc-text">4.3. 测试数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%9C%80%E5%90%8E%E7%9A%84%E8%AF%9D"><span class="toc-number">5.</span> <span class="toc-text">5. 最后的话</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2021/10/14/b1/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&text=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&title=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&is_video=false&description=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=2021-10-14 巨石应用解决方案 nopack&body=Check out this article: https://xiaoxiaojx.github.io/2021/10/14/b1/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&title=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&title=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&title=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&title=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2021/10/14/b1/&name=2021-10-14 巨石应用解决方案 nopack&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2021/10/14/b1/&t=2021-10-14 巨石应用解决方案 nopack"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

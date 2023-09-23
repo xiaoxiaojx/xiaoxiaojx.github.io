@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="v8::Local 是 v8 和 Node-Api 中十分常见的一种类型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="v8::Local&lt;v8::Value&gt; 引发的思考">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/03/05/b20/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="v8::Local 是 v8 和 Node-Api 中十分常见的一种类型">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/156809023-f48b472a-3fbb-420e-9810-d398007ab660.png">
+<meta property="article:published_time" content="2022-03-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.930Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="v8, C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/156809023-f48b472a-3fbb-420e-9810-d398007ab660.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>v8::Local&lt;v8::Value&gt; 引发的思考</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/03/12/b19/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/03/02/b21/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/03/05/b20/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&text=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&title=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&is_video=false&description=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=v8::Local&lt;v8::Value&gt; 引发的思考&body=Check out this article: https://xiaoxiaojx.github.io/2022/03/05/b20/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&title=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&title=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&title=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&title=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&name=v8::Local&lt;v8::Value&gt; 引发的思考&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/03/05/b20/&t=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#V8LocalValueFromJsValue"><span class="toc-number">1.</span> <span class="toc-text">V8LocalValueFromJsValue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81"><span class="toc-number">2.</span> <span class="toc-text">验证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        v8::Local&lt;v8::Value&gt; 引发的思考
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-03-04T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-03-05</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/v8-C/" rel="tag">v8, C++</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/156809023-f48b472a-3fbb-420e-9810-d398007ab660.png" alt="image"></p>
+<h2 id="V8LocalValueFromJsValue"><a href="#V8LocalValueFromJsValue" class="headerlink" title="V8LocalValueFromJsValue"></a>V8LocalValueFromJsValue</h2><p>v8::Local<a href="v8::Value">v8::Value</a> 是 v8 和 Node-Api 中十分常见的一种类型。Local 创建了一个指向 js 对象的本地引用, 如下的代码可通过 V8LocalValueFromJsValue 函数从一个 js 对象中返回一个 Local 对象</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/js_native_api_v8.h</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">inline</span> v8::Local&lt;v8::Value&gt; <span class="title">V8LocalValueFromJsValue</span><span class="params">(napi_value v)</span> </span>&#123;</span><br><span class="line">  v8::Local&lt;v8::Value&gt; local;</span><br><span class="line">  <span class="built_in">memcpy</span>(<span class="built_in">static_cast</span>&lt;<span class="type">void</span>*&gt;(&amp;local), &amp;v, <span class="built_in">sizeof</span>(v));</span><br><span class="line">  <span class="keyword">return</span> local;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>刚开始看见这个代码比较疑惑, 因为对于一个没有经过 new 关键词生成的 local 实例, 其内存是分配在栈中, 类似于一个结构体</p>
+<ol>
+<li>为何在离开 V8LocalValueFromJsValue 函数作用域后没有被自动释放内存, 返回一个结构体的函数是合法的吗?</li>
+<li>还是因为这里是 inline 关键词的作用, 或许是因为 inline 是类似于宏定义文本替换才导致这样书写也是成功的?</li>
+</ol>
+<h2 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h2><p>于是写了如下的 demo 开始验证, 当 getTest 函数返回一个结构体时会有如何的表现</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">&#125; Test;</span><br><span class="line"></span><br><span class="line"><span class="function">Test <span class="title">getTest</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Test test;</span><br><span class="line">    test.age = <span class="number">100</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;getTest test age %d&quot;</span>, &amp;test.age);</span><br><span class="line">    <span class="keyword">return</span> test;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Test test = <span class="built_in">getTest</span>();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;main test age %d&quot;</span>, &amp;test.age);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后程序是能正常运行的, 从运行结果来看, 两个 age 字段的地址是不同的</p>
+<p>这样我大概得出了  <em><strong>getTest 函数中有一个临时性结构体 test，test 也确实会在 getTest 函数返回时被释放，但由于 test 被当做“值”进行返回，因此编译器将保证 getTest 的返回值对于 getTest 的调用者（caller）来说是有效的, 所以调用者 main 函数里面的 test 将得到一份被复制的数据, 于是表现出相同的 age 字段地址其实是不一样的</strong></em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  c ./a.out </span><br><span class="line">getTest <span class="built_in">test</span> age -385596360main <span class="built_in">test</span> age -385596328% </span><br></pre></td></tr></table></figure>
+<p>那接下来继续再验证一下如果是 inline Test getTest() 的话, 两个字段的地址会不会是一样了 ?</p>
+<p>答案是加上了 inline 后 age 字段地址还是不一样的。这样我开始明白了 <em><strong>inline 不是像宏定义那样进行的简单的文本替换</strong></em>, 于是单独学习了一下 inline 函数, 总结如下, 具体推荐阅读文章 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/152055532">C++ 内联函数 inline
+</a></p>
+<ul>
+<li>宏是由预处理器对宏进行替换的，而内联函数是通过编译器控制实现的。</li>
+<li>宏调用并不执行类型检查甚至连正常参数也不检查，但是函数调用却要检查。</li>
+<li>C语言的宏使用的是文本替换，可能导致无法预料的后果</li>
+<li>在宏中的编译错误很难发现，因为它们引用的是扩展的代码，而不是程序员键入的</li>
+</ul>
+<p>最后的验证, 如果 getTest 返回的是指针了 ?</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">&#125; Test;</span><br><span class="line"></span><br><span class="line"><span class="function">Test* <span class="title">getTest</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Test test;</span><br><span class="line">    test.age = <span class="number">100</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;getTest test age %d&quot;</span>, &amp;test.age);</span><br><span class="line">    <span class="keyword">return</span> &amp;test;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Test* test = <span class="built_in">getTest</span>();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;main test age %d&quot;</span>, &amp;test-&gt;age);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由 demo 运行结果可见, age 字段的地址是一致的。<em><strong>说明平时我们在写代码时尽量不要传递结构体等实体, 因为将会花费一定的时间去复制数据, 而返回指针则会快捷很多</strong></em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  c ./a.out </span><br><span class="line">getTest <span class="built_in">test</span> age -277670872main <span class="built_in">test</span> age -277670872% </span><br></pre></td></tr></table></figure>
+<p>到这里其实我还有最后一个疑惑的点, Local 创建了一个指向 js 对象的本地引用, 那么为何上面的 V8LocalValueFromJsValue 却是复制了一份数据而非引用关系了 ?</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// v8/include/v8-local-handle.h</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Local</span> &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="function">V8_INLINE <span class="title">Local</span><span class="params">()</span> : val_(nullptr) &#123;</span>&#125;</span><br><span class="line">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">S</span>&gt;</span><br><span class="line">  <span class="function">V8_INLINE <span class="title">Local</span><span class="params">(Local&lt;S&gt; that)</span> : val_(reinterpret_cast&lt;T*&gt;(*that)) &#123;</span></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * This check fails when trying to convert between incompatible</span></span><br><span class="line"><span class="comment">     * handles. For example, converting from a Local&lt;String&gt; to a</span></span><br><span class="line"><span class="comment">     * Local&lt;Number&gt;.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="built_in">static_assert</span>(std::is_base_of&lt;T, S&gt;::value, <span class="string">&quot;type check&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  T* val_;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>于是只能查看了一下 v8 中关于 Local 的定义, Local 有一个 val_ 属性, 是一个指针数据, 此时我猜测 V8LocalValueFromJsValue 函数中使用 memcpy 复制数据时, 如果遇见了指针类型, 只会复制一下地址, 所以新的 local 对象持有的 val_ 引用的是原 js 对象</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> age;</span><br><span class="line">&#125; my_local_value;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> age;</span><br><span class="line">  my_local_value *_val;</span><br><span class="line">&#125; my_local;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  my_local_value local_value;</span><br><span class="line"></span><br><span class="line">  my_local local1;</span><br><span class="line">  my_local local2;</span><br><span class="line"></span><br><span class="line">  local1._val = &amp;local_value;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">memcpy</span>(&amp;local2, &amp;local1, <span class="built_in">sizeof</span>(local1));</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;is_eq: %d \n&quot;</span>, local2._val == local1._val ? <span class="number">1</span> : <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>于是写了上面的验证 demo, 运行结果也证实了 _val 值的是相等的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  c ./a.out</span><br><span class="line">is_eq: 1</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// v8/include/v8-local-handle.h</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * An object reference managed by the v8 garbage collector.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * All objects returned from v8 have to be tracked by the garbage collector so</span></span><br><span class="line"><span class="comment"> * that it knows that the objects are still alive.  Also, because the garbage</span></span><br><span class="line"><span class="comment"> * collector may move objects, it is unsafe to point directly to an object.</span></span><br><span class="line"><span class="comment"> * Instead, all objects are stored in handles which are known by the garbage</span></span><br><span class="line"><span class="comment"> * collector and updated whenever an object moves.  Handles should always be</span></span><br><span class="line"><span class="comment"> * passed by value (except in cases like out-parameters) and they should never</span></span><br><span class="line"><span class="comment"> * be allocated on the heap.</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+<p>v8::Local<a href="v8::Value">v8::Value</a> 既是非常常见也是非常重要的一个概念, 后面需要继续深入探究一下其实现与原理</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#V8LocalValueFromJsValue"><span class="toc-number">1.</span> <span class="toc-text">V8LocalValueFromJsValue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81"><span class="toc-number">2.</span> <span class="toc-text">验证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/03/05/b20/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&text=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&title=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&is_video=false&description=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=v8::Local&lt;v8::Value&gt; 引发的思考&body=Check out this article: https://xiaoxiaojx.github.io/2022/03/05/b20/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&title=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&title=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&title=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&title=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/03/05/b20/&name=v8::Local&lt;v8::Value&gt; 引发的思考&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/03/05/b20/&t=v8::Local&lt;v8::Value&gt; 引发的思考"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

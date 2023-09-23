@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="这两天帮兄弟团队新建一个 Next.js 项目，主要是内部的基础包，组件库等">
+<meta property="og:type" content="article">
+<meta property="og:title" content="webpack 不止静态分析">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/07/30/b14/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="这两天帮兄弟团队新建一个 Next.js 项目，主要是内部的基础包，组件库等">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/176713288-e3d555ab-fb38-46e3-9ce3-03e65afdaa89.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/176681809-05624f6a-db35-40a3-b3b1-98f18bb6be77.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/176686439-30611d6e-404d-4940-b7fe-5094a36b5ee3.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/176698324-4af39441-6008-4345-ae3f-6edc5ec3d3c7.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/176699226-5afe7a5d-edb6-4784-8c4d-c5e04d456195.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/176709133-060a5d64-f369-4959-afa1-2ab0afdf72a1.png">
+<meta property="article:published_time" content="2022-07-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.929Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="webpack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/176713288-e3d555ab-fb38-46e3-9ce3-03e65afdaa89.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>webpack 不止静态分析</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/08/13/b13/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/06/19/b24/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/07/30/b14/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&text=webpack 不止静态分析"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&title=webpack 不止静态分析"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&is_video=false&description=webpack 不止静态分析"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=webpack 不止静态分析&body=Check out this article: https://xiaoxiaojx.github.io/2022/07/30/b14/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&title=webpack 不止静态分析"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&title=webpack 不止静态分析"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&title=webpack 不止静态分析"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&title=webpack 不止静态分析"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&name=webpack 不止静态分析&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/07/30/b14/&t=webpack 不止静态分析"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D"><span class="toc-number">3.</span> <span class="toc-text">问题定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">4.</span> <span class="toc-text">问题解决</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        webpack 不止静态分析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-07-29T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-07-30</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/webpack/" rel="tag">webpack</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/176713288-e3d555ab-fb38-46e3-9ce3-03e65afdaa89.png" alt="image"></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p><img src="https://user-images.githubusercontent.com/23253540/176681809-05624f6a-db35-40a3-b3b1-98f18bb6be77.png" alt="image"><br>这两天帮兄弟团队新建一个 Next.js 项目，主要是内部的基础包，组件库等在最新的 next12 &amp; webpack5 &amp; react18 环境下跑通。其中遇见了如上图所示的编译错误, 即 .d.ts 文件没有设置对应的 loader 处理。<br><img src="https://user-images.githubusercontent.com/23253540/176686439-30611d6e-404d-4940-b7fe-5094a36b5ee3.png" alt="image"><br>回头看一下报错处的代码 import BasicLogic from ‘.&#x2F;BasicLogic’, 没有写文件后缀怎么会被解析成 BasicLogic.d.ts, 而不是 BasicLogic.js 了 !?</p>
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><p>类似于 Node.js 不写文件后缀会依次尝试 .js、.json、.node, webpack 则是通过 <a target="_blank" rel="noopener" href="https://webpack.js.org/configuration/resolve/#resolveextensions">resolve.extensions</a> 字段来配置需要自动补充的文件后缀。</p>
+<p>于是先检查 webpack-config.ts 文件, 发现 extensions 字段配置正确  ✅, webpack 尝试的解析顺序将是 .js &gt; .tsx &gt; .ts &gt; .jsx &gt; .json &gt; .wasm, 按数组索引由小到大优先级由大到小降低。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packages/next/build/webpack-config.ts</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> resolveConfig = &#123;</span><br><span class="line">    <span class="comment">// Disable .mjs for node_modules bundling</span></span><br><span class="line">    <span class="attr">extensions</span>: isNodeServer</span><br><span class="line">      ? [</span><br><span class="line">          <span class="string">&#x27;.js&#x27;</span>,</span><br><span class="line">          <span class="string">&#x27;.mjs&#x27;</span>,</span><br><span class="line">          ...(useTypeScript ? [<span class="string">&#x27;.tsx&#x27;</span>, <span class="string">&#x27;.ts&#x27;</span>] : []),</span><br><span class="line">          <span class="string">&#x27;.jsx&#x27;</span>,</span><br><span class="line">          <span class="string">&#x27;.json&#x27;</span>,</span><br><span class="line">          <span class="string">&#x27;.wasm&#x27;</span>,</span><br><span class="line">        ]</span><br><span class="line">      : [</span><br><span class="line">          <span class="string">&#x27;.mjs&#x27;</span>,</span><br><span class="line">          <span class="string">&#x27;.js&#x27;</span>,</span><br><span class="line">          ...(useTypeScript ? [<span class="string">&#x27;.tsx&#x27;</span>, <span class="string">&#x27;.ts&#x27;</span>] : []),</span><br><span class="line">          <span class="string">&#x27;.jsx&#x27;</span>,</span><br><span class="line">          <span class="string">&#x27;.json&#x27;</span>,</span><br><span class="line">          <span class="string">&#x27;.wasm&#x27;</span>,</span><br><span class="line">        ],</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>接着检查了一下 next 是否配置了 resolve 文件解析相关的插件, 使得错误的篡改了原有的解析顺序, 排查了一圈未发现可疑的插件。此时彷佛陷入了僵局, 一时想不明白问题出在了哪 🤯</p>
+<h2 id="问题定位"><a href="#问题定位" class="headerlink" title="问题定位"></a>问题定位</h2><p><img src="https://user-images.githubusercontent.com/23253540/176698324-4af39441-6008-4345-ae3f-6edc5ec3d3c7.png" alt="image"><br>最后盯着报错信息看久了, 似乎对这小子有点眼熟了。sync ^.*$ 好像是在扫描文件? 什么时候会出现通过正则扫描文件的操作了，可以看一个简单的例子</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/176699226-5afe7a5d-edb6-4784-8c4d-c5e04d456195.png" alt="image"></p>
+<p>对于 require 函数, webpack 支持传入的文件路径可是静态的字符串, 也可以是夹杂着变量的字符串拼接。</p>
+<p>当然 webpack 不能准确推算出 dynamicPath 的值来定位到具体的文件, 因为 dynamicPath 是运行时变量, 或者例子中 dynamicPath 赋值语句可以写成 const dynamicPath &#x3D; windows.dynamicPath, 使得静态分析没有了可能。</p>
+<p>接着我们 debug 一下 webpack 对这样写法的处理代码, 通过上图 DEBUG CONSOLE 的信息可知, require(<code>../utils/$&#123;dynamicPath&#125;</code>) 其实会转换为类似于 require(<code>../utils/*.*</code>) 语句。</p>
+<p>作用就是会去 utils 目录下扫描正则匹配上的模块, 匹配成功的模块全部会打包进入 dist 目录备用。</p>
+<p>当实际浏览器运行时就会一股脑把正则匹配上的模块加载进内存, 从而支持动态获取某个 key 值对应的模块, 所以你只需确保 dynamicPath 是 utils 下目录真实存在的模块就好。</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/176709133-060a5d64-f369-4959-afa1-2ab0afdf72a1.png" alt="image"></p>
+<p>回头看 import BasicLogic from ‘.&#x2F;BasicLogic’ 这行代码, 完全就是 es6 支持静态分析的 import 语句, 怎么出现了 require 函数传入了变量参数的问题了? 一搜索发现是如上图该文件的 51 行写了 require 函数 😓</p>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>既然确保了 .d.ts 是被无辜扫描进去的模块, 且实际运行时也不会用到该模块, 那么我们可以配置一个 ignore-loader 来处理 *.d.ts 的文件就好了。我个人认为要尽量避免使用含有变量参数的动态 require、动态 import 这样的语法, 除非正则匹配上的文件都是运行时需要的, 否则大量冗余模块使得 js 体积无故增大。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D"><span class="toc-number">3.</span> <span class="toc-text">问题定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">4.</span> <span class="toc-text">问题解决</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/07/30/b14/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&text=webpack 不止静态分析"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&title=webpack 不止静态分析"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&is_video=false&description=webpack 不止静态分析"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=webpack 不止静态分析&body=Check out this article: https://xiaoxiaojx.github.io/2022/07/30/b14/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&title=webpack 不止静态分析"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&title=webpack 不止静态分析"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&title=webpack 不止静态分析"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&title=webpack 不止静态分析"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/07/30/b14/&name=webpack 不止静态分析&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/07/30/b14/&t=webpack 不止静态分析"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="前情提要几个月前 y 同学开发时遇到了 Node.js 进程偶现的 CPU 占用 100% 排查 的问题, 当时排查的结论是大概率为 Node.js http2 的 bug 时间回到现在 d 同学反馈近期 CPU 占用 100% 非常频繁, 虽然上次排查下来可以通过使用 http1 代替 http2 解决, 但对于 toB 的巨石应用动辄 500+ 的文件请求, 还是希望使用 http2 强大的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js 进程偶现的 CPU 占用 100% 排查 (下)">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2023/09/05/b44/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="前情提要几个月前 y 同学开发时遇到了 Node.js 进程偶现的 CPU 占用 100% 排查 的问题, 当时排查的结论是大概率为 Node.js http2 的 bug 时间回到现在 d 同学反馈近期 CPU 占用 100% 非常频繁, 虽然上次排查下来可以通过使用 http1 代替 http2 解决, 但对于 toB 的巨石应用动辄 500+ 的文件请求, 还是希望使用 http2 强大的">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/3cc7f0c5-2d02-4b24-ae06-9397f99defd7">
+<meta property="article:published_time" content="2023-09-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.933Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="Node.js">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/3cc7f0c5-2d02-4b24-ae06-9397f99defd7">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Node.js 进程偶现的 CPU 占用 100% 排查 (下)</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/09/24/b45/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/09/02/b43/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/09/05/b44/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&text=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&title=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&is_video=false&description=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Node.js 进程偶现的 CPU 占用 100% 排查 (下)&body=Check out this article: https://xiaoxiaojx.github.io/2023/09/05/b44/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&title=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&title=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&title=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&title=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&name=Node.js 进程偶现的 CPU 占用 100% 排查 (下)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/09/05/b44/&t=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E6%83%85%E6%8F%90%E8%A6%81"><span class="toc-number">1.</span> <span class="toc-text">前情提要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E6%97%A5%E5%BF%97"><span class="toc-number">2.</span> <span class="toc-text">添加日志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%8D%E7%8E%B0%E6%88%90%E5%8A%9F"><span class="toc-number">3.</span> <span class="toc-text">复现成功</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%95%E5%9B%BE%E8%A7%A3%E5%86%B3"><span class="toc-number">4.</span> <span class="toc-text">试图解决</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E7%BB%93%E8%AE%BA"><span class="toc-number">5.</span> <span class="toc-text">最终结论</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Node.js 进程偶现的 CPU 占用 100% 排查 (下)
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-09-04T16:00:00.000Z" class="dt-published" itemprop="datePublished">2023-09-05</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Node-js/" rel="tag">Node.js</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/3cc7f0c5-2d02-4b24-ae06-9397f99defd7" alt="image"></p>
+<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>几个月前 y 同学开发时遇到了 <a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/blog/issues/57">Node.js 进程偶现的 CPU 占用 100% 排查</a> 的问题, 当时排查的结论是大概率为 Node.js http2 的 bug</p>
+<p>时间回到现在 d 同学反馈近期 CPU 占用 100% 非常频繁, 虽然上次排查下来可以通过使用 http1 代替 http2 解决, 但对于 toB 的巨石应用动辄 500+ 的文件请求, 还是希望使用 http2 强大的并发能力来大幅减少 bundless 模式下大量的文件请求时长问题</p>
+<p>好巧不巧 d 同学也是 M2, 最后排查下来与 M2 无关…</p>
+<h2 id="添加日志"><a href="#添加日志" class="headerlink" title="添加日志"></a>添加日志</h2><p>于是下载了 d 同学当前 Node.js 16.19.1 版本的代码, 在 lldb 线程堆栈回溯的最后一个函数 OnStreamClose 中加入了下面的日志, 目的是希望知道最后代码卡死的准确位置来做下一步的分析</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">int Http2Session::OnStreamClose(nghttp2_session* handle,</span><br><span class="line">                                int32_t id,</span><br><span class="line">                                uint32_t code,</span><br><span class="line">                                void* user_data) &#123;</span><br><span class="line">  Http2Session* session = static_cast&lt;Http2Session*&gt;(user_data);</span><br><span class="line">  Environment* env = session-&gt;env();</span><br><span class="line">  Isolate* isolate = env-&gt;isolate();</span><br><span class="line">  HandleScope scope(isolate);</span><br><span class="line">  Local&lt;Context&gt; context = env-&gt;context();</span><br><span class="line">  Context::Scope context_scope(context);</span><br><span class="line">  Debug(session, &quot;stream %d closed with code: %d&quot;, id, code);</span><br><span class="line"><span class="addition">+ std::cout &lt;&lt; &quot;&gt;&gt;&gt; 1&quot; &lt;&lt;&lt; std:endl;</span></span><br><span class="line">  BaseObjectPtr&lt;Http2Stream&gt; stream = session-&gt;FindStream(id);</span><br><span class="line"><span class="addition">+ std::cout &lt;&lt; &quot;&gt;&gt;&gt; 2&quot; &lt;&lt;&lt; std:endl;</span></span><br><span class="line">  // Intentionally ignore the callback if the stream does not exist or has</span><br><span class="line">  // already been destroyed</span><br><span class="line">  if (!stream || stream-&gt;is_destroyed())</span><br><span class="line">    return 0;</span><br><span class="line"><span class="addition">+ std::cout &lt;&lt; &quot;&gt;&gt;&gt; 3&quot; &lt;&lt;&lt; std:endl;</span></span><br><span class="line"></span><br><span class="line">  // Don&#x27;t close synchronously in case there&#x27;s pending data to be written. This</span><br><span class="line">  // may happen when writing trailing headers.</span><br><span class="line">  if (code == NGHTTP2_NO_ERROR &amp;&amp; nghttp2_session_want_write(handle) &amp;&amp;</span><br><span class="line">      !env-&gt;is_stopping()) &#123;</span><br><span class="line"><span class="addition">+ 	std::cout &lt;&lt; &quot;&gt;&gt;&gt; 4&quot; &lt;&lt;&lt; std:endl;</span></span><br><span class="line">    env-&gt;SetImmediate([handle, id, code, user_data](Environment* env) &#123;</span><br><span class="line"><span class="addition">+ 	  std::cout &lt;&lt; &quot;&gt;&gt;&gt; 5&quot; &lt;&lt;&lt; std:endl;</span></span><br><span class="line">      OnStreamClose(handle, id, code, user_data);</span><br><span class="line">    &#125;);</span><br><span class="line"><span class="addition">+ 	std::cout &lt;&lt; &quot;&gt;&gt;&gt; 6&quot; &lt;&lt;&lt; std:endl;</span></span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  stream-&gt;Close(code);</span><br><span class="line"><span class="addition">+ std::cout &lt;&lt; &quot;&gt;&gt;&gt; 7&quot; &lt;&lt;&lt; std:endl;</span></span><br><span class="line"></span><br><span class="line">  // ...</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着把修改后的代码编译成功的二进制文件给 d 同学去复现。macOS 中编译 Node.js 运行下面两行命令即可。其他平台参考 <a target="_blank" rel="noopener" href="https://github.com/nodejs/node/blob/main/BUILDING.md">Building Node.js</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./configure</span><br><span class="line">make -j4</span><br></pre></td></tr></table></figure>
+
+<h2 id="复现成功"><a href="#复现成功" class="headerlink" title="复现成功"></a>复现成功</h2><p>最后 d 同学使用刚编译的 Node.js 很快复现了问题, 与此同时启动 nopack 命令的 VSCode 控制台在快速不断循环 ♻️ 打印 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 6 -&gt; 5 -&gt; 1 的日志, 因为这个死循环的日志输出把 VSCode 的 Code Helper 进程的 CPU 也拉到了 100%</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; 1</span><br><span class="line">&gt;&gt;&gt; 2</span><br><span class="line">&gt;&gt;&gt; 3</span><br><span class="line">&gt;&gt;&gt; 4</span><br><span class="line">&gt;&gt;&gt; 6</span><br><span class="line">&gt;&gt;&gt; 5</span><br><span class="line">&gt;&gt;&gt; 1</span><br><span class="line">&gt;&gt;&gt; 2</span><br><span class="line">&gt;&gt;&gt; 3</span><br><span class="line">&gt;&gt;&gt; 4</span><br><span class="line">&gt;&gt;&gt; 6</span><br><span class="line">&gt;&gt;&gt; 5</span><br></pre></td></tr></table></figure>
+
+<h2 id="试图解决"><a href="#试图解决" class="headerlink" title="试图解决"></a>试图解决</h2><p>因为上面复现时日志只能打印到 &gt;&gt;&gt; 6, 仔细一看  &gt;&gt;&gt; 6 上一行的代码 OnStreamClose 函数满足了 <code>if(code == NGHTTP2_NO_ERROR &amp;&amp; nghttp2_session_want_write(handle) &amp;&amp;       !env-&gt;is_stopping())</code> 条件后会再次调用自身, 故造成了死循环 ❌</p>
+<p>于是简单修改了一下 OnStreamClose 函数, 使得即使满足了 if 条件, 也不能调用自身超过 3 次。最后编译好发现未能再复现, 问题得到解决 ✅</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">int Http2Session::OnStreamClose(nghttp2_session* handle,</span><br><span class="line">                                int32_t id,</span><br><span class="line">                                uint32_t code,</span><br><span class="line">                                void* user_data,</span><br><span class="line"><span class="addition">+                               int32_t retry_num) &#123;</span></span><br><span class="line">  //...</span><br><span class="line">  // Don&#x27;t close synchronously in case there&#x27;s pending data to be written. This</span><br><span class="line">  // may happen when writing trailing headers.</span><br><span class="line">  if (code == NGHTTP2_NO_ERROR &amp;&amp; nghttp2_session_want_write(handle) &amp;&amp;</span><br><span class="line">      !env-&gt;is_stopping()</span><br><span class="line"><span class="addition">+  &amp;&amp; retry_num &lt; 3) &#123;</span></span><br><span class="line"><span class="addition">+   int32_t next_retry_num = retry_num + 1;</span></span><br><span class="line"><span class="addition">+   env-&gt;SetImmediate([handle, id, code, user_data, next_retry_num](Environment* env) &#123;</span></span><br><span class="line"><span class="addition">+     OnStreamClose(handle, id, code, user_data, next_retry_num);</span></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">  &#125;</span><br><span class="line">  // ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="最终结论"><a href="#最终结论" class="headerlink" title="最终结论"></a>最终结论</h2><p>最后让 d 同学使用最新的 20.5.1 版本看能不能复现, 如果仍有问题, 就去提一个 Issue。结果是未能复现, 那么问题就锁定在了 16.19.1 ~ 20.5.1 版本之间。d 同学认真查阅了一下 <a target="_blank" rel="noopener" href="https://github.com/nodejs/node/releases">Node.js Releases 日志</a> 找到了该问题由 16.19.0 版本 <a target="_blank" rel="noopener" href="https://github.com/nodejs/node/pull/45153">node&#x2F;pull&#x2F;45153</a> 改动引入, 在 16.20.0 版本 <a target="_blank" rel="noopener" href="https://github.com/nodejs/node/pull/46721/files">node&#x2F;pull&#x2F;46721</a> 进行了回滚。<em><strong>故该问题为 Node.js 16.19.0、16.19.1 版本的 bug</strong></em></p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">int Http2Session::OnStreamClose(nghttp2_session* handle,</span><br><span class="line">                                int32_t id,</span><br><span class="line">                                uint32_t code,</span><br><span class="line">                                void* user_data) &#123;</span><br><span class="line">  Http2Session* session = static_cast&lt;Http2Session*&gt;(user_data);</span><br><span class="line">  Environment* env = session-&gt;env();</span><br><span class="line">  Isolate* isolate = env-&gt;isolate();</span><br><span class="line">  HandleScope scope(isolate);</span><br><span class="line">  Local&lt;Context&gt; context = env-&gt;context();</span><br><span class="line">  Context::Scope context_scope(context);</span><br><span class="line">  Debug(session, &quot;stream %d closed with code: %d&quot;, id, code);</span><br><span class="line">  BaseObjectPtr&lt;Http2Stream&gt; stream = session-&gt;FindStream(id);</span><br><span class="line">  // Intentionally ignore the callback if the stream does not exist or has</span><br><span class="line">  // already been destroyed</span><br><span class="line">  if (!stream || stream-&gt;is_destroyed())</span><br><span class="line">    return 0;</span><br><span class="line"></span><br><span class="line"><span class="deletion">-  // Don&#x27;t close synchronously in case there&#x27;s pending data to be written. This</span></span><br><span class="line"><span class="deletion">-  // may happen when writing trailing headers.</span></span><br><span class="line"><span class="deletion">-  if (code == NGHTTP2_NO_ERROR &amp;&amp; nghttp2_session_want_write(handle) &amp;&amp;</span></span><br><span class="line"><span class="deletion">-      !env-&gt;is_stopping()) &#123;</span></span><br><span class="line"><span class="deletion">-    env-&gt;SetImmediate([handle, id, code, user_data](Environment* env) &#123;</span></span><br><span class="line"><span class="deletion">-      OnStreamClose(handle, id, code, user_data);</span></span><br><span class="line"><span class="deletion">-    &#125;);</span></span><br><span class="line"><span class="deletion">-</span></span><br><span class="line"><span class="deletion">-    return 0;</span></span><br><span class="line"><span class="deletion">-  &#125;</span></span><br><span class="line"></span><br><span class="line">  stream-&gt;Close(code);</span><br><span class="line"></span><br><span class="line">  // ...</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E6%83%85%E6%8F%90%E8%A6%81"><span class="toc-number">1.</span> <span class="toc-text">前情提要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E6%97%A5%E5%BF%97"><span class="toc-number">2.</span> <span class="toc-text">添加日志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%8D%E7%8E%B0%E6%88%90%E5%8A%9F"><span class="toc-number">3.</span> <span class="toc-text">复现成功</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%95%E5%9B%BE%E8%A7%A3%E5%86%B3"><span class="toc-number">4.</span> <span class="toc-text">试图解决</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E7%BB%93%E8%AE%BA"><span class="toc-number">5.</span> <span class="toc-text">最终结论</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/09/05/b44/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&text=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&title=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&is_video=false&description=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Node.js 进程偶现的 CPU 占用 100% 排查 (下)&body=Check out this article: https://xiaoxiaojx.github.io/2023/09/05/b44/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&title=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&title=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&title=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&title=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/09/05/b44/&name=Node.js 进程偶现的 CPU 占用 100% 排查 (下)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/09/05/b44/&t=Node.js 进程偶现的 CPU 占用 100% 排查 (下)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

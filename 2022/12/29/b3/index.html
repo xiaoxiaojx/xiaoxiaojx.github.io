@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="a 同学运行一个服务端渲染（Server-side rendering，简称 SSR）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="webpack Tree Shaking 的实现原理">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/12/29/b3/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="a 同学运行一个服务端渲染（Server-side rendering，简称 SSR）">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/209829567-046514c2-8061-4fbb-be96-5a02276ddaca.png">
+<meta property="article:published_time" content="2022-12-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.932Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="webpack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/209829567-046514c2-8061-4fbb-be96-5a02276ddaca.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>webpack Tree Shaking 的实现原理</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/01/16/b2/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/12/04/b4/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/12/29/b3/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&text=webpack Tree Shaking 的实现原理"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&title=webpack Tree Shaking 的实现原理"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&is_video=false&description=webpack Tree Shaking 的实现原理"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=webpack Tree Shaking 的实现原理&body=Check out this article: https://xiaoxiaojx.github.io/2022/12/29/b3/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&title=webpack Tree Shaking 的实现原理"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&title=webpack Tree Shaking 的实现原理"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&title=webpack Tree Shaking 的实现原理"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&title=webpack Tree Shaking 的实现原理"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&name=webpack Tree Shaking 的实现原理&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/12/29/b3/&t=webpack Tree Shaking 的实现原理"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">问题背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%81%E8%BF%9B%E8%A1%8C%E4%BA%86-Tree-Shaking"><span class="toc-number">2.</span> <span class="toc-text">谁进行了 Tree Shaking</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#webpack-Tree-Shaking"><span class="toc-number">3.</span> <span class="toc-text">webpack Tree Shaking</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text">第一步静态分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%E8%AE%B0%E5%BD%95%E4%BF%A1%E6%81%AF"><span class="toc-number">3.2.</span> <span class="toc-text">第二步记录信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90"><span class="toc-number">3.3.</span> <span class="toc-text">第三步静态分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E6%AD%A5%E6%96%B0%E5%A2%9E%E4%B8%80%E4%B8%AA-Dependency"><span class="toc-number">3.4.</span> <span class="toc-text">第四步新增一个 Dependency</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E6%AD%A5%E5%BC%80%E5%A7%8B-Tree-Shaking"><span class="toc-number">3.5.</span> <span class="toc-text">第五步开始 Tree Shaking</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%85%AD%E6%AD%A5%E5%88%A0%E9%99%A4%E6%9C%AA%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%A0%81"><span class="toc-number">3.6.</span> <span class="toc-text">第六步删除未使用代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        webpack Tree Shaking 的实现原理
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-12-28T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-12-29</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/webpack/" rel="tag">webpack</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/209829567-046514c2-8061-4fbb-be96-5a02276ddaca.png" alt="image"></p>
+<h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReferenceError: XMLHttpRequest is not defined</span><br></pre></td></tr></table></figure>
+<p>a 同学运行一个服务端渲染（Server-side rendering，简称 SSR） 项目时抛出了如上的错误，熟悉 SSR 原理的同学应该比较了解这类问题的原因，通常是代码中未区分 Node 环境还是浏览器环境就直接使用了 window、document、XMLHttpRequest 等浏览器环境才有的变量</p>
+<p>由于错误堆栈较少，现在需要帮忙定位到有问题的代码，首先就对他的代码进行了删减, 把 App 组件减少到了如下极简的代码发现就不再报错了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> <span class="title class_">React</span> <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123; isCompanyDomain &#125; <span class="keyword">from</span> <span class="string">&#x27;@util/router&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">App</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.Component</span> &#123;</span><br><span class="line">  <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>hello<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着通过<em><strong>二分法</strong></em>逐步恢复 App 组件的代码，最终发现如下 changeResult 函数代码补充上后就会报错</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> <span class="title class_">React</span> <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123; isCompanyDomain &#125; <span class="keyword">from</span> <span class="string">&#x27;@util/router&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">App</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.Component</span> &#123;</span><br><span class="line">  <span class="title function_">changeResult</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_">isCompanyDomain</span>()) &#123;</span><br><span class="line">      <span class="comment">// xxx</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>hello<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的一个 ⚠️ 可疑点是 changeResult 函数并没有任何地方有调用，为何它成了报错的关键? 如果把 changeResult 函数里面的 isCompanyDomain 代码删除发现也不会再报错</p>
+<p>问题的原因其实就已经浮出水面，删除 isCompanyDomain 函数调用的代码，那么 <code>import &#123; isCompanyDomain &#125; from &#39;@util/router&#39;</code> 这行代码极有可能由于 <code>isCompanyDomain is declared but its value is never read.</code> 在打包后就被删除了也就不再有报错，所以问题是 <code>@util/router</code> 文件引用了未区分环境就直接使用 XMLHttpRequest 变量的代码</p>
+<h2 id="谁进行了-Tree-Shaking"><a href="#谁进行了-Tree-Shaking" class="headerlink" title="谁进行了 Tree Shaking"></a>谁进行了 Tree Shaking</h2><p>对于 <a target="_blank" rel="noopener" href="https://webpack.js.org/guides/tree-shaking/">Tree Shaking | webpack</a> 有了解的同学应该知道 webpack 默认只会在 <code>mode: &#39;production&#39;</code> 时开启 Tree Shaking 功能。那么我们上面分析的 <code>import &#123; isCompanyDomain &#125; from &#39;@util/router&#39;</code> 代码又是谁在 <code>mode: &#39;development&#39;</code>时就给删除了？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">entry</span>: <span class="string">&#x27;./src/index.js&#x27;</span>,</span><br><span class="line">  <span class="attr">output</span>: &#123;</span><br><span class="line">    <span class="attr">filename</span>: <span class="string">&#x27;bundle.js&#x27;</span>,</span><br><span class="line">    <span class="attr">path</span>: path.<span class="title function_">resolve</span>(__dirname, <span class="string">&#x27;dist&#x27;</span>),</span><br><span class="line">  &#125;,</span><br><span class="line"> <span class="attr">mode</span>: <span class="string">&#x27;production&#x27;</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>此时 🐛 debug 的方向就是追踪 <code>import &#123; isCompanyDomain &#125; from &#39;@util/router&#39;</code> 代码在 webpack 里面被分析的生命周期，排查是哪一步被剔除了？</p>
+<p>在 webpack 的分析流程中一个 import 语句首当其冲是被 webpack 内置的 Parser 生成 Dependency Graph 时给遍历与记录。即如下的 prewalkImportDeclaration 函数会把 AST 遍历到的 import 语句通过 hooks 机制给抛出，订阅了该 hooks 事件的插件再进行后续的处理</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/Parser.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Parser</span> <span class="keyword">extends</span> <span class="title class_ inherited__">Tapable</span> &#123;</span><br><span class="line">	<span class="title function_">prewalkImportDeclaration</span>(<span class="params">statement</span>) &#123;</span><br><span class="line">		<span class="keyword">const</span> source = statement.<span class="property">source</span>.<span class="property">value</span>;</span><br><span class="line">		<span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">import</span>.<span class="title function_">call</span>(statement, source);</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">const</span> specifier <span class="keyword">of</span> statement.<span class="property">specifiers</span>) &#123;</span><br><span class="line">			<span class="keyword">const</span> name = specifier.<span class="property">local</span>.<span class="property">name</span>;</span><br><span class="line">			<span class="variable language_">this</span>.<span class="property">scope</span>.<span class="property">renames</span>.<span class="title function_">set</span>(name, <span class="literal">null</span>);</span><br><span class="line">			<span class="variable language_">this</span>.<span class="property">scope</span>.<span class="property">definitions</span>.<span class="title function_">add</span>(name);</span><br><span class="line">			<span class="keyword">switch</span> (specifier.<span class="property">type</span>) &#123;</span><br><span class="line">				<span class="keyword">case</span> <span class="string">&quot;ImportDefaultSpecifier&quot;</span>:</span><br><span class="line">					<span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">importSpecifier</span>.<span class="title function_">call</span>(statement, source, <span class="string">&quot;default&quot;</span>, name);</span><br><span class="line">					<span class="keyword">break</span>;</span><br><span class="line">				<span class="keyword">case</span> <span class="string">&quot;ImportSpecifier&quot;</span>:</span><br><span class="line">					<span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">importSpecifier</span>.<span class="title function_">call</span>(</span><br><span class="line">						statement,</span><br><span class="line">						source,</span><br><span class="line">						specifier.<span class="property">imported</span>.<span class="property">name</span>,</span><br><span class="line">						name</span><br><span class="line">					);</span><br><span class="line">					<span class="keyword">break</span>;</span><br><span class="line">				<span class="keyword">case</span> <span class="string">&quot;ImportNamespaceSpecifier&quot;</span>:</span><br><span class="line">					<span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">importSpecifier</span>.<span class="title function_">call</span>(statement, source, <span class="literal">null</span>, name);</span><br><span class="line">					<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>奇怪的是在此处进行 debug 发现 <code>import &#123; isCompanyDomain &#125; from &#39;@util/router&#39;</code> 语句没有被 prewalkImportDeclaration 函数捕获? 那么说明 webpack Parser 拿到的代码就已经没有了 <code>import &#123; isCompanyDomain &#125; from &#39;@util/router&#39;</code> 这行代码</p>
+<p>在 webpack Parser 之前工作的就只能是 loader 了，那么我们 debug 一下 ts-loader 编译完业务代码后的产物，发现产物中这行 <code>import &#123; isCompanyDomain &#125; from &#39;@util/router&#39;</code> 代码就被删除了</p>
+<p>此时我们可以使用 tsc 命令来验证一下 TypeScript 编译器的行为, 发现编译后的 output.js 确实把未使用到的 <code>import &#123; testtest1 &#125; from &#39;./test&#39;</code> 代码给删除了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; testtest1 &#125; <span class="keyword">from</span> <span class="string">&#x27;./test&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">123</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// output.js</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">123</span>);</span><br><span class="line"><span class="keyword">export</span> &#123;&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="webpack-Tree-Shaking"><a href="#webpack-Tree-Shaking" class="headerlink" title="webpack Tree Shaking"></a>webpack Tree Shaking</h2><p>上面说了半天还只是编译器 tsc 的剔除未使用代码的行为，那么 webpack 自己的 Tree Shaking 是如何实现的了？</p>
+<p>接下来我们通过如下 demo 代码对 Tree Shaking 的实现原理进行探索，预期是 webpack 打包后的代码会删除 <code>src/test.js</code> 中没有使用到的 testtest1 的代码，而 testtest2 因为有实际被使用到会保留</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/index.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; testtest1, testtest2 &#125; <span class="keyword">from</span> <span class="string">&#x27;./test&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(testtest2, <span class="number">123</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/test.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> testtest1 = <span class="string">&#x27;1oooooooooooooooooo&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> testtest2 = <span class="string">&#x27;2oooooooooooooooooo&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>为了防止 ts-loader 编译 src&#x2F;index.js 时直接把<code>import &#123; testtest1, testtest2 &#125; from &#39;./test&#39;</code> 编译成了 <code>import &#123; testtest2 &#125; from &#39;./test&#39;</code>，这样会让 webpack 过于轻松的分析到未使用的代码, 所以我们可以篡改下 ts-loader 的产物，使得产物依然是<code>import &#123; testtest1, testtest2 &#125; from &#39;./test&#39;</code></p>
+</blockquote>
+<h3 id="第一步静态分析"><a href="#第一步静态分析" class="headerlink" title="第一步静态分析"></a>第一步静态分析</h3><p>webpack 第一步先对入口文件 <code>src/index.js</code> 进行静态分析，通过 AST 遍历拿到所有的 import 语句，然后通过 <code>hooks.importSpecifier, hooks.importSpecifier, hooks.importSpecifier</code> 勾子抛出每一个 import 语句的信息，最后真正订阅了这些勾子的插件再开始工作</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/Parser.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Parser</span> <span class="keyword">extends</span> <span class="title class_ inherited__">Tapable</span> &#123;</span><br><span class="line">	<span class="title function_">prewalkImportDeclaration</span>(<span class="params">statement</span>) &#123;</span><br><span class="line">		<span class="keyword">const</span> source = statement.<span class="property">source</span>.<span class="property">value</span>;</span><br><span class="line">		<span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">import</span>.<span class="title function_">call</span>(statement, source);</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">const</span> specifier <span class="keyword">of</span> statement.<span class="property">specifiers</span>) &#123;</span><br><span class="line">			<span class="keyword">const</span> name = specifier.<span class="property">local</span>.<span class="property">name</span>;</span><br><span class="line">			<span class="variable language_">this</span>.<span class="property">scope</span>.<span class="property">renames</span>.<span class="title function_">set</span>(name, <span class="literal">null</span>);</span><br><span class="line">			<span class="variable language_">this</span>.<span class="property">scope</span>.<span class="property">definitions</span>.<span class="title function_">add</span>(name);</span><br><span class="line">			<span class="keyword">switch</span> (specifier.<span class="property">type</span>) &#123;</span><br><span class="line">				<span class="keyword">case</span> <span class="string">&quot;ImportDefaultSpecifier&quot;</span>:</span><br><span class="line">					<span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">importSpecifier</span>.<span class="title function_">call</span>(statement, source, <span class="string">&quot;default&quot;</span>, name);</span><br><span class="line">					<span class="keyword">break</span>;</span><br><span class="line">				<span class="keyword">case</span> <span class="string">&quot;ImportSpecifier&quot;</span>:</span><br><span class="line">					<span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">importSpecifier</span>.<span class="title function_">call</span>(</span><br><span class="line">						statement,</span><br><span class="line">						source,</span><br><span class="line">						specifier.<span class="property">imported</span>.<span class="property">name</span>,</span><br><span class="line">						name</span><br><span class="line">					);</span><br><span class="line">					<span class="keyword">break</span>;</span><br><span class="line">				<span class="keyword">case</span> <span class="string">&quot;ImportNamespaceSpecifier&quot;</span>:</span><br><span class="line">					<span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">importSpecifier</span>.<span class="title function_">call</span>(statement, source, <span class="literal">null</span>, name);</span><br><span class="line">					<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="第二步记录信息"><a href="#第二步记录信息" class="headerlink" title="第二步记录信息"></a>第二步记录信息</h3><p>如下 HarmonyImportDependencyParserPlugin 插件就订阅了<code>hooks.importSpecifier</code>事件，它会把 import 信息都通过 parser.state.harmonySpecifier 这个 Map 给记录了下来</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/dependencies/HarmonyImportDependencyParserPlugin.js</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="keyword">class</span> <span class="title class_">HarmonyImportDependencyParserPlugin</span> &#123;</span><br><span class="line">	<span class="title function_">apply</span>(<span class="params">parser</span>) &#123;</span><br><span class="line">		parser.<span class="property">hooks</span>.<span class="property">importSpecifier</span>.<span class="title function_">tap</span>(</span><br><span class="line">			<span class="string">&quot;HarmonyImportDependencyParserPlugin&quot;</span>,</span><br><span class="line">			<span class="function">(<span class="params">statement, source, id, name</span>) =&gt;</span> &#123;</span><br><span class="line">				parser.<span class="property">scope</span>.<span class="property">definitions</span>.<span class="title function_">delete</span>(name);</span><br><span class="line">				parser.<span class="property">scope</span>.<span class="property">renames</span>.<span class="title function_">set</span>(name, <span class="string">&quot;imported var&quot;</span>);</span><br><span class="line">				<span class="keyword">if</span> (!parser.<span class="property">state</span>.<span class="property">harmonySpecifier</span>) &#123;</span><br><span class="line">					parser.<span class="property">state</span>.<span class="property">harmonySpecifier</span> = <span class="keyword">new</span> <span class="title class_">Map</span>();</span><br><span class="line">				&#125;</span><br><span class="line">				parser.<span class="property">state</span>.<span class="property">harmonySpecifier</span>.<span class="title function_">set</span>(name, &#123;</span><br><span class="line">					source,</span><br><span class="line">					id,</span><br><span class="line">					<span class="attr">sourceOrder</span>: parser.<span class="property">state</span>.<span class="property">lastHarmonyImportOrder</span></span><br><span class="line">				&#125;);</span><br><span class="line">				<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		);</span><br></pre></td></tr></table></figure>
+<h3 id="第三步静态分析"><a href="#第三步静态分析" class="headerlink" title="第三步静态分析"></a>第三步静态分析</h3><p>此时 webpack 的静态分析到了<code>console.log(testtest2, 123)</code>语句，发现有代码引用到了 testtest2 变量，于是继续通过<code>hooks.expression</code>勾子抛出当前变量的信息</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/Parser.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Parser</span> <span class="keyword">extends</span> <span class="title class_ inherited__">Tapable</span> &#123;</span><br><span class="line">	<span class="title function_">walkIdentifier</span>(<span class="params">expression</span>) &#123;</span><br><span class="line">		<span class="keyword">if</span> (!<span class="variable language_">this</span>.<span class="property">scope</span>.<span class="property">definitions</span>.<span class="title function_">has</span>(expression.<span class="property">name</span>)) &#123;</span><br><span class="line">			<span class="keyword">const</span> hook = <span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">expression</span>.<span class="title function_">get</span>(</span><br><span class="line">				<span class="variable language_">this</span>.<span class="property">scope</span>.<span class="property">renames</span>.<span class="title function_">get</span>(expression.<span class="property">name</span>) || expression.<span class="property">name</span></span><br><span class="line">			);</span><br><span class="line">			<span class="keyword">if</span> (hook !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">				<span class="keyword">const</span> result = hook.<span class="title function_">call</span>(expression);</span><br><span class="line">				<span class="keyword">if</span> (result === <span class="literal">true</span>) <span class="keyword">return</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="第四步新增一个-Dependency"><a href="#第四步新增一个-Dependency" class="headerlink" title="第四步新增一个 Dependency"></a>第四步新增一个 Dependency</h3><p>订阅了<code>hooks.expression</code>事件的 HarmonyImportDependencyParserPlugin 插件接收到了 testtest2 变量的信息，并且发现第二步记录信息的 parser.state.harmonySpecifier Map 中刚好记录了 testtest2 的信息, 于是确定了这是一个合法的 import 引用, 最后为 <code>src/index.js</code> 模块新增了一个类型为 <em><strong>HarmonyImportSpecifierDependency</strong></em> 的 Dependency</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/dependencies/HarmonyImportDependencyParserPlugin.js</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="keyword">class</span> <span class="title class_">HarmonyImportDependencyParserPlugin</span> &#123;</span><br><span class="line">	<span class="title function_">apply</span>(<span class="params">parser</span>) &#123;</span><br><span class="line">		parser.<span class="property">hooks</span>.<span class="property">expression</span></span><br><span class="line">			.<span class="title function_">for</span>(<span class="string">&quot;imported var&quot;</span>)</span><br><span class="line">			.<span class="title function_">tap</span>(<span class="string">&quot;HarmonyImportDependencyParserPlugin&quot;</span>, <span class="function"><span class="params">expr</span> =&gt;</span> &#123;</span><br><span class="line">				<span class="keyword">const</span> name = expr.<span class="property">name</span>;</span><br><span class="line">				<span class="keyword">const</span> settings = parser.<span class="property">state</span>.<span class="property">harmonySpecifier</span>.<span class="title function_">get</span>(name);</span><br><span class="line">				<span class="keyword">const</span> dep = <span class="keyword">new</span> <span class="title class_">HarmonyImportSpecifierDependency</span>(</span><br><span class="line">					settings.<span class="property">source</span>,</span><br><span class="line">					parser.<span class="property">state</span>.<span class="property">module</span>,</span><br><span class="line">					settings.<span class="property">sourceOrder</span>,</span><br><span class="line">					parser.<span class="property">state</span>.<span class="property">harmonyParserScope</span>,</span><br><span class="line">					settings.<span class="property">id</span>,</span><br><span class="line">					name,</span><br><span class="line">					expr.<span class="property">range</span>,</span><br><span class="line">					<span class="variable language_">this</span>.<span class="property">strictExportPresence</span></span><br><span class="line">				);</span><br><span class="line">				dep.<span class="property">shorthand</span> = parser.<span class="property">scope</span>.<span class="property">inShorthand</span>;</span><br><span class="line">				dep.<span class="property">directImport</span> = <span class="literal">true</span>;</span><br><span class="line">				dep.<span class="property">loc</span> = expr.<span class="property">loc</span>;</span><br><span class="line">				parser.<span class="property">state</span>.<span class="property">module</span>.<span class="title function_">addDependency</span>(dep);</span><br><span class="line">				<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">			&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="第五步开始-Tree-Shaking"><a href="#第五步开始-Tree-Shaking" class="headerlink" title="第五步开始 Tree Shaking"></a>第五步开始 Tree Shaking</h3><p>到第四步我们已经知道 webpack 静态分析 <code>src/index.js</code> 模块时会给被 import 了且被使用到的 testtest2 变量分配一个 <em><strong>HarmonyImportSpecifierDependency</strong></em>。而当 webpack 开始静态分析 <code>src/test.js</code> 模块时又会给 testtest1, testtest2 都分配一个 <em><strong>HarmonyExportSpecifierDependency</strong></em></p>
+<ul>
+<li>对于 <code>src/index.js</code> 模块, 因为 import 引用且使用到了 testtest2，所以为其分配了一个指向 testtest2 变量的 <em><strong>HarmonyImportSpecifierDependency</strong></em></li>
+<li>对于 <code>src/test.js</code> 模块, 因为源码包含了两个 export 导出语句，所以为导出语句 testtest1, testtest2 变量各分配了一个 <em><strong>HarmonyExportSpecifierDependency</strong></em></li>
+</ul>
+<p><code>src/test.js</code> 模块最后生成的代码是按照它包含的两个 <em><strong>HarmonyExportSpecifierDependency</strong></em> 的模版函数的规则决定</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/dependencies/HarmonyExportSpecifierDependency.js</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">HarmonyExportSpecifierDependency</span>.<span class="property">Template</span> = <span class="keyword">class</span> <span class="title class_">HarmonyExportSpecifierDependencyTemplate</span> &#123;</span><br><span class="line">	<span class="title function_">getContent</span>(<span class="params">dep</span>) &#123;</span><br><span class="line">		<span class="keyword">const</span> used = dep.<span class="property">originModule</span>.<span class="title function_">isUsed</span>(dep.<span class="property">name</span>);</span><br><span class="line">		<span class="keyword">if</span> (!used) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="string">`/* unused harmony export <span class="subst">$&#123;dep.name || <span class="string">&quot;namespace&quot;</span>&#125;</span> */\n`</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">const</span> exportsName = dep.<span class="property">originModule</span>.<span class="property">exportsArgument</span>;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> <span class="string">`/* harmony export (binding) */ __webpack_require__.d(<span class="subst">$&#123;exportsName&#125;</span>, <span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(</span></span></span><br><span class="line"><span class="subst"><span class="string">			used</span></span></span><br><span class="line"><span class="subst"><span class="string">		)&#125;</span>, function() &#123; return <span class="subst">$&#123;dep.id&#125;</span>; &#125;);\n`</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>因为 <code>src/test.js</code> 模块的代码是导出的 testtest2 有被使用（used 的值为 true），导出的 testtest1 未被使用（used 的值为 false），那么按照  getContent 函数生成的代码就是类似如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/test.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> testtest1 = <span class="string">&#x27;1oooooooooooooooooo&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> testtest2 = <span class="string">&#x27;2oooooooooooooooooo&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* unused harmony export testtest1 */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* harmony export (binding) */</span> __webpack_require__.<span class="title function_">d</span>(__webpack_exports__, <span class="string">&quot;testtest2&quot;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123; <span class="keyword">return</span> testtest2; &#125;);</span><br></pre></td></tr></table></figure>
+<p>那么为什么 testtest2 变量 used 的值为 true，下面追溯一下为 true 的原因</p>
+<ol>
+<li>因为 <code>src/test.js</code> 模块的 usedExports 的值为 <code>[&quot;testtest2&quot;]</code>, 所以<code>isUsed(&quot;testtest2&quot;)</code> 函数返回为 true，即 used 的值为 true</li>
+<li>模块的 usedExports 的值是 processDependency 函数运行时进行的赋值，processDependency 函数会对 webpack 分析到的所有文件模块 module 进行遍历。当 processDependency 函数遍历到的 module 是 <code>src/index.js</code>，且该 module 有一个 Dependency 即第二个参数 dep 是指向 testtest2 变量的 <em><strong>HarmonyImportSpecifierDependency</strong></em> 时，而 testtest2 变量是 <code>src/test.js</code> 模块（referenceModule）的导出, 故后续继续调用 processModule 函数给 <code>src/test.js</code> 模块（referenceModule）的 usedExports 赋值为了 <code>[&quot;testtest2&quot;]</code>（importedNames ）<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1</span></span><br><span class="line"><span class="comment">// webpack/lib/Module.js</span></span><br><span class="line"><span class="title function_">isUsed</span>(<span class="params">exportName</span>) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">let</span> idx = <span class="variable language_">this</span>.<span class="property">usedExports</span>.<span class="title function_">indexOf</span>(exportName);</span><br><span class="line">    <span class="keyword">if</span> (idx &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">return</span> exportName;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2</span></span><br><span class="line"><span class="comment">// webpack/lib/FlagDependencyUsagePlugin.js</span></span><br><span class="line"><span class="comment">// 当遍历到 module 为 src/index.js, dep 为指向 testtest2 变量的 HarmonyImportSpecifierDependency 时</span></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">processDependency</span> = (<span class="params"><span class="variable language_">module</span>, dep</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> reference = compilation.<span class="title function_">getDependencyReference</span>(<span class="variable language_">module</span>, dep)</span><br><span class="line">  <span class="keyword">if</span> (!reference) <span class="keyword">return</span></span><br><span class="line">  <span class="comment">// 此时的 referenceModule 为 src/test.js 模块, 即导出 testtest2 变量的模块</span></span><br><span class="line">  <span class="keyword">const</span> referenceModule = reference.<span class="property">module</span></span><br><span class="line">  <span class="comment">// importedNames 为第四步新增的 HarmonyImportSpecifierDependency 的 name 值为 testtest2</span></span><br><span class="line">  <span class="keyword">const</span> importedNames = reference.<span class="property">importedNames</span></span><br><span class="line">  <span class="keyword">const</span> oldUsed = referenceModule.<span class="property">used</span></span><br><span class="line">  <span class="keyword">const</span> oldUsedExports = referenceModule.<span class="property">usedExports</span></span><br><span class="line">  <span class="keyword">if</span> (</span><br><span class="line">    !oldUsed ||</span><br><span class="line">    (importedNames &amp;&amp;</span><br><span class="line">      (!oldUsedExports || !<span class="title function_">isSubset</span>(oldUsedExports, importedNames)))</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="comment">// 调用 processModule 函数</span></span><br><span class="line">    <span class="title function_">processModule</span>(referenceModule, importedNames)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 给 src/test.js 模块的 usedExports 数组新增 &quot;testtest2&quot; 元素, 即 usedExports 的值为 [&quot;testtest2&quot;]</span></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">processModule</span> = (<span class="params"><span class="variable language_">module</span>, usedExports</span>) =&gt; &#123;</span><br><span class="line">	<span class="variable language_">module</span>.<span class="property">used</span> = <span class="literal">true</span>;</span><br><span class="line">	<span class="keyword">if</span> (<span class="variable language_">module</span>.<span class="property">usedExports</span> === <span class="literal">true</span>) <span class="keyword">return</span>;</span><br><span class="line">	<span class="keyword">if</span> (usedExports === <span class="literal">true</span>) &#123;</span><br><span class="line">		<span class="variable language_">module</span>.<span class="property">usedExports</span> = <span class="literal">true</span>;</span><br><span class="line">	&#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="title class_">Array</span>.<span class="title function_">isArray</span>(usedExports)) &#123;</span><br><span class="line">		<span class="keyword">const</span> old = <span class="variable language_">module</span>.<span class="property">usedExports</span> ? <span class="variable language_">module</span>.<span class="property">usedExports</span>.<span class="property">length</span> : -<span class="number">1</span>;</span><br><span class="line">		<span class="variable language_">module</span>.<span class="property">usedExports</span> = <span class="title function_">addToSet</span>(</span><br><span class="line">			<span class="variable language_">module</span>.<span class="property">usedExports</span> || [],</span><br><span class="line">			usedExports</span><br><span class="line">		);</span><br><span class="line">		<span class="keyword">if</span> (<span class="variable language_">module</span>.<span class="property">usedExports</span>.<span class="property">length</span> === old) &#123;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="第六步删除未使用代码"><a href="#第六步删除未使用代码" class="headerlink" title="第六步删除未使用代码"></a>第六步删除未使用代码</h3><p>到了第五步我们发现 webpack 已经确定了哪些导出有被使用到，哪些导出没有被使用，且为生成的代码作了标记。那么未使用到的<code>const testtest1 = &#39;1oooooooooooooooooo&#39;;</code>这行代码是被谁给删除的了？</p>
+<p>其实这里是 <a target="_blank" rel="noopener" href="https://webpack.js.org/plugins/terser-webpack-plugin/">TerserPlugin</a> 进行的删除, 因为 Terser 的功能本身也是压缩代码，删除冗余代码，这也体现了单一职责原则</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/WebpackOptionsDefaulter.js</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">this</span>.<span class="title function_">set</span>(<span class="string">&quot;optimization.minimizer&quot;</span>, <span class="string">&quot;make&quot;</span>, <span class="function"><span class="params">options</span> =&gt;</span> [</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="attr">apply</span>: <span class="function"><span class="params">compiler</span> =&gt;</span> &#123;</span><br><span class="line">			<span class="comment">// Lazy load the Terser plugin</span></span><br><span class="line">			<span class="comment">// const TerserPlugin = require(&quot;terser-webpack-plugin&quot;);</span></span><br><span class="line">			<span class="comment">// const SourceMapDevToolPlugin = require(&quot;./SourceMapDevToolPlugin&quot;);</span></span><br><span class="line">			<span class="keyword">new</span> <span class="title class_">TerserPlugin</span>(&#123;</span><br><span class="line">				<span class="attr">cache</span>: <span class="literal">true</span>,</span><br><span class="line">				<span class="attr">parallel</span>: <span class="literal">true</span>,</span><br><span class="line">				<span class="attr">sourceMap</span>:</span><br><span class="line">					(options.<span class="property">devtool</span> &amp;&amp; <span class="regexp">/source-?map/</span>.<span class="title function_">test</span>(options.<span class="property">devtool</span>)) ||</span><br><span class="line">					(options.<span class="property">plugins</span> &amp;&amp;</span><br><span class="line">						options.<span class="property">plugins</span>.<span class="title function_">some</span>(<span class="function"><span class="params">p</span> =&gt;</span> p <span class="keyword">instanceof</span> <span class="title class_">SourceMapDevToolPlugin</span>))</span><br><span class="line">			&#125;).<span class="title function_">apply</span>(compiler);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">]);</span><br></pre></td></tr></table></figure>
+<p>让我们手写一个简版的打包后的代码来看清楚 webpack 与 Terser 的行为</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="built_in">exports</span> = &#123;</span><br><span class="line">  <span class="string">&#x27;./src/test.js&#x27;</span>: <span class="function">(<span class="params">m</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> testtest1 = <span class="string">&#x27;1oooooooooooooooooo&#x27;</span></span><br><span class="line">    <span class="keyword">const</span> testtest2 = <span class="string">&#x27;2oooooooooooooooooo&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如下模拟 webpack 的标记代码</span></span><br><span class="line">    <span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(m, <span class="string">&#x27;testtest2&#x27;</span>, &#123;</span><br><span class="line">      <span class="attr">value</span>: testtest2</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="built_in">exports</span>)</span><br></pre></td></tr></table></figure>
+<p>接着我们运行如下 Terser 命令来压缩一下 input.js</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">terser input.js --compress ecma=2015,computed_props=<span class="literal">false</span> -o output.js</span><br></pre></td></tr></table></figure>
+<p>最后我们发现<code>const testtest1 = &#39;1oooooooooooooooooo&#39;;</code>这行代码已经不见了，而有 Object.defineProperty 引用的 testtest2 变量的代码就被保留了下来</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// output.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="built_in">exports</span> = &#123;</span><br><span class="line">  <span class="string">&#x27;./src/test.js&#x27;</span>: <span class="function">(<span class="params">m</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(m, <span class="string">&#x27;testtest2&#x27;</span>, &#123; <span class="attr">value</span>: <span class="string">&#x27;2oooooooooooooooooo&#x27;</span> &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="built_in">exports</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><ul>
+<li>tsc, esbuild, babel 等编译器会自动删除未使用到的代码</li>
+<li>webpack Tree Shaking 的实现原理是 webpack 依赖分析时记录模块的导出是否有被使用，然后在生成后的代码中进行了标记，最后 Terser 把未被标记的导出即未使用到的代码给删除</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">问题背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%81%E8%BF%9B%E8%A1%8C%E4%BA%86-Tree-Shaking"><span class="toc-number">2.</span> <span class="toc-text">谁进行了 Tree Shaking</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#webpack-Tree-Shaking"><span class="toc-number">3.</span> <span class="toc-text">webpack Tree Shaking</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text">第一步静态分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%E8%AE%B0%E5%BD%95%E4%BF%A1%E6%81%AF"><span class="toc-number">3.2.</span> <span class="toc-text">第二步记录信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90"><span class="toc-number">3.3.</span> <span class="toc-text">第三步静态分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E6%AD%A5%E6%96%B0%E5%A2%9E%E4%B8%80%E4%B8%AA-Dependency"><span class="toc-number">3.4.</span> <span class="toc-text">第四步新增一个 Dependency</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E6%AD%A5%E5%BC%80%E5%A7%8B-Tree-Shaking"><span class="toc-number">3.5.</span> <span class="toc-text">第五步开始 Tree Shaking</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%85%AD%E6%AD%A5%E5%88%A0%E9%99%A4%E6%9C%AA%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%A0%81"><span class="toc-number">3.6.</span> <span class="toc-text">第六步删除未使用代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/12/29/b3/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&text=webpack Tree Shaking 的实现原理"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&title=webpack Tree Shaking 的实现原理"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&is_video=false&description=webpack Tree Shaking 的实现原理"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=webpack Tree Shaking 的实现原理&body=Check out this article: https://xiaoxiaojx.github.io/2022/12/29/b3/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&title=webpack Tree Shaking 的实现原理"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&title=webpack Tree Shaking 的实现原理"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&title=webpack Tree Shaking 的实现原理"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&title=webpack Tree Shaking 的实现原理"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/12/29/b3/&name=webpack Tree Shaking 的实现原理&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/12/29/b3/&t=webpack Tree Shaking 的实现原理"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

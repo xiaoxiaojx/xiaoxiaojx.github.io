@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="同学 a 在 gitlab CI 上的单测运行失败了, 错误信息如下">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s Pod 中获取到错误的 cpus().length">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/01/06/b15/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="同学 a 在 gitlab CI 上的单测运行失败了, 错误信息如下">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/148252866-56a65610-1587-4760-9922-0cfad8ec9994.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/148089622-90833963-d8f0-4bfe-ad60-b1f732a85e69.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/148246463-29371200-4a4f-481d-a596-822c8d49ba43.png">
+<meta property="article:published_time" content="2022-01-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.930Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="docker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/148252866-56a65610-1587-4760-9922-0cfad8ec9994.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>k8s Pod 中获取到错误的 cpus().length</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/01/19/b23/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/12/29/b25/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/01/06/b15/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&text=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&title=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&is_video=false&description=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=k8s Pod 中获取到错误的 cpus().length&body=Check out this article: https://xiaoxiaojx.github.io/2022/01/06/b15/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&title=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&title=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&title=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&title=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&name=k8s Pod 中获取到错误的 cpus().length&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/01/06/b15/&t=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jest-%E2%80%93maxWorkers"><span class="toc-number">2.</span> <span class="toc-text">jest –maxWorkers</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E8%A1%8C%E7%9A%84%E6%96%B9%E6%A1%88"><span class="toc-number">4.</span> <span class="toc-text">可行的方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2022-01-29-%E8%A1%A5%E5%85%85"><span class="toc-number">6.</span> <span class="toc-text">2022-01-29 补充</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        k8s Pod 中获取到错误的 cpus().length
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-01-05T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-01-06</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/docker/" rel="tag">docker</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/148252866-56a65610-1587-4760-9922-0cfad8ec9994.png" alt="image"></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>同学 a 在 gitlab CI 上的单测运行失败了, 错误信息如下。于是他按照 <a target="_blank" rel="noopener" href="https://github.com/facebook/jest/issues/8769">jest&#x2F;issues&#x2F;8769</a> 的建议，在运行单测的命令上加上了 –maxWorkers&#x3D;2 的参数，发现不止没有报错了，单测运行的时间还快了 5 倍 ?! 所以询问我这是发生了什么化学反应🤔</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">● Test suite failed to run</span><br><span class="line"></span><br><span class="line">  Call retries were exceeded</span><br><span class="line"></span><br><span class="line">    at ChildProcessWorker.initialize (../node_modules/jest-worker/build/workers/ChildProcessWorker.js:193:21)</span><br></pre></td></tr></table></figure>
+
+<h2 id="jest-–maxWorkers"><a href="#jest-–maxWorkers" class="headerlink" title="jest –maxWorkers"></a>jest –maxWorkers</h2><p><img src="https://user-images.githubusercontent.com/23253540/148089622-90833963-d8f0-4bfe-ad60-b1f732a85e69.png" alt="image"></p>
+<p>–maxWorkers 参数表示的是 jest 会开启多少个线程去完成所有的测试任务，默认值是 50% * os.cpus().length，相关的文档可见 <a target="_blank" rel="noopener" href="https://jestjs.io/docs/cli#--maxworkersnumstring">Jest docs&#x2F;cli#–maxworker</a>。</p>
+<p>其实早在之前, 同学 b 就告诉了我，咱们的机器规格很高，比如 xxx 服务就有 96 核。所以我首先打印了一下单测节点的机器的配置，发现有 64 核。那么本次单测线程数就有了 32 个。</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>我的猜想是 Jest 比如并行跑两个用例时，由于 Node 线程间内存不共享，每个线程中的用例如果 import 了同样的文件都会通过 tsTransform、babelTransform 去转译一次，做了大量的重复工作而导致的耗时严重。</p>
+<blockquote>
+<p>Node 线程的实现可见之前写的一篇文章 <a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/blog/issues/16">【node 源码学习笔记】worker_threads 工作线程</a> ，另外关于如何提升 Node 线程之间大量数据交换的效率也是我近期一直关注学习的点，后面有机会整理分享一次。</p>
+</blockquote>
+<p>接着我又去咨询运维的大佬，大佬说这里的 64 核是宿主机的，分配给单测节点的可能只有 5核。</p>
+<p>那么这样看来, 多线程在需要大量共享数据的情况下会变慢，而现在更是运超了分到的 CPU 资源的 6 倍之多，造成速度如此之缓慢就是情理之中的。</p>
+<h2 id="可行的方案"><a href="#可行的方案" class="headerlink" title="可行的方案"></a>可行的方案</h2><p>接着我尝试搜索了一下 Node 如何能获取到 k8s 分配到的给容器的资源数量，没有搜索到可直接使用的方案, 仅下面的方案看上去比较接近一点。</p>
+<p>该方案是把设置的 resources 参数通过环境变量 MY_CPU_LIMIT 的形式传递给容器，详细可见 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh/docs/tasks/inject-data-application/environment-variable-expose-pod-information/#%E7%94%A8-container-%E5%AD%97%E6%AE%B5%E4%BD%9C%E4%B8%BA%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E7%9A%84%E5%80%BC">Kubernetes 用 Container 字段作为环境变量的值</a></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">dapi-envars-resourcefieldref</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">test-container</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">k8s.gcr.io/busybox:1.24</span></span><br><span class="line">      <span class="attr">command:</span> [ <span class="string">&quot;sh&quot;</span>, <span class="string">&quot;-c&quot;</span>]</span><br><span class="line">      <span class="attr">args:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">while</span> <span class="literal">true</span><span class="string">;</span> <span class="string">do</span></span><br><span class="line">          <span class="string">echo</span> <span class="string">-en</span> <span class="string">&#x27;\n&#x27;</span><span class="string">;</span></span><br><span class="line">          <span class="string">printenv</span> <span class="string">MY_CPU_REQUEST</span> <span class="string">MY_CPU_LIMIT;</span></span><br><span class="line">          <span class="string">printenv</span> <span class="string">MY_MEM_REQUEST</span> <span class="string">MY_MEM_LIMIT;</span></span><br><span class="line">          <span class="string">sleep</span> <span class="number">10</span><span class="string">;</span></span><br><span class="line">        <span class="string">done;</span></span><br><span class="line">      <span class="attr">resources:</span></span><br><span class="line">        <span class="attr">requests:</span></span><br><span class="line">          <span class="attr">memory:</span> <span class="string">&quot;32Mi&quot;</span></span><br><span class="line">          <span class="attr">cpu:</span> <span class="string">&quot;125m&quot;</span></span><br><span class="line">        <span class="attr">limits:</span></span><br><span class="line">          <span class="attr">memory:</span> <span class="string">&quot;64Mi&quot;</span></span><br><span class="line">          <span class="attr">cpu:</span> <span class="string">&quot;250m&quot;</span></span><br><span class="line">      <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_CPU_REQUEST</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">test-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">requests.cpu</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_CPU_LIMIT</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">test-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">limits.cpu</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_MEM_REQUEST</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">test-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">requests.memory</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_MEM_LIMIT</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">test-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">limits.memory</span></span><br><span class="line">  <span class="attr">restartPolicy:</span> <span class="string">Never</span></span><br></pre></td></tr></table></figure>
+
+<p>有趣的是本地 Docker 容器中 os.cpus().length 不是宿主机中的核数，而是 Docker Desktop 中 Resources 设置的 CPUS。</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/148246463-29371200-4a4f-481d-a596-822c8d49ba43.png" alt="image"></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>同理现在的 Node 服务通过集群模式启动直接使用 os.cpus().length 也是有问题的，暂时写死并发的数量去解决。也在 CNode 社区提了一个问答 <a target="_blank" rel="noopener" href="https://cnodejs.org/topic/61d5345a9945821342f7caa7">如何在容器内获取分配到的 cpu 资源数量</a>, 看看有没有踩过坑的大佬有更好的办法 ~</p>
+<h2 id="2022-01-29-补充"><a href="#2022-01-29-补充" class="headerlink" title="2022-01-29 补充"></a>2022-01-29 补充</h2><p>经过评论区 @Kaijun 大佬指点, 借鉴 Go 的解决方案 <a target="_blank" rel="noopener" href="https://github.com/uber-go/automaxprocs">https://github.com/uber-go/automaxprocs</a> , 实现了一版 Node.js 方案 <a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/get_cpus_length">https://github.com/xiaoxiaojx/get_cpus_length</a> ，多方测试后是可行的 ✅ </p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jest-%E2%80%93maxWorkers"><span class="toc-number">2.</span> <span class="toc-text">jest –maxWorkers</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E8%A1%8C%E7%9A%84%E6%96%B9%E6%A1%88"><span class="toc-number">4.</span> <span class="toc-text">可行的方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2022-01-29-%E8%A1%A5%E5%85%85"><span class="toc-number">6.</span> <span class="toc-text">2022-01-29 补充</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/01/06/b15/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&text=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&title=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&is_video=false&description=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=k8s Pod 中获取到错误的 cpus().length&body=Check out this article: https://xiaoxiaojx.github.io/2022/01/06/b15/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&title=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&title=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&title=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&title=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/01/06/b15/&name=k8s Pod 中获取到错误的 cpus().length&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/01/06/b15/&t=k8s Pod 中获取到错误的 cpus().length"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

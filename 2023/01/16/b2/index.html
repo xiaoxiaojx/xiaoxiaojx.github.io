@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="下面以一个业务项目为例, 我们添加了若干文件来验证测试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="webpack Tree Shaking 之 sideEffects">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2023/01/16/b2/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="下面以一个业务项目为例, 我们添加了若干文件来验证测试">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/212721530-f6fa4aaf-1b02-49b0-aff9-c497c2881ccd.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/212681528-afaabc9b-6cfb-4581-8261-3c6c9ff7eb2c.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/212682592-ffcad6ed-1c7b-467e-99dd-9e7788cb717a.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/212682842-8e248065-cc29-49d1-b985-5a2caf725146.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/212686955-bd13041d-0618-4326-80b4-d238d7369455.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/212687690-3cb6c09c-cc97-4b70-84ad-4fe51b142a4e.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/212691704-da47092c-ede4-48de-8fc6-50a87a85dbab.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/212705883-50b5c432-9a66-4351-abf6-5a50effce478.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/212706133-1245e53c-d246-4257-b659-098aa4808610.png">
+<meta property="article:published_time" content="2023-01-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.930Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="webpack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/212721530-f6fa4aaf-1b02-49b0-aff9-c497c2881ccd.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>webpack Tree Shaking 之 sideEffects</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/02/07/b32/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/12/29/b3/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/01/16/b2/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&text=webpack Tree Shaking 之 sideEffects"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&title=webpack Tree Shaking 之 sideEffects"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&is_video=false&description=webpack Tree Shaking 之 sideEffects"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=webpack Tree Shaking 之 sideEffects&body=Check out this article: https://xiaoxiaojx.github.io/2023/01/16/b2/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&title=webpack Tree Shaking 之 sideEffects"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&title=webpack Tree Shaking 之 sideEffects"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&title=webpack Tree Shaking 之 sideEffects"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&title=webpack Tree Shaking 之 sideEffects"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&name=webpack Tree Shaking 之 sideEffects&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/01/16/b2/&t=webpack Tree Shaking 之 sideEffects"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E5%AD%90-%F0%9F%8C%B0"><span class="toc-number">1.</span> <span class="toc-text">例子 🌰</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">原因分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">实现原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        webpack Tree Shaking 之 sideEffects
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-01-15T16:00:00.000Z" class="dt-published" itemprop="datePublished">2023-01-16</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/webpack/" rel="tag">webpack</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/212721530-f6fa4aaf-1b02-49b0-aff9-c497c2881ccd.png" alt="image"></p>
+<h2 id="例子-🌰"><a href="#例子-🌰" class="headerlink" title="例子 🌰"></a>例子 🌰</h2><p>下面以一个业务项目为例, 我们添加了若干文件来验证测试</p>
+<ul>
+<li>入口文件: <code>src/views/act-choose-goods/index.ts</code></li>
+<li>期望结果: 经过 webpack Tree Shaking 后没有使用到的 <code>aaa.ts</code> 与 <code>ddd.ts</code> 都会被删除</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/views/act-choose-goods/index.ts</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; ccccccccc &#125; <span class="keyword">from</span> <span class="string">&quot;./bbb&quot;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(ccccccccc)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/views/act-choose-goods/bbb.ts</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> &#123; aaaaaaaaa &#125; <span class="keyword">from</span> <span class="string">&quot;./aaa&quot;</span></span><br><span class="line"><span class="keyword">export</span> &#123; ccccccccc &#125; <span class="keyword">from</span> <span class="string">&quot;./ccc&quot;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/views/act-choose-goods/aaa.ts</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; ddddddddd &#125; <span class="keyword">from</span> <span class="string">&quot;./ddd&quot;</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> aaaaaaaaa = <span class="string">&#x27;aaaaaaaaa&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/views/act-choose-goods/ccc.ts</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> ccccccccc = <span class="string">&#x27;ccccccccc&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/views/act-choose-goods/ddd.ts</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> ddddddddd = <span class="string">&#x27;ddddddddd&#x27;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>实际结果: <code>aaa.ts</code> 还存在，只有 <code>ddd.ts</code> 被删除了，那么 webpack 为什么没有删除 <code>aaa.ts</code> ?</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/23253540/212681528-afaabc9b-6cfb-4581-8261-3c6c9ff7eb2c.png" alt="image"></p>
+<p>原因是 <a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/blog/issues/51">webpack Tree Shaking 的实现原理</a> 中提到的, 由于<code>ddddddddd is declared but its value is never read.</code>被 ts-loader 给删除了，我们篡改下 ts-loader 的代码，使得它保留 <code>import &#123; ddddddddd &#125; from &quot;./ddd&quot;</code> 这行代码<br><img src="https://user-images.githubusercontent.com/23253540/212682592-ffcad6ed-1c7b-467e-99dd-9e7788cb717a.png" alt="image"></p>
+<p>现在我们发现打包后 <code>ddd.ts</code> 也被保留了下来…<br><img src="https://user-images.githubusercontent.com/23253540/212682842-8e248065-cc29-49d1-b985-5a2caf725146.png" alt="image"></p>
+<h2 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h2><p>为什么 webpack 没有删除未使用到的 <code>aaa.ts</code> 与 <code>ddd.ts</code> 模块? </p>
+<p>原因是 webpack 无法确认 <code>aaa.ts</code> 与 <code>ddd.ts</code> 是否有副作用。比如我们常在代码中这样去 import 一个 polyfill 来兼容低版本浏览器, 在这种情况下我们虽然没有使用 <a target="_blank" rel="noopener" href="https://github.com/facebook/create-react-app/tree/bb64e31a81eb12d688c14713dce812143688750a/packages/react-app-polyfill">react-app-polyfill</a> 的导出, 但是不能删除 <code>import &#39;react-app-polyfill/ie11&#39;</code> 这行代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&#x27;react-app-polyfill/ie11&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+<p>因为<code>react-app-polyfill/ie11</code>直接修改了 window、Object 等全局对象, 这段代码有副作用, 即使没有用到其导出也应该被保留下来</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react-app-polyfill/ie11</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">&#x27;use strict&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="title class_">Promise</span> === <span class="string">&#x27;undefined&#x27;</span>) &#123;</span><br><span class="line">  <span class="comment">// Rejection tracking prevents a common issue where React gets into an</span></span><br><span class="line">  <span class="comment">// inconsistent state due to an error, but it gets swallowed by a Promise,</span></span><br><span class="line">  <span class="comment">// and the user has no idea what causes React&#x27;s erratic future behavior.</span></span><br><span class="line">  <span class="built_in">require</span>(<span class="string">&#x27;promise/lib/rejection-tracking&#x27;</span>).<span class="title function_">enable</span>();</span><br><span class="line">  self.<span class="property">Promise</span> = <span class="built_in">require</span>(<span class="string">&#x27;promise/lib/es6-extensions.js&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Make sure we&#x27;re in a Browser-like environment before importing polyfills</span></span><br><span class="line"><span class="comment">// This prevents `fetch()` from being imported in a Node test environment</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable language_">window</span> !== <span class="string">&#x27;undefined&#x27;</span>) &#123;</span><br><span class="line">  <span class="comment">// fetch() polyfill for making API calls.</span></span><br><span class="line">  <span class="built_in">require</span>(<span class="string">&#x27;whatwg-fetch&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Object.assign() is commonly used with React.</span></span><br><span class="line"><span class="comment">// It will use the native implementation if it&#x27;s present and isn&#x27;t buggy.</span></span><br><span class="line"><span class="title class_">Object</span>.<span class="property">assign</span> = <span class="built_in">require</span>(<span class="string">&#x27;object-assign&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Support for...of (a commonly used syntax feature that requires Symbols)</span></span><br><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;core-js/features/symbol&#x27;</span>);</span><br><span class="line"><span class="comment">// Support iterable spread (...Set, ...Map)</span></span><br><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;core-js/features/array/from&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p>又比如当你没用 <a target="_blank" rel="noopener" href="https://github.com/css-modules/css-modules">CSS Modules</a> 时, 通常只需 <code>import &#39;antd/dist/reset.css&#39;;</code>, 此时也不会用到 *.css 模块的导出, 说明 *.css 模块也有副作用不能轻易被删除</p>
+<p>对于这种情况, 我们可以在项目的 <code>package.json</code> 中可以通过 <a target="_blank" rel="noopener" href="https://webpack.js.org/guides/tree-shaking/#mark-the-file-as-side-effect-free">sideEffects</a> 字段声明哪些文件是有副作用, 如下表示仅 *.css 模块有副作用</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;sideEffects&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;*.css&quot;</span></span><br><span class="line"> <span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+<p>当确认了 *.ts 没有副作用后, 再看一下结果发现 <code>aaa.ts</code> 与 <code>ddd.ts</code> 最终被成功删除了<br><img src="https://user-images.githubusercontent.com/23253540/212686955-bd13041d-0618-4326-80b4-d238d7369455.png" alt="image"></p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>当我们没有在 <code>package.json</code> 中声明 sideEffects 字段时, 可以看到对于 aaa.ts 模块的 hasSideEffects 为 true, 即是有副作用的, 那么对于 *.ts 模块的 <code>factoryMeta.sideEffectFree</code> 的值都将为默认的 undefined<br><img src="https://user-images.githubusercontent.com/23253540/212687690-3cb6c09c-cc97-4b70-84ad-4fe51b142a4e.png" alt="image"><br>当我们声明 sideEffects 字段后, 那么某个模块的文件后缀会与 sideEffects 进行类似正则匹配, 对于 *.ts 模块没有被 *.css 表达式匹配上则 hasSideEffects 为 false, <code>factoryMeta.sideEffectFree</code> 被赋值为 true</p>
+<p>即 sideEffects 字段决定 <code>factoryMeta.sideEffectFree</code> 的值, 而 <code>factoryMeta.sideEffectFree</code> 的值将决定该模块是否被 Tree Shaking</p>
+<blockquote>
+<ul>
+<li>对于 <code>ccc.ts</code> 模块的导出且有被实际使用到, <code>ccc.ts</code> 模块对应的是 HarmonyImportSpecifierDependency </li>
+<li>对于 <code>aaa.ts</code>、<code>ddd.ts</code> 模块的导出没有被使用到, 故被分配的是 HarmonyImportSideEffectDependency（从这里大概就可以猜出, 该类型模块如果没有副作用后续会被删除）</li>
+</ul>
+</blockquote>
+<p><img src="https://user-images.githubusercontent.com/23253540/212691704-da47092c-ede4-48de-8fc6-50a87a85dbab.png" alt="image"></p>
+<p>下面讲一下 HarmonyImportSideEffectDependency, 如上图 iteratorDependency 函数中当 ref 存在 &amp;&amp; ref.module 也存在等条件成立时也会被添加到 blockInfoModules 中（可以认为没有添加到 blockInfoModules 中的模块是不会生成到打包后的代码中）。</p>
+<p>那么最关键的因素就是 <code>this._module.factoryMeta.sideEffectFree</code> 的值, 如果值为 true, 那么 getDependencyReference 函数返回值为 null, ref 为 null 就结束了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/Compilation.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Compilation</span> &#123;</span><br><span class="line">  <span class="title function_">getDependencyReference</span>(<span class="params"><span class="variable language_">module</span>, dependency</span>) &#123;</span><br><span class="line">    <span class="comment">// TODO remove dep.getReference existence check in webpack 5</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> dependency.<span class="property">getReference</span> !== <span class="string">&#x27;function&#x27;</span>) <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">    <span class="keyword">const</span> ref = dependency.<span class="title function_">getReference</span>()</span><br><span class="line">    <span class="keyword">if</span> (!ref) <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">hooks</span>.<span class="property">dependencyReference</span>.<span class="title function_">call</span>(ref, dependency, <span class="variable language_">module</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// webpack/lib/dependencies/HarmonyImportSideEffectDependency.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HarmonyImportSideEffectDependency</span> <span class="keyword">extends</span> <span class="title class_ inherited__">HarmonyImportDependency</span> &#123;</span><br><span class="line"> <span class="title function_">getReference</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">_module</span> &amp;&amp; <span class="variable language_">this</span>.<span class="property">_module</span>.<span class="property">factoryMeta</span>.<span class="property">sideEffectFree</span>) <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">super</span>.<span class="title function_">getReference</span>();</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>factoryMeta.sideEffectFree</code> 的值其实我们上面已经讨论过了</p>
+<ul>
+<li>当没有声明 sideEffects 字段时, <code>factoryMeta.sideEffectFree</code> 的值为 undefined, 继续调用 super.getReference() 将会返回一个有值的 ref</li>
+<li>当声明 sideEffects 字段后, <code>factoryMeta.sideEffectFree</code> 的值为 true, ref 即为 null, 自此被引用了但未实际用到其导出的 <code>aaa.ts</code>、<code>ddd.ts</code>、<code>bbb.ts</code> 等模块都不会添加到 blockInfoModules 中，即不会出现在打包后的文件中</li>
+</ul>
+<blockquote>
+<p>关于 HarmonyImportSpecifierDependency 在 <a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/blog/issues/51">webpack Tree Shaking 的实现原理</a> 中说过, 比如模块 <code>index.ts</code> 引用了 <code>ccc.ts</code> 的导出, 那么 refModule（<code>ccc.ts</code> 模块）最后会被添加到 blockInfoModules 中（此时 currentModule 为 <code>index.ts</code>, d 为 HarmonyImportSpecifierDependency, refModule 为 <code>ccc.ts</code>）</p>
+</blockquote>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><ul>
+<li>对于一个业务项目: 可以在 package.json 中声明好 sideEffects 字段来辅助 webpack 进行 Tree Shaking<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;sideEffects&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;*.css&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="string">&quot;*.scss&quot;</span></span><br><span class="line"> <span class="punctuation">]</span></span><br></pre></td></tr></table></figure></li>
+<li>对于一个 npm 包: 同理, 详细见 <a target="_blank" rel="noopener" href="https://github.com/ant-design/ant-design/blob/master/package.json">ant-design&#x2F;package.json</a></li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/23253540/212705883-50b5c432-9a66-4351-abf6-5a50effce478.png" alt="image"></p>
+<ul>
+<li>对于一个脚手架: 可以给同一类文件统一加上 sideEffects, 详细见 <a target="_blank" rel="noopener" href="https://webpack.js.org/configuration/module/#rulesideeffects">Rule.sideEffects</a><br><img src="https://user-images.githubusercontent.com/23253540/212706133-1245e53c-d246-4257-b659-098aa4808610.png" alt="image"></li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E5%AD%90-%F0%9F%8C%B0"><span class="toc-number">1.</span> <span class="toc-text">例子 🌰</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">原因分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">实现原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/01/16/b2/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&text=webpack Tree Shaking 之 sideEffects"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&title=webpack Tree Shaking 之 sideEffects"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&is_video=false&description=webpack Tree Shaking 之 sideEffects"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=webpack Tree Shaking 之 sideEffects&body=Check out this article: https://xiaoxiaojx.github.io/2023/01/16/b2/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&title=webpack Tree Shaking 之 sideEffects"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&title=webpack Tree Shaking 之 sideEffects"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&title=webpack Tree Shaking 之 sideEffects"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&title=webpack Tree Shaking 之 sideEffects"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/01/16/b2/&name=webpack Tree Shaking 之 sideEffects&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/01/16/b2/&t=webpack Tree Shaking 之 sideEffects"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

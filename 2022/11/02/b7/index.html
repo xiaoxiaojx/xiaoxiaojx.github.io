@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="开发同学反馈 Next.js 项目 next dev 命令启动后浏览器访问页面 css 样式有丢失">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次 Next.js 样式异常的排查与 pr 修复">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/11/02/b7/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="开发同学反馈 Next.js 项目 next dev 命令启动后浏览器访问页面 css 样式有丢失">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/199200650-85f5596d-66d8-45dd-8d4b-3c65071aaed6.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/199277342-3d4c27bf-f3c8-4f57-a7dd-27f4e0d662fd.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/199278617-be6d6cfc-bde7-4035-b11f-1da0fb97e7a6.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/199280476-6e978a9b-26c8-4e9e-b86d-9bf34d01a3ad.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/199288932-e4aade71-1f44-45d3-b220-64a53e829df6.png">
+<meta property="article:published_time" content="2022-11-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.934Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="SSR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/199200650-85f5596d-66d8-45dd-8d4b-3c65071aaed6.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>记一次 Next.js 样式异常的排查与 pr 修复</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/11/10/b6/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/10/16/b8/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/11/02/b7/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&text=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&title=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&is_video=false&description=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=记一次 Next.js 样式异常的排查与 pr 修复&body=Check out this article: https://xiaoxiaojx.github.io/2022/11/02/b7/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&title=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&title=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&title=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&title=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&name=记一次 Next.js 样式异常的排查与 pr 修复&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/11/02/b7/&t=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">问题简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Step1-%E7%A1%AE%E8%AE%A4%E6%98%AF%E5%90%A6%E9%85%8D%E7%BD%AE%E4%BA%86%E9%94%99%E8%AF%AF%E7%9A%84-loader"><span class="toc-number">2.1.</span> <span class="toc-text">Step1 确认是否配置了错误的 loader</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step2-%E5%A4%84%E7%90%86-css-%E6%96%87%E4%BB%B6%E7%9A%84-loader-%E6%9C%89-bug"><span class="toc-number">2.2.</span> <span class="toc-text">Step2 处理 css 文件的 loader 有 bug ?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="toc-number">3.</span> <span class="toc-text">疑惑解答</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-Rule-oneOf-%E8%B2%8C%E4%BC%BC-pick-%E4%BA%86%E5%A4%9A%E6%AC%A1%E8%A7%84%E5%88%99"><span class="toc-number">3.1.</span> <span class="toc-text">为什么 Rule.oneOf 貌似 pick 了多次规则?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Next-js-%E7%9A%84-oneOf-%E6%95%B0%E7%BB%84%E7%B4%A2%E5%BC%95%E4%B8%BA-8-%E7%9A%84%E8%A7%84%E5%88%99%E7%9C%9F%E5%AE%9E%E6%84%8F%E5%9B%BE%E6%98%AF%E5%B9%B2%E4%BB%80%E4%B9%88%E7%9A%84"><span class="toc-number">3.2.</span> <span class="toc-text">Next.js 的 oneOf 数组索引为 8 的规则真实意图是干什么的?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">4.</span> <span class="toc-text">问题解决</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        记一次 Next.js 样式异常的排查与 pr 修复
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-11-01T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-11-02</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/SSR/" rel="tag">SSR</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="问题简述"><a href="#问题简述" class="headerlink" title="问题简述"></a>问题简述</h2><p><img src="https://user-images.githubusercontent.com/23253540/199200650-85f5596d-66d8-45dd-8d4b-3c65071aaed6.png"><br>开发同学反馈 Next.js 项目 next dev 命令启动后浏览器访问页面 css 样式有丢失，表现为 style 标签的内容不是 css 样式而是一个 url 😨</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span>&gt;</span>/_next/static/media/globals.23a96686.css<span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>面对这个略显奇葩的问题该如何排查了 ?</p>
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><h3 id="Step1-确认是否配置了错误的-loader"><a href="#Step1-确认是否配置了错误的-loader" class="headerlink" title="Step1 确认是否配置了错误的 loader"></a>Step1 确认是否配置了错误的 loader</h3><ul>
+<li>分析: 给 css 文件设置错了 loader 造成结果不符合预期也说得过去</li>
+<li>结论: ❌ 没有发现可疑的 loader, 经过查看 webpackConfig 发现会命中红圈 oneOf 数组索引为 6 的规则, 即 css 文件会依次被 postcss-loader &gt; css-loader &gt; next-style-loader 来依次处理, 看上去没有任何问题</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/23253540/199277342-3d4c27bf-f3c8-4f57-a7dd-27f4e0d662fd.png" alt="image"></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://webpack.js.org/configuration/module/#ruleoneof">Rule.oneOf</a> : An array of Rules from which only the first matching Rule is used when the Rule matches.</p>
+</blockquote>
+<p>同时根据 Rule.oneOf 的定义确认了只会从 oneOf 数组中找到一个匹配到的规则就会停止, 那么 loader 应该是都被正确设置了</p>
+<h3 id="Step2-处理-css-文件的-loader-有-bug"><a href="#Step2-处理-css-文件的-loader-有-bug" class="headerlink" title="Step2 处理 css 文件的 loader 有 bug ?"></a>Step2 处理 css 文件的 loader 有 bug ?</h3><ul>
+<li>分析: 确认了没有奇怪的 loader 掺杂进来, 那么是不是命中的 loader 有 bug 了</li>
+<li>结论: ✅ 果然有 bug</li>
+</ul>
+<p>loader 正常是按从下到上, 从右到左的顺序执行, 即如上配置会按从 postcss-loader &gt; css-loader &gt; next-style-loader 来依次处理。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packages/next/build/webpack/loaders/next-style-loader/index.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> path <span class="keyword">from</span> <span class="string">&#x27;path&#x27;</span></span><br><span class="line"><span class="keyword">import</span> isEqualLocals <span class="keyword">from</span> <span class="string">&#x27;./runtime/isEqualLocals&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123; stringifyRequest &#125; <span class="keyword">from</span> <span class="string">&#x27;../../stringify-request&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">loaderApi</span> = (<span class="params"></span>) =&gt; &#123;&#125;</span><br><span class="line"></span><br><span class="line">loaderApi.<span class="property">pitch</span> = <span class="keyword">function</span> <span class="title function_">loader</span>(<span class="params">request</span>) &#123;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = loaderApi</span><br></pre></td></tr></table></figure>
+<p>但是由于 next-style-loader 导出了 pitch 属性, loader 的顺序将会变成首先运行 pitch 函数, 相关文档见 <a target="_blank" rel="noopener" href="https://webpack.js.org/api/loaders/#pitching-loader">Pitching Loader</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">|- next-style-loader `pitch`</span><br><span class="line">      |- requested module is picked up as a dependency</span><br><span class="line">    |- postcss-loader normal execution</span><br><span class="line">  |- css-loader normal execution</span><br><span class="line">|- next-style-loader normal execution</span><br></pre></td></tr></table></figure>
+<p>那么我们先从 next-style-loader 的 pitch 函数开始排查, 然后发现了如下语句</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packages/next/build/webpack/loaders/next-style-loader/index.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> content = <span class="built_in">require</span>($&#123;<span class="title function_">stringifyRequest</span>(<span class="variable language_">this</span>, <span class="string">`!!<span class="subst">$&#123;request&#125;</span>`</span>)&#125;);</span><br></pre></td></tr></table></figure>
+<p>上面语句补充上变量的值后相当于如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> content = <span class="built_in">require</span>(<span class="string">&#x27;!!xxx/css-loader/src/index.js??xxx/postcss-loader/src/index.js??ruleSet[1].rules[3].oneOf[6].use[2]!./globals.css&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>♻️ 这里的依赖关系先简单理一下, 比如 _app.tsx 引用了 globals.css</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// pages/_app.tsx</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;../styles/globals.css&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>globals.css 模块的内容被 next-style-loader 处理后的内容类似于下面这样</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// styles/globals.css</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> content = <span class="built_in">require</span>(<span class="string">&#x27;!!xxx/css-loader/src/index.js??xxx/postcss-loader/src/index.js??ruleSet[1].rules[3].oneOf[6].use[2]!./globals.css&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> style = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;style&#x27;</span>);</span><br><span class="line">style.<span class="title function_">appendChild</span>(<span class="variable language_">document</span>.<span class="title function_">createTextNode</span>(content));</span><br><span class="line"><span class="variable language_">document</span>.<span class="property">head</span>.<span class="title function_">append</span>(style)</span><br></pre></td></tr></table></figure>
+<p>所以 style 标签里面的 content 的源头其实是 require 的 !!xxx&#x2F;css-loader&#x2F;src&#x2F;index.js??xxx&#x2F;postcss-loader&#x2F;src&#x2F;index.js??ruleSet[1].rules[3].oneOf[6].use[2]!.&#x2F;globals.css 模块提供</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// !!xxx/css-loader/src/index.js??xxx/postcss-loader/src/index.js??ruleSet[1].rules[3].oneOf[6].use[2]!./globals.css</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = ?</span><br></pre></td></tr></table></figure>
+
+<p>那么对于 !!xxx&#x2F;css-loader&#x2F;src&#x2F;index.js??xxx&#x2F;postcss-loader&#x2F;src&#x2F;index.js??ruleSet[1].rules[3].oneOf[6].use[2]!.&#x2F;globals.css 这个路径上带有 loader 的模块其文件后缀依然为 .css, 那么不还得命中 oneOf 数组索引为 6 的规则么 🤔 ?</p>
+<p>经过 debug webpack 的代码发现结果是意外的 ❌, 它命中的是 oneOf 数组索引为 8 的规则<br><img src="https://user-images.githubusercontent.com/23253540/199278617-be6d6cfc-bde7-4035-b11f-1da0fb97e7a6.png" alt="image"></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://webpack.js.org/configuration/module/#ruleissuer">Rule.issuer</a>: A Condition to match against the module that issued the request. In the following example, the issuer for the a.js request would be the path to the index.js file.</p>
+</blockquote>
+<blockquote>
+<p>关于 Rule.issuer: 比如 pages&#x2F;_app.tsx 文件里面 import 或者 require 了 globals.css, 那么对于 globals.css 而言, 它的 issuer 为 pages&#x2F;_app.tsx</p>
+</blockquote>
+<p>让我们回头查看一下为什么没有命中索引为 6 的规则, 发现索引为 6 规则非常重要的一点是要求引用该文件的 issuer 必须只能是 pages&#x2F;_app.tsx, 见下图红圈的 issuer.and 字段</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/199280476-6e978a9b-26c8-4e9e-b86d-9bf34d01a3ad.png" alt="image"></p>
+<p>而 !!xxx&#x2F;css-loader&#x2F;src&#x2F;index.js??xxx&#x2F;postcss-loader&#x2F;src&#x2F;index.js??ruleSet[1].rules[3].oneOf[6].use[2]!.&#x2F;globals.css 模块其实是被 next-style-loader 代理后的 globals.css 所 require, 所以它的 issuer 竟然为 styles&#x2F;globals.css 🤯</p>
+<p>至此 !!xxx&#x2F;css-loader&#x2F;src&#x2F;index.js??xxx&#x2F;postcss-loader&#x2F;src&#x2F;index.js??ruleSet[1].rules[3].oneOf[6].use[2]!.&#x2F;globals.css 模块经过 postcss-loader &gt; css-loader 处理后, 最后还要被 webpack 内置的文件类型 asset&#x2F;resource 处理（相当于 file-loader）, 最终处理完成它的 module.exports 其实为如下👇</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// &#x27;!!xxx/css-loader/src/index.js??xxx/postcss-loader/src/index.js??ruleSet[1].rules[3].oneOf[6].use[2]!./globals.css&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="string">&quot;/_next/static/media/globals.23a96686.css&quot;</span></span><br></pre></td></tr></table></figure>
+<p>所以被 next-style-loader 处理后的 styles&#x2F;globals.css 模块最后 append 了一个 url 字符串到了 style 标签中造成了本次 css 样式的异常 !!!</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// styles/globals.css</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> content = <span class="built_in">require</span>(<span class="string">&#x27;!!xxx/css-loader/src/index.js??xxx/postcss-loader/src/index.js??ruleSet[1].rules[3].oneOf[6].use[2]!./globals.css&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> style = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;style&#x27;</span>);</span><br><span class="line">style.<span class="title function_">appendChild</span>(<span class="variable language_">document</span>.<span class="title function_">createTextNode</span>(content));</span><br><span class="line"><span class="variable language_">document</span>.<span class="property">head</span>.<span class="title function_">append</span>(style)</span><br></pre></td></tr></table></figure>
+
+<h2 id="疑惑解答"><a href="#疑惑解答" class="headerlink" title="疑惑解答"></a>疑惑解答</h2><h3 id="为什么-Rule-oneOf-貌似-pick-了多次规则"><a href="#为什么-Rule-oneOf-貌似-pick-了多次规则" class="headerlink" title="为什么 Rule.oneOf 貌似 pick 了多次规则?"></a>为什么 Rule.oneOf 貌似 pick 了多次规则?</h3><p>对于 styles&#x2F;globals.css 模块而言只选择了一次即 oneOf 数组索引为 6 的规则, 而经过 next-style-loader 的代理修改后的 require 语句又产生了新的模块 !!xxx&#x2F;css-loader&#x2F;src&#x2F;index.js??xxx&#x2F;postcss-loader&#x2F;src&#x2F;index.js??ruleSet[1].rules[3].oneOf[6].use[2]!.&#x2F;globals.css, 于是新的模块又进行了一次规则 pick, 所以并不算违背了 Rule.oneOf 的定义<br><img src="https://user-images.githubusercontent.com/23253540/199288932-e4aade71-1f44-45d3-b220-64a53e829df6.png" alt="image"></p>
+<blockquote>
+<p>即便新的模块又命中了 oneOf 数组索引为 6 的规则, 由于新的模块路径前缀已经包含了 postcss-loader 与 css-loader 也会因为如上图红圈的 if 条件判断不满足而不会被添加重复的 loader</p>
+</blockquote>
+<h3 id="Next-js-的-oneOf-数组索引为-8-的规则真实意图是干什么的"><a href="#Next-js-的-oneOf-数组索引为-8-的规则真实意图是干什么的" class="headerlink" title="Next.js 的 oneOf 数组索引为 8 的规则真实意图是干什么的?"></a>Next.js 的 oneOf 数组索引为 8 的规则真实意图是干什么的?</h3><p>根据如下 Next.js 对应的代码可知, Next.js 的预期是 issuer 为 *.css 的模块将要被 asset&#x2F;resource（类似于 file-loader) 给处理, 比如 globals.css 有一行代码为 background-image: url(“.&#x2F;xxx.png”), 那么此时 xxx.png 就要被 asset&#x2F;resource 给处理</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// next/dist/build/webpack/config/blocks/css/index.js</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">markRemovable</span>(&#123;</span><br><span class="line">    <span class="comment">// This should only be applied to CSS files</span></span><br><span class="line">    <span class="attr">issuer</span>: regexLikeCss,</span><br><span class="line">    <span class="comment">// Exclude extensions that webpack handles by default</span></span><br><span class="line">    <span class="attr">exclude</span>: [</span><br><span class="line">        <span class="regexp">/\.(js|mjs|jsx|ts|tsx)$/</span>,</span><br><span class="line">        <span class="regexp">/\.html$/</span>,</span><br><span class="line">        <span class="regexp">/\.json$/</span>,</span><br><span class="line">        <span class="regexp">/\.webpack\[[^\]]+\]$/</span>, </span><br><span class="line">    ],</span><br><span class="line">    <span class="comment">// `asset/resource` always emits a URL reference, where `asset`</span></span><br><span class="line">    <span class="comment">// might inline the asset as a data URI</span></span><br><span class="line">    <span class="attr">type</span>: <span class="string">&#x27;asset/resource&#x27;</span></span><br><span class="line">&#125;), </span><br></pre></td></tr></table></figure>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>Next.js 没想到被 next-style-loader 修改后还存在 .css 文件 require .css 文件的情况, .css 文件被 asset&#x2F;resource 处理后返回一个 url 就导致了本次的 bug 🐛</p>
+<p>其实 .css 中 require 的图片、字体等文件被 asset&#x2F;resource 处理是符合预期, 如果被 require 的是 .css 文件就得排除, 更多见<a target="_blank" rel="noopener" href="https://github.com/vercel/next.js/pull/42283">next.js&#x2F;pull&#x2F;42283</a> 与 <a target="_blank" rel="noopener" href="https://github.com/webpack/webpack/pull/16477">webpack&#x2F;pull&#x2F;16477</a></p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">            issuer: regexLikeCss,</span><br><span class="line">            // Exclude extensions that webpack handles by default</span><br><span class="line">            exclude: [</span><br><span class="line"><span class="addition">+              /\.(css|sass|scss)$/,</span></span><br><span class="line">              /\.(js|mjs|jsx|ts|tsx)$/,</span><br><span class="line">              /\.html$/,</span><br><span class="line">              /\.json$/,</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">问题简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Step1-%E7%A1%AE%E8%AE%A4%E6%98%AF%E5%90%A6%E9%85%8D%E7%BD%AE%E4%BA%86%E9%94%99%E8%AF%AF%E7%9A%84-loader"><span class="toc-number">2.1.</span> <span class="toc-text">Step1 确认是否配置了错误的 loader</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step2-%E5%A4%84%E7%90%86-css-%E6%96%87%E4%BB%B6%E7%9A%84-loader-%E6%9C%89-bug"><span class="toc-number">2.2.</span> <span class="toc-text">Step2 处理 css 文件的 loader 有 bug ?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="toc-number">3.</span> <span class="toc-text">疑惑解答</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-Rule-oneOf-%E8%B2%8C%E4%BC%BC-pick-%E4%BA%86%E5%A4%9A%E6%AC%A1%E8%A7%84%E5%88%99"><span class="toc-number">3.1.</span> <span class="toc-text">为什么 Rule.oneOf 貌似 pick 了多次规则?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Next-js-%E7%9A%84-oneOf-%E6%95%B0%E7%BB%84%E7%B4%A2%E5%BC%95%E4%B8%BA-8-%E7%9A%84%E8%A7%84%E5%88%99%E7%9C%9F%E5%AE%9E%E6%84%8F%E5%9B%BE%E6%98%AF%E5%B9%B2%E4%BB%80%E4%B9%88%E7%9A%84"><span class="toc-number">3.2.</span> <span class="toc-text">Next.js 的 oneOf 数组索引为 8 的规则真实意图是干什么的?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">4.</span> <span class="toc-text">问题解决</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/11/02/b7/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&text=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&title=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&is_video=false&description=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=记一次 Next.js 样式异常的排查与 pr 修复&body=Check out this article: https://xiaoxiaojx.github.io/2022/11/02/b7/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&title=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&title=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&title=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&title=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/11/02/b7/&name=记一次 Next.js 样式异常的排查与 pr 修复&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/11/02/b7/&t=记一次 Next.js 样式异常的排查与 pr 修复"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

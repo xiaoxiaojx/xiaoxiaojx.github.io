@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="M1 编译 v8 为啥这么多坑 😢">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MacBook M1 编译 v8 问题记录">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/05/29/b16/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="M1 编译 v8 为啥这么多坑 😢">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/170865214-978cf78c-9e9b-498e-b1f9-eee04b862731.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/170861915-094ca8f1-ceee-4ba1-bed4-c2d01b93db22.png">
+<meta property="article:published_time" content="2022-05-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.930Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="v8, C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/170865214-978cf78c-9e9b-498e-b1f9-eee04b862731.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>MacBook M1 编译 v8 问题记录</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/06/19/b24/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/05/16/b17/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/05/29/b16/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&text=MacBook M1 编译 v8 问题记录"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&title=MacBook M1 编译 v8 问题记录"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&is_video=false&description=MacBook M1 编译 v8 问题记录"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=MacBook M1 编译 v8 问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/05/29/b16/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&title=MacBook M1 编译 v8 问题记录"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&title=MacBook M1 编译 v8 问题记录"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&title=MacBook M1 编译 v8 问题记录"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&title=MacBook M1 编译 v8 问题记录"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&name=MacBook M1 编译 v8 问题记录&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/05/29/b16/&t=MacBook M1 编译 v8 问题记录"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Failed-to-fetch-file-gs-x2F-x2F-chromium-gn-x2F-xxx"><span class="toc-number">1.</span> <span class="toc-text">Failed to fetch file gs:&#x2F;&#x2F;chromium-gn&#x2F;xxx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NOTICE-You-have-PROXY-values-set-in-your-environment"><span class="toc-number">2.</span> <span class="toc-text">NOTICE: You have PROXY values set in your environment</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#https-commondatastorage-googleapis-com"><span class="toc-number">3.</span> <span class="toc-text">https:&#x2F;&#x2F;commondatastorage.googleapis.com&#x2F;**</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#clang-error-argument-unused-during-compilation"><span class="toc-number">4.</span> <span class="toc-text">clang++: error: argument unused during compilation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Embedder-vs-V8-build-configuration-mismatch"><span class="toc-number">5.</span> <span class="toc-text">Embedder-vs-V8 build configuration mismatch.</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#unknown-current-cpu-current-cpu"><span class="toc-number">6.</span> <span class="toc-text">unknown current_cpu $current_cpu</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        MacBook M1 编译 v8 问题记录
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-05-28T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-05-29</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/v8-C/" rel="tag">v8, C++</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/170865214-978cf78c-9e9b-498e-b1f9-eee04b862731.png" alt="image"></p>
+<blockquote>
+<p>主要参考了 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/102316528">单独编译 V8 引擎</a> 与 <a target="_blank" rel="noopener" href="https://joyeecheung.github.io/blog/2021/08/27/binding-v8-on-an-m1-macbook/">Building V8 on an M1 MacBook</a>, 下面记录了一下构建过程中遇见的其他坑点, M1 编译 v8 为啥这么多坑 😢。</p>
+</blockquote>
+<h2 id="Failed-to-fetch-file-gs-x2F-x2F-chromium-gn-x2F-xxx"><a href="#Failed-to-fetch-file-gs-x2F-x2F-chromium-gn-x2F-xxx" class="headerlink" title="Failed to fetch file gs:&#x2F;&#x2F;chromium-gn&#x2F;xxx"></a>Failed to fetch file gs:&#x2F;&#x2F;chromium-gn&#x2F;xxx</h2><ul>
+<li>问题简述: 运行 gclient sync 命令下载更新构建工具链时抛的错误, 谷歌了一下相关的 Issue 较少, 没有有效的解决办法。<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0&gt; Failed to fetch file gs://chromium-gn/f08024240631f4974bb924b2f05712df185263ea <span class="keyword">for</span> /Users/xxx/v8/buildtools/mac/gn, skipping. [Err: Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;/Users/xxx/depot_tools/gsutil.py&quot;</span>, line 182, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    sys.exit(main())</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>报错堆栈的代码在 depot_tools&#x2F;gsutil.py 文件，也许是代理的问题<br><img src="https://user-images.githubusercontent.com/23253540/170861915-094ca8f1-ceee-4ba1-bed4-c2d01b93db22.png" alt="image"><br>所以这里应该是要给 urllib 加上 http 代理, 然后查阅一下 python 如何给 urllib 设置代理</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// depot_tools/gsutil.py</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">  <span class="keyword">import</span> urllib2 <span class="keyword">as</span> urllib</span><br><span class="line"><span class="keyword">except</span> ImportError:  <span class="comment"># For Py3 compatibility</span></span><br><span class="line">  <span class="keyword">import</span> urllib.request <span class="keyword">as</span> urllib</span><br><span class="line"> </span><br><span class="line">proxy_support = urllib.ProxyHandler(&#123;<span class="string">&#x27;http&#x27;</span> : <span class="string">&#x27;http://127.0.0.1:8118&#x27;</span> &#125;)</span><br><span class="line">opener = urllib.build_opener(proxy_support)</span><br><span class="line">urllib.install_opener(opener)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>问题解决: 最后手动修改 gsutil.py 代码给 urllib 设置了 ProxyHandler 后, 不过 depot_tools 会检测文件的完整性, 即发现如上修改了代码就会报错, 此时我们还需要注释掉这部分检测的代码, 最后再次运行 gclient sync 命令就 ok 了</li>
+</ul>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">// depot_tools/gclient_scm.py</span><br><span class="line"></span><br><span class="line"><span class="deletion">- Make sure the tree is clean; see git-rebase.sh for reference</span></span><br><span class="line"><span class="deletion">- try:</span></span><br><span class="line"><span class="deletion">-   scm.GIT.Capture([&#x27;update-index&#x27;, &#x27;--ignore-submodules&#x27;, &#x27;--refresh&#x27;],</span></span><br><span class="line"><span class="deletion">-                   cwd=self.checkout_path)</span></span><br><span class="line"><span class="deletion">- except subprocess2.CalledProcessError:</span></span><br><span class="line"><span class="deletion">-   raise gclient_utils.Error(&#x27;\n____ %s at %s\n&#x27;</span></span><br><span class="line"><span class="deletion">-                             &#x27;\tYou have unstaged changes.\n&#x27;</span></span><br><span class="line"><span class="deletion">-                             &#x27;\tPlease commit, stash, or reset.\n&#x27;</span></span><br><span class="line"><span class="deletion">-                              % (self.relpath, revision))</span></span><br><span class="line"><span class="deletion">- try:</span></span><br><span class="line"><span class="deletion">-   scm.GIT.Capture([&#x27;diff-index&#x27;, &#x27;--cached&#x27;, &#x27;--name-status&#x27;, &#x27;-r&#x27;,</span></span><br><span class="line"><span class="deletion">-                    &#x27;--ignore-submodules&#x27;, &#x27;HEAD&#x27;, &#x27;--&#x27;],</span></span><br><span class="line"><span class="deletion">-                   cwd=self.checkout_path)</span></span><br><span class="line"><span class="deletion">- except subprocess2.CalledProcessError:</span></span><br><span class="line"><span class="deletion">-   raise gclient_utils.Error(&#x27;\n____ %s at %s\n&#x27;</span></span><br><span class="line"><span class="deletion">-                             &#x27;\tYour index contains uncommitted changes\n&#x27;</span></span><br><span class="line"><span class="deletion">-                             &#x27;\tPlease commit, stash, or reset.\n&#x27;</span></span><br><span class="line"><span class="deletion">-                               % (self.relpath, revision))</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="NOTICE-You-have-PROXY-values-set-in-your-environment"><a href="#NOTICE-You-have-PROXY-values-set-in-your-environment" class="headerlink" title="NOTICE: You have PROXY values set in your environment"></a>NOTICE: You have PROXY values set in your environment</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NOTICE: You have PROXY values <span class="built_in">set</span> <span class="keyword">in</span> your environment, but gsutilin depot_tools does not (yet) obey them.</span><br><span class="line">Also, --no_auth prevents the normal BOTO_CONFIG environmentvariable from being used.</span><br><span class="line">To use a proxy <span class="keyword">in</span> this situation, please supply those settingsin a .boto file pointed to by the NO_AUTH_BOTO_CONFIG environmentvariable.</span><br></pre></td></tr></table></figure>
+<ul>
+<li>问题解决: 新增 .boto 文件, 然后设置 NO_AUTH_BOTO_CONFIG 环境变量再接着运行<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[Boto]</span><br><span class="line">proxy = 127.0.0.1</span><br><span class="line">proxy_port = 8118</span><br><span class="line">proxy_type = http</span><br></pre></td></tr></table></figure></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> NO_AUTH_BOTO_CONFIG=/Users/xxx/.boto</span><br></pre></td></tr></table></figure>
+
+<h2 id="https-commondatastorage-googleapis-com"><a href="#https-commondatastorage-googleapis-com" class="headerlink" title="https://commondatastorage.googleapis.com/**"></a><a target="_blank" rel="noopener" href="https://commondatastorage.googleapis.com/">https://commondatastorage.googleapis.com/</a>**</h2><ul>
+<li>问题简述: pythone 脚本的请求的流量不会走系统代理, 导致连接不到 google 服务, 灵机一动就先转发到本地服务, 本地服务再通过设置 httpClientAent 为系统全局代理地址来实现</li>
+<li>问题解决: 全局替换 <a target="_blank" rel="noopener" href="https://commondatastorage.googleapis.com/">https://commondatastorage.googleapis.com</a> 为 <a target="_blank" rel="noopener" href="http://127.0.0.1:3000/">http://127.0.0.1:3000</a> , 然后通过本地服务转发请求<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">Koa</span> = <span class="built_in">require</span>(<span class="string">&quot;koa&quot;</span>);</span><br><span class="line"><span class="keyword">const</span> proxy = <span class="built_in">require</span>(<span class="string">&quot;koa-proxies&quot;</span>);</span><br><span class="line"><span class="keyword">const</span> httpsProxyAgent = <span class="built_in">require</span>(<span class="string">&#x27;https-proxy-agent&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = <span class="keyword">new</span> <span class="title class_">Koa</span>();</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">use</span>(</span><br><span class="line">  <span class="title function_">proxy</span>(<span class="regexp">/^\//</span>, &#123;</span><br><span class="line">    <span class="attr">target</span>: <span class="string">&quot;https://commondatastorage.googleapis.com&quot;</span>,</span><br><span class="line">    <span class="attr">agent</span>: <span class="keyword">new</span> <span class="title function_">httpsProxyAgent</span>(<span class="string">&#x27;http://127.0.0.1:8118&#x27;</span>),</span><br><span class="line"></span><br><span class="line">    <span class="attr">logs</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">changeOrigin</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="attr">headers</span>: &#123;</span><br><span class="line">      <span class="title class_">Origin</span>: <span class="string">&quot;https://commondatastorage.googleapis.com&quot;</span>,</span><br><span class="line">      <span class="title class_">Host</span>: <span class="string">&quot;commondatastorage.googleapis.com&quot;</span>,</span><br><span class="line">      <span class="title class_">Referer</span>: <span class="string">&quot;https://commondatastorage.googleapis.com&quot;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">secure</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">events</span>: &#123;</span><br><span class="line">    <span class="comment">//   proxyRes: (proxyRes, _req, res) =&gt; &#123;</span></span><br><span class="line">    <span class="comment">//     let removeSecure = (str) =&gt; str.replace(/;Secure/i, &quot;&quot;);</span></span><br><span class="line">    <span class="comment">//     let set = proxyRes.headers[&quot;set-cookie&quot;];</span></span><br><span class="line">    <span class="comment">//     if (set) &#123;</span></span><br><span class="line">    <span class="comment">//       let result = Array.isArray(set)</span></span><br><span class="line">    <span class="comment">//         ? set.map(removeSecure)</span></span><br><span class="line">    <span class="comment">//         : removeSecure(set);</span></span><br><span class="line">    <span class="comment">//       res.setHeader(&quot;set-cookie&quot;, result);</span></span><br><span class="line">    <span class="comment">//       proxyRes.headers[&quot;set-cookie&quot;] = result;</span></span><br><span class="line">    <span class="comment">//     &#125;</span></span><br><span class="line">    <span class="comment">//   &#125;,</span></span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">listen</span>(<span class="number">3000</span>)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="clang-error-argument-unused-during-compilation"><a href="#clang-error-argument-unused-during-compilation" class="headerlink" title="clang++: error: argument unused during compilation"></a>clang++: error: argument unused during compilation</h2><ul>
+<li>问题解决: 增加 -Qunused-arguments 参数使编译器忽略这个错误<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// v8/build/config/mac/BUILD.gn</span><br><span class="line"></span><br><span class="line">if (host_os == &quot;mac&quot;) &#123;</span><br><span class="line">  common_mac_flags += [</span><br><span class="line">    &quot;-arch&quot;,</span><br><span class="line">    clang_arch,</span><br><span class="line"><span class="addition">+    &quot;-Qunused-arguments&quot;</span></span><br><span class="line">  ]</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  common_mac_flags += [ &quot;--target=$clang_arch-apple-macos&quot; ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="Embedder-vs-V8-build-configuration-mismatch"><a href="#Embedder-vs-V8-build-configuration-mismatch" class="headerlink" title="Embedder-vs-V8 build configuration mismatch."></a>Embedder-vs-V8 build configuration mismatch.</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># Fatal error in , line 0</span><br><span class="line"># Embedder-vs-V8 build configuration mismatch. On embedder side pointer compression is DISABLED while on V8 side it&#x27;s ENABLED.</span><br><span class="line">#</span><br><span class="line">#</span><br><span class="line">#</span><br><span class="line">#FailureMessage Object: 0x16fc2a918</span><br></pre></td></tr></table></figure>
+<ul>
+<li>问题解决: 编译参数加上 -DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ src/pure.cc -g -I deps/v8/include/ -o pure -L lib/ -lv8_monolith -pthread -std=c++17 -DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="unknown-current-cpu-current-cpu"><a href="#unknown-current-cpu-current-cpu" class="headerlink" title="unknown current_cpu $current_cpu"></a>unknown current_cpu $current_cpu</h2><ul>
+<li>问题简述: 还不支持 arm64 平台编译 ?</li>
+<li>问题解决: 确保如下几步都做到<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># v8 目录下运行如下命令, 支持 arm64</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;mac-arm64&quot;</span> &gt; .cipd_client_platform</span><br><span class="line"></span><br><span class="line"><span class="comment"># v8 目录下运行如下命令, 支持 arm64</span></span><br><span class="line"><span class="built_in">mkdir</span> -p out.gn/arm64.release/</span><br><span class="line"><span class="built_in">cat</span> &gt;&gt; out.gn/arm64.release/args.gn &lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">dcheck_always_on = false</span></span><br><span class="line"><span class="string">is_debug = false</span></span><br><span class="line"><span class="string">target_cpu = &quot;arm64&quot;</span></span><br><span class="line"><span class="string">v8_target_cpu = &quot;arm64&quot;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">cc_wrapper=&quot;ccache&quot;</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用 v8gen 生成 arm64 平台的编译配置</span></span><br><span class="line">/Users/xxx/v8/tools/dev/v8gen.py arm64.release.sample</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译 arm64 平台的 V8 的静态库</span></span><br><span class="line">ninja -C out.gn/arm64.release.sample v8_monolith</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Failed-to-fetch-file-gs-x2F-x2F-chromium-gn-x2F-xxx"><span class="toc-number">1.</span> <span class="toc-text">Failed to fetch file gs:&#x2F;&#x2F;chromium-gn&#x2F;xxx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NOTICE-You-have-PROXY-values-set-in-your-environment"><span class="toc-number">2.</span> <span class="toc-text">NOTICE: You have PROXY values set in your environment</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#https-commondatastorage-googleapis-com"><span class="toc-number">3.</span> <span class="toc-text">https:&#x2F;&#x2F;commondatastorage.googleapis.com&#x2F;**</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#clang-error-argument-unused-during-compilation"><span class="toc-number">4.</span> <span class="toc-text">clang++: error: argument unused during compilation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Embedder-vs-V8-build-configuration-mismatch"><span class="toc-number">5.</span> <span class="toc-text">Embedder-vs-V8 build configuration mismatch.</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#unknown-current-cpu-current-cpu"><span class="toc-number">6.</span> <span class="toc-text">unknown current_cpu $current_cpu</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/05/29/b16/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&text=MacBook M1 编译 v8 问题记录"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&title=MacBook M1 编译 v8 问题记录"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&is_video=false&description=MacBook M1 编译 v8 问题记录"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=MacBook M1 编译 v8 问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/05/29/b16/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&title=MacBook M1 编译 v8 问题记录"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&title=MacBook M1 编译 v8 问题记录"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&title=MacBook M1 编译 v8 问题记录"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&title=MacBook M1 编译 v8 问题记录"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/05/29/b16/&name=MacBook M1 编译 v8 问题记录&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/05/29/b16/&t=MacBook M1 编译 v8 问题记录"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

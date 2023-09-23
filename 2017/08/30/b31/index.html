@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="探索 React 在成千上万组件中性能的性能表现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2017-08-30 SuperContra 超级魂斗罗">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2017/08/30/b31/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="探索 React 在成千上万组件中性能的性能表现">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/217046955-b84ff7e7-ac25-440e-ba9e-c6f9cef79344.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/217035883-193b5c9c-db87-4f19-a45a-b9f9c505f41c.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/217033980-58a85e15-8c72-4c11-ab73-44de2ab3648e.png">
+<meta property="og:image" content="http://p5.qhimg.com/t0131e05b31c1284209.gif">
+<meta property="article:published_time" content="2017-08-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.932Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="game">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/217046955-b84ff7e7-ac25-440e-ba9e-c6f9cef79344.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>2017-08-30 SuperContra 超级魂斗罗</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/05/25/b33/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2017/08/30/b31/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&text=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&title=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&is_video=false&description=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=2017-08-30 SuperContra 超级魂斗罗&body=Check out this article: https://xiaoxiaojx.github.io/2017/08/30/b31/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&title=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&title=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&title=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&title=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&name=2017-08-30 SuperContra 超级魂斗罗&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2017/08/30/b31/&t=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SuperContra-%E8%B6%85%E7%BA%A7%E9%AD%82%E6%96%97%E7%BD%97"><span class="toc-number">1.</span> <span class="toc-text">SuperContra 超级魂斗罗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%B8%E6%88%8F%E8%AF%B4%E6%98%8E"><span class="toc-number">2.</span> <span class="toc-text">游戏说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#React-%E5%86%99%E6%B8%B8%E6%88%8F%E7%9A%84%E4%B8%80%E4%BA%9B%E5%BF%83%E5%BE%97"><span class="toc-number">3.</span> <span class="toc-text">React 写游戏的一些心得</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#React-%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="toc-number">3.1.</span> <span class="toc-text">React 的优势</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%A9%B1%E5%8A%A8"><span class="toc-number">3.1.1.</span> <span class="toc-text">数据驱动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84%E6%9B%B4%E6%B8%85%E6%99%B0"><span class="toc-number">3.1.2.</span> <span class="toc-text">结构更清晰</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#React%E7%9A%84%E5%8A%A3%E5%8A%BF"><span class="toc-number">3.2.</span> <span class="toc-text">React的劣势</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E8%BE%83%E5%B7%AE"><span class="toc-number">3.2.1.</span> <span class="toc-text">性能较差</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#React-%E4%B8%8D%E6%93%85%E9%95%BF%E7%BB%A7%E6%89%BF"><span class="toc-number">3.2.2.</span> <span class="toc-text">React 不擅长继承</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96"><span class="toc-number">3.3.</span> <span class="toc-text">其他</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        2017-08-30 SuperContra 超级魂斗罗
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-08-29T16:00:00.000Z" class="dt-published" itemprop="datePublished">2017-08-30</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/game/" rel="tag">game</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/217046955-b84ff7e7-ac25-440e-ba9e-c6f9cef79344.png" alt="image"></p>
+<h2 id="SuperContra-超级魂斗罗"><a href="#SuperContra-超级魂斗罗" class="headerlink" title="SuperContra 超级魂斗罗"></a>SuperContra 超级魂斗罗</h2><ul>
+<li>目的: 探索 React 在成千上万组件中性能的性能表现</li>
+<li>游戏名: SuperContra 是说这个游戏由超级玛丽 Super + 魂斗罗 Contra 的元素组合而成</li>
+<li>不足之处: 由于是纯手写实现, 没有用到动画库及游戏引擎, 人物的运动曲线比较僵硬</li>
+</ul>
+<h2 id="游戏说明"><a href="#游戏说明" class="headerlink" title="游戏说明"></a>游戏说明</h2><p>🎮 快速开始游戏 <a href="https://xiaoxiaojx.github.io/super-contra/dist/index.html">SuperContra</a>, 按键如下图<br><img src="https://user-images.githubusercontent.com/23253540/217035883-193b5c9c-db87-4f19-a45a-b9f9c505f41c.png" alt="image"></p>
+<p>顶这个墙出现蘑菇 🍄, 此蘑菇 🍄 接了才可以开枪发子弹</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/217033980-58a85e15-8c72-4c11-ab73-44de2ab3648e.png" alt="image"></p>
+<h2 id="React-写游戏的一些心得"><a href="#React-写游戏的一些心得" class="headerlink" title="React 写游戏的一些心得"></a>React 写游戏的一些心得</h2><h3 id="React-的优势"><a href="#React-的优势" class="headerlink" title="React 的优势"></a>React 的优势</h3><h4 id="数据驱动"><a href="#数据驱动" class="headerlink" title="数据驱动"></a>数据驱动</h4><p>根据 state 或者 props 的变化自动驱动视图的变化。以前的方式往往是直接操作 DOM 实现, 手动触发某事件使得元素移动代码类似如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">moveRight</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">left</span> += <span class="number">8</span>;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">draw</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">draw</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable language_">this</span>.<span class="property">ele</span> === <span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">ele</span> = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;img&#x27;</span>);</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">ele</span>.<span class="property">src</span> = <span class="variable language_">this</span>.<span class="property">url</span>;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">ele</span>.<span class="property">style</span>.<span class="property">width</span> = <span class="variable language_">this</span>.<span class="property">width</span> + <span class="string">&#x27;px&#x27;</span>;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">ele</span>.<span class="property">style</span>.<span class="property">height</span> = <span class="variable language_">this</span>.<span class="property">height</span> + <span class="string">&#x27;px&#x27;</span>;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">ele</span>.<span class="property">style</span>.<span class="property">position</span> = <span class="string">&#x27;absolute&#x27;</span>;</span><br><span class="line">        app.<span class="title function_">appendChild</span>(<span class="variable language_">this</span>.<span class="property">ele</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">ele</span>.<span class="property">style</span>.<span class="property">left</span> = <span class="variable language_">this</span>.<span class="property">left</span> + <span class="string">&#x27;px&#x27;</span>;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">ele</span>.<span class="property">style</span>.<span class="property">top</span> = <span class="variable language_">this</span>.<span class="property">top</span> + <span class="string">&#x27;px&#x27;</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>现在就友好很多</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">moveRight</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setState</span>( <span class="function"><span class="params">preState</span> =&gt;</span> (</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">left</span>: preState.<span class="property">left</span> + <span class="number">8</span></span><br><span class="line">        &#125;</span><br><span class="line">    ));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;<span class="title class_">ContraBG</span></span><br><span class="line">    left=&#123;left&#125;</span><br><span class="line">    top=&#123;top&#125;</span><br><span class="line">    status=&#123;status&#125;</span><br><span class="line">    toward=&#123;toward&#125;&gt;</span><br><span class="line">&lt;/<span class="title class_">ContraBG</span>&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="结构更清晰"><a href="#结构更清晰" class="headerlink" title="结构更清晰"></a>结构更清晰</h4><p>逐个书写需要渲染的组件, 能让人一目了然的知道游戏运行中加载的组件, 老的方式代码风格去渲染一个元素如</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> contra = <span class="keyword">new</span> <span class="title class_">Contra</span>();</span><br><span class="line"><span class="keyword">const</span> bulletsMap = <span class="keyword">new</span> <span class="title class_">BulletsMap</span>();</span><br><span class="line"><span class="keyword">const</span> enemiesMap = <span class="keyword">new</span> <span class="title class_">EnemiesMap</span>();</span><br><span class="line"></span><br><span class="line">contra.<span class="title function_">draw</span>();</span><br><span class="line">bulletsMap.<span class="title function_">draw</span>();</span><br><span class="line">enemiesMap.<span class="title function_">draw</span>();</span><br></pre></td></tr></table></figure>
+<p>如果渲染的多了结构复杂了, 阅读就会十分困难。现在的代码风格就能够一目了然的看到所有运行的组件</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">InGame</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.PureComponent</span>&lt;<span class="title class_">InGameProps</span>, &#123;&#125;&gt; &#123;</span><br><span class="line">  <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      <span class="language-xml"><span class="tag">&lt;<span class="name">InGameBG</span>&gt;</span> // 包裹组件负责渲染背景变化相关</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Contra</span> /&gt;</span>  // 玩家控制的角色组件</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">BulletsMap</span> /&gt;</span> // 负责渲染子弹</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">EnemiesMap</span> /&gt;</span> // 负责渲染敌方角色</span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">InGameBG</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="React的劣势"><a href="#React的劣势" class="headerlink" title="React的劣势"></a>React的劣势</h3><h4 id="性能较差"><a href="#性能较差" class="headerlink" title="性能较差"></a>性能较差</h4><ul>
+<li><strong>避免卡顿</strong> 前者直接操作某个 DOM 渲染不会有太多卡顿现象发生<br>React 使用 Mobx, Redux 等进行整个游戏数据控制时, 如果不对渲染进行优化, 当 store 某个属性值变化导致所有接入props 的组件都重新渲染一次代价是巨大的 ⚠️</li>
+</ul>
+<ol>
+<li>采用 PureComponent 或者为 Component 添加 shouldComponentUpdate 生命周期<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Square</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.PureComponent</span>&lt;<span class="title class_">SquareProps</span>, &#123;&#125;&gt; &#123;</span><br><span class="line">  <span class="comment">// xxx</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+其中就需要了解PureComponent。React.PureComponent 是 2016.06.29 React 15.3中发布  <a target="_blank" rel="noopener" href="https://60devs.com/pure-component-in-react.html">pure-component-in-react</a>。<img src="http://p5.qhimg.com/t0131e05b31c1284209.gif" alt="image"></li>
+</ol>
+<p>PureComponent 改变了生命周期方法 shouldComponentUpdate，并且它会自动检查组件是否需要重新渲染。这时，只有PureComponent检测到 state 或者 props 发生变化时，PureComponent 才会调用 render 方法,但是这种检查只是浅计较这就意味着嵌套对象和数组是不会被比较</p>
+<ol start="2">
+<li><p>多采用组件去渲染, 对比两种方法</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 方法1</span></span><br><span class="line">&lt;<span class="title class_">InGameBG</span>&gt;</span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">Contra</span> /&gt;</span></span></span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">BulletsMap</span> /&gt;</span></span></span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">EnemiesMap</span> /&gt;</span></span></span><br><span class="line">&lt;/<span class="title class_">InGameBG</span>&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方法2</span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">InGameBG</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;<span class="name">Contra</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    &#123;bulletMap.map((bullet, index) =&gt; &#123;</span></span><br><span class="line"><span class="language-xml">      if (bullet) &#123;</span></span><br><span class="line"><span class="language-xml">        return (</span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">Bullet</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            <span class="attr">key</span>=<span class="string">&#123;</span>`<span class="attr">Bullet-</span>$&#123;<span class="attr">index</span>&#125;`&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            &#123;<span class="attr">...bullet</span>&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            <span class="attr">index</span>=<span class="string">&#123;index&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            <span class="attr">store</span>=<span class="string">&#123;store&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          /&gt;</span></span></span><br><span class="line"><span class="language-xml">        );</span></span><br><span class="line"><span class="language-xml">      &#125;</span></span><br><span class="line"><span class="language-xml">      return null;</span></span><br><span class="line"><span class="language-xml">    &#125;)&#125;</span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;<span class="name">EnemiesMap</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;/<span class="name">InGameBG</span>&gt;</span></span>;</span><br></pre></td></tr></table></figure>
+<p>这两种方法的区别就是在于渲染子弹是否通过组件渲染还是在父组件中直接渲染, 其中方法2的性能会有很大的问题, 当某个子弹变化时使得最大的容器重新渲染, 其中所有子组件也会去判断是否需要重新渲染，使得界面会出现卡顿。而方法1则只会在发生数据变化的子弹去渲染。</p>
+</li>
+<li><p><em><strong>getLazyLoadMap 对地图的实时切割渲染</strong></em></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">LIMIT</span>: number = <span class="number">16</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="attr">GAME_WIDTH</span>: number = <span class="number">512</span>;</span><br><span class="line"></span><br><span class="line">@observer</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SquaresMap</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.PureComponent</span>&lt;<span class="title class_">SquaresMapProps</span>, &#123;&#125;&gt; &#123;</span><br><span class="line">    <span class="title function_">getLazyLoadMap</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> &#123; staticSquareMap, inGameGBLeft &#125; = <span class="variable language_">this</span>.<span class="property">props</span>.<span class="property">store</span>;</span><br><span class="line">        <span class="keyword">const</span> <span class="variable constant_">OFFSET</span> = <span class="title class_">Math</span>.<span class="title function_">abs</span>(inGameGBLeft) / <span class="variable constant_">GAME_WIDTH</span> * <span class="variable constant_">LIMIT</span>;</span><br><span class="line">        <span class="keyword">return</span> staticSquareMap.<span class="title function_">reduce</span>(<span class="function">(<span class="params">preVal, currentVal</span>) =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">const</span> items = [...currentVal];</span><br><span class="line">            <span class="keyword">const</span> current = items.<span class="title function_">splice</span>(<span class="variable constant_">OFFSET</span>, <span class="variable constant_">LIMIT</span>);</span><br><span class="line">            preVal.<span class="title function_">push</span>(current);</span><br><span class="line">            <span class="keyword">return</span> preVal;</span><br><span class="line">        &#125;, [] <span class="keyword">as</span> <span class="title class_">StaticSquareManagementType</span>[][]);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="React-不擅长继承"><a href="#React-不擅长继承" class="headerlink" title="React 不擅长继承"></a>React 不擅长继承</h4><p>前者类与类之间继承会灵活很多, 如</p>
+<ul>
+<li>飞机继承至飞行物<ul>
+<li>飞行物继承至动态物<ul>
+<li>动态物继承至游戏基础物体</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>React 不推崇继承, 可采用组合, HOC 高阶组件思想去渲染一系列具有相似性质的组件。如超级玛丽游戏中有许多的墙,它们具有相似的渲染逻辑,以及一些都会需要用到的方法, 可以通过写一个静态方块的高阶组件去生成, 能够更高效的管理代码。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title class_">WithStaticSquare</span>&lt;<span class="title class_">TOwnProps</span>&gt;(</span><br><span class="line">  <span class="attr">options</span>: <span class="title class_">StaticSquareOption</span></span><br><span class="line">): <span class="title class_">ComponentDecorator</span>&lt;<span class="title class_">TOwnProps</span>&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">Component</span>) =&gt;</span></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">HocSquare</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.Component</span>&lt;<span class="title class_">TOwnProps</span>, <span class="title class_">HocSquareState</span>&gt; &#123;</span><br><span class="line">      <span class="comment">// xxx</span></span><br><span class="line">      <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> &#123; styles, className &#125; = <span class="variable language_">this</span>.<span class="property">state</span>;</span><br><span class="line">        <span class="keyword">const</span> <span class="attr">passThroughProps</span>: any = <span class="variable language_">this</span>.<span class="property">props</span>;</span><br><span class="line">        <span class="keyword">const</span> classNames = className</span><br><span class="line">          ? <span class="string">`staticHocWrap <span class="subst">$&#123;className&#125;</span>`</span></span><br><span class="line">          : <span class="string">&#x27;staticHocWrap&#x27;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> <span class="attr">staticProps</span>: <span class="title class_">WrappedStaticSquareUtils</span> = &#123;</span><br><span class="line">          <span class="attr">changeBackground</span>: <span class="variable language_">this</span>.<span class="property">changeBackground</span>,</span><br><span class="line">          <span class="attr">toTopAnimate</span>: <span class="variable language_">this</span>.<span class="property">toTopAnimate</span>,</span><br><span class="line">        &#125;; <span class="comment">// 提供一些可能会用到的改变背景图的方法以及被撞时调用向上动画的方法</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> (</span><br><span class="line">          <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#123;classNames&#125;</span> <span class="attr">style</span>=<span class="string">&#123;styles&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">Component</span> <span class="attr">hoc</span>=<span class="string">&#123;staticProps&#125;</span> &#123;<span class="attr">...passThroughProps</span>&#125; /&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">        );</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<li><strong>及时移除监听</strong> 在组件卸载时需要移除该组件的事件监听, 时间函数等。如游戏开始组件<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">GameStart</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.Component</span>&lt;<span class="title class_">GameStartProps</span>, &#123;&#125;&gt; &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="variable language_">super</span>(props);</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">onkeydownHandle</span> = <span class="variable language_">this</span>.<span class="property">onkeydownHandle</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">componentDidMount</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">onkeydown</span>();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">componentWillUnmount</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">destroy</span>();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">destroy</span>(): <span class="keyword">void</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;GameStart Component destroy ....&#x27;</span>);</span><br><span class="line">    <span class="variable language_">window</span>.<span class="title function_">removeEventListener</span>(<span class="string">&#x27;keydown&#x27;</span>, <span class="variable language_">this</span>.<span class="property">onkeydownHandle</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">onkeydownHandle</span>(<span class="attr">e</span>: <span class="title class_">KeyboardEvent</span>): <span class="keyword">void</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="attr">keyCode</span>: <span class="title class_">KeyCodeType</span> = e.<span class="property">keyCode</span>;</span><br><span class="line">    <span class="keyword">const</span> &#123; store &#125; = <span class="variable language_">this</span>.<span class="property">props</span>;</span><br><span class="line">    <span class="keyword">const</span> &#123; updateGameStatus &#125; = store;</span><br><span class="line">    <span class="keyword">switch</span> (keyCode) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">72</span>:</span><br><span class="line">        <span class="title function_">updateGameStatus</span>(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">onkeydown</span>(): <span class="keyword">void</span> &#123;</span><br><span class="line">    <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;keydown&#x27;</span>, <span class="variable language_">this</span>.<span class="property">onkeydownHandle</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&quot;gameStartWrap&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SuperContra-%E8%B6%85%E7%BA%A7%E9%AD%82%E6%96%97%E7%BD%97"><span class="toc-number">1.</span> <span class="toc-text">SuperContra 超级魂斗罗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%B8%E6%88%8F%E8%AF%B4%E6%98%8E"><span class="toc-number">2.</span> <span class="toc-text">游戏说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#React-%E5%86%99%E6%B8%B8%E6%88%8F%E7%9A%84%E4%B8%80%E4%BA%9B%E5%BF%83%E5%BE%97"><span class="toc-number">3.</span> <span class="toc-text">React 写游戏的一些心得</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#React-%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="toc-number">3.1.</span> <span class="toc-text">React 的优势</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%A9%B1%E5%8A%A8"><span class="toc-number">3.1.1.</span> <span class="toc-text">数据驱动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84%E6%9B%B4%E6%B8%85%E6%99%B0"><span class="toc-number">3.1.2.</span> <span class="toc-text">结构更清晰</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#React%E7%9A%84%E5%8A%A3%E5%8A%BF"><span class="toc-number">3.2.</span> <span class="toc-text">React的劣势</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E8%BE%83%E5%B7%AE"><span class="toc-number">3.2.1.</span> <span class="toc-text">性能较差</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#React-%E4%B8%8D%E6%93%85%E9%95%BF%E7%BB%A7%E6%89%BF"><span class="toc-number">3.2.2.</span> <span class="toc-text">React 不擅长继承</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96"><span class="toc-number">3.3.</span> <span class="toc-text">其他</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2017/08/30/b31/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&text=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&title=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&is_video=false&description=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=2017-08-30 SuperContra 超级魂斗罗&body=Check out this article: https://xiaoxiaojx.github.io/2017/08/30/b31/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&title=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&title=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&title=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&title=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2017/08/30/b31/&name=2017-08-30 SuperContra 超级魂斗罗&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2017/08/30/b31/&t=2017-08-30 SuperContra 超级魂斗罗"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

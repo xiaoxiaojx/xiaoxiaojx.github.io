@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="最近更文较少, 主要忙于各大团购群买菜 + 做饭 + 做核酸 + 远程办公">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Next.js 未能实时渲染问题排查">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/04/09/b18/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="最近更文较少, 主要忙于各大团购群买菜 + 做饭 + 做核酸 + 远程办公">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/162456565-86fe05ac-757d-46fd-aad3-e344811c62cb.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/162478644-c40212d6-be39-4e67-9775-035d5d685985.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/162479210-273c9fa2-6930-4810-bfee-85c93547c3ce.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/162563683-6ff27dde-b153-480a-87fe-6ebd21ae9469.png">
+<meta property="article:published_time" content="2022-04-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.930Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="SSR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/162456565-86fe05ac-757d-46fd-aad3-e344811c62cb.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Next.js 未能实时渲染问题排查</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/05/16/b17/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/03/12/b19/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/04/09/b18/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&text=Next.js 未能实时渲染问题排查"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&title=Next.js 未能实时渲染问题排查"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&is_video=false&description=Next.js 未能实时渲染问题排查"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Next.js 未能实时渲染问题排查&body=Check out this article: https://xiaoxiaojx.github.io/2022/04/09/b18/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&title=Next.js 未能实时渲染问题排查"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&title=Next.js 未能实时渲染问题排查"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&title=Next.js 未能实时渲染问题排查"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&title=Next.js 未能实时渲染问题排查"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&name=Next.js 未能实时渲染问题排查&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/04/09/b18/&t=Next.js 未能实时渲染问题排查"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E6%97%B6"><span class="toc-number">3.1.</span> <span class="toc-text">构建时</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="toc-number">3.2.</span> <span class="toc-text">运行时</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%8C%BA%E5%88%86"><span class="toc-number">3.3.</span> <span class="toc-text">如何区分</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Next.js 未能实时渲染问题排查
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-04-08T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-04-09</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/SSR/" rel="tag">SSR</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/162456565-86fe05ac-757d-46fd-aad3-e344811c62cb.png" alt="image"></p>
+<blockquote>
+<p>最近更文较少, 主要忙于各大团购群买菜 + 做饭 + 做核酸 + 远程办公。从 3月30号 到今天小区已经封了 11 天, 上海疫情又创了新高 1015 + 22609 例。只希望这波疫情赶紧结束, 不要再出负面新闻了 😓 。图片来自封控前的一次囤货外出。</p>
+</blockquote>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>近期在对 SSR 项目进行 <em><strong>CDN和域名灾备</strong></em> 的改造, 同学 a 负责的 Next.js 项目改造测试时发现 CDN 没有预期内的动态切换。这个项目一直有历史包袱, 我想着不会线上 Node 一直是挂的吧,  难道长久以来都是 Nginx 返回的静态兜底页面?</p>
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><p>本地启动了该项目, 发现无论是服务端渲染请求还是健康检查 Node 服务都没有异常。得出 Node 大概率是一直正常运行的, 那么会是其他什么原因导致的一直返回的是静态资源而非实时的 SSR 直出了?</p>
+<p>真正的原因是当你的 src&#x2F;pages&#x2F;_app.tsx 文件中导出的 App 组件或者某个 Page 组件没有定义 getInitialProps 或者 getServerSideProps 这个静态方法, 意味着你其实是不需要在服务端进行注水(比如拉取用户的某个真实数据接口, 然后实时渲染直出)。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// demo</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">Page</span>(<span class="params">&#123; stars &#125;</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Next stars: &#123;stars&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Page</span>.<span class="property">getInitialProps</span> = <span class="keyword">async</span> (ctx) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">&#x27;https://api.github.com/repos/vercel/next.js&#x27;</span>)</span><br><span class="line">  <span class="keyword">const</span> json = <span class="keyword">await</span> res.<span class="title function_">json</span>()</span><br><span class="line">  <span class="keyword">return</span> &#123; <span class="attr">stars</span>: json.<span class="property">stargazers_count</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">Page</span></span><br></pre></td></tr></table></figure>
+
+<p>此时 Next.js 会在打包构建阶段预渲染一个静态 html, 到项目发布成功 Node 服务开始运行的时候直接返回该静态 html 即可。因为不需要注水, html 的最终形态构建时就能决定下来了, 没必要服务端再实时渲染, 既能减少 CPU 消耗又能难缩短 rt。</p>
+<p>后面查阅了一下文档, Next.js 称这个优化点为 <a target="_blank" rel="noopener" href="https://nextjs.org/docs/advanced-features/automatic-static-optimization">Automatic Static Optimization</a>。</p>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><h3 id="构建时"><a href="#构建时" class="headerlink" title="构建时"></a>构建时</h3><p>可以看到 isStatic 的值为 true 的条件, 即导出的 App 组件没有定义 getStaticProps、 getInitialProps、getServerSideProps 任意一个静态方法</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packages/next/build/utils.ts</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">isPageStatic</span>(<span class="params"></span></span><br><span class="line"><span class="params">  <span class="comment">// ...</span></span></span><br><span class="line"><span class="params">&#125;&gt; &#123;</span></span><br><span class="line"><span class="params">  <span class="keyword">return</span> isPageStaticSpan.traceAsyncFn(<span class="keyword">async</span> () =&gt; &#123;</span></span><br><span class="line"><span class="params">    <span class="keyword">try</span> &#123;</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">      <span class="keyword">const</span> mod = <span class="keyword">await</span> loadComponents(distDir, page, serverless)</span></span><br><span class="line"><span class="params">      <span class="keyword">const</span> Comp = mod.Component</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">      <span class="keyword">const</span> hasFlightData = !!(mod <span class="keyword">as</span> <span class="built_in">any</span>).__next_rsc__</span></span><br><span class="line"><span class="params">      <span class="keyword">const</span> hasGetInitialProps = !!(Comp <span class="keyword">as</span> <span class="built_in">any</span>).getInitialProps</span></span><br><span class="line"><span class="params">      <span class="keyword">const</span> hasStaticProps = !!mod.getStaticProps</span></span><br><span class="line"><span class="params">      <span class="keyword">const</span> hasStaticPaths = !!mod.getStaticPaths</span></span><br><span class="line"><span class="params">      <span class="keyword">const</span> hasServerProps = !!mod.getServerSideProps</span></span><br><span class="line"><span class="params">    </span></span><br><span class="line"><span class="params">      // ...</span></span><br><span class="line"><span class="params">        </span></span><br><span class="line"><span class="params">      <span class="keyword">return</span> &#123;</span></span><br><span class="line"><span class="params">        isStatic:</span></span><br><span class="line"><span class="params">          !hasStaticProps &amp;&amp;</span></span><br><span class="line"><span class="params">          !hasGetInitialProps &amp;&amp;</span></span><br><span class="line"><span class="params">          !hasServerProps &amp;&amp;</span></span><br><span class="line"><span class="params">          !hasFlightData,</span></span><br><span class="line"><span class="params">        isHybridAmp: config.amp === <span class="string">&#x27;hybrid&#x27;</span>,</span></span><br><span class="line"><span class="params">        // ...</span></span><br><span class="line"><span class="params">      &#125;</span></span><br><span class="line"><span class="params">    &#125; <span class="keyword">catch</span> (err) &#123;</span></span><br><span class="line"><span class="params">      <span class="keyword">if</span> (isError(err) &amp;&amp; err.code === <span class="string">&#x27;MODULE_NOT_FOUND&#x27;</span>) <span class="keyword">return</span> &#123;&#125;</span></span><br><span class="line"><span class="params">      <span class="keyword">throw</span> err</span></span><br><span class="line"><span class="params">    &#125;</span></span><br><span class="line"><span class="params">  &#125;)</span></span><br><span class="line"><span class="params">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>对于 isStatic 的值为 true 的页面 (staticPages) 和定义了 getStaticProps(ssgPages) 静态方法的页面就会通过 exportApp 方法进行预渲染生成静态 html。</p>
+<ul>
+<li>exportApp 的预渲染是调用的 ReactDOMServer.renderToString, 并非是借助的 puppeteer</li>
+<li>next export 命令也是调用的 exportApp 方法<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packages/next/build/index.ts</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">build</span>(<span class="params"></span></span><br><span class="line"><span class="params">  dir: <span class="built_in">string</span>,</span></span><br><span class="line"><span class="params">  conf = <span class="literal">null</span>,</span></span><br><span class="line"><span class="params">  reactProductionProfiling = <span class="literal">false</span>,</span></span><br><span class="line"><span class="params">  debugOutput = <span class="literal">false</span>,</span></span><br><span class="line"><span class="params">  runLint = <span class="literal">true</span></span></span><br><span class="line"><span class="params"></span>): <span class="title class_">Promise</span>&lt;<span class="built_in">void</span>&gt; &#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> combinedPages = [...staticPages, ...ssgPages]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (combinedPages.<span class="property">length</span> &gt; <span class="number">0</span> || useStatic404 || useDefaultStatic500) &#123;</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">        <span class="keyword">const</span> <span class="attr">exportApp</span>: <span class="keyword">typeof</span> <span class="keyword">import</span>(<span class="string">&#x27;../export&#x27;</span>).<span class="property">default</span> =</span><br><span class="line">          <span class="built_in">require</span>(<span class="string">&#x27;../export&#x27;</span>).<span class="property">default</span></span><br><span class="line">        <span class="keyword">const</span> exportOptions = &#123;</span><br><span class="line">          <span class="comment">// ...</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">const</span> <span class="attr">exportConfig</span>: <span class="built_in">any</span> = &#123;</span><br><span class="line">         <span class="comment">// ...</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">await</span> <span class="title function_">exportApp</span>(dir, exportOptions, nextBuildSpan, exportConfig)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+构建阶段生成好静态的 html 文件, 服务运行时直接返回即可</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/23253540/162478644-c40212d6-be39-4e67-9775-035d5d685985.png" alt="image"></p>
+<p>对于定义了 getInitialProps 或者 getServerSideProps 静态方法的组件构建阶段则只会生成服务端运行时需要的 js 文件</p>
+<p><img src="https://user-images.githubusercontent.com/23253540/162479210-273c9fa2-6930-4810-bfee-85c93547c3ce.png" alt="image"></p>
+<h3 id="运行时"><a href="#运行时" class="headerlink" title="运行时"></a>运行时</h3><p>如果发现所需组件是一个 html 文件, requirePage 方法就会返回该 html 的字符串。如果是一个 js 文件则正常返回该模块的 module.exports, 然后服务端渲染该组件生成 html 字符串</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packages/next/server/load-components.ts</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">loadComponents</span>(<span class="params"></span></span><br><span class="line"><span class="params">  distDir: <span class="built_in">string</span>,</span></span><br><span class="line"><span class="params">  pathname: <span class="built_in">string</span>,</span></span><br><span class="line"><span class="params">  serverless: <span class="built_in">boolean</span>,</span></span><br><span class="line"><span class="params">  serverComponents?: <span class="built_in">boolean</span></span></span><br><span class="line"><span class="params"></span>): <span class="title class_">Promise</span>&lt;<span class="title class_">LoadComponentsReturnType</span>&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (serverless) &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="title class_">ComponentMod</span> = <span class="keyword">await</span> requirePage(pathname, distDir, serverless)</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="title class_">ComponentMod</span> === <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="title class_">Component</span>: <span class="title class_">ComponentMod</span> <span class="keyword">as</span> <span class="built_in">any</span>,</span><br><span class="line">        <span class="attr">pageConfig</span>: &#123;&#125;,</span><br><span class="line">        <span class="title class_">ComponentMod</span>,</span><br><span class="line">      &#125; <span class="keyword">as</span> <span class="title class_">LoadComponentsReturnType</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> &#123;</span><br><span class="line">      <span class="attr">default</span>: <span class="title class_">Component</span>,</span><br><span class="line">      getStaticProps,</span><br><span class="line">      getStaticPaths,</span><br><span class="line">      getServerSideProps,</span><br><span class="line">    &#125; = <span class="title class_">ComponentMod</span></span><br><span class="line"></span><br><span class="line">    <span class="title class_">Component</span> = <span class="keyword">await</span> <span class="title class_">Component</span></span><br><span class="line">    getStaticProps = <span class="keyword">await</span> getStaticProps</span><br><span class="line">    getStaticPaths = <span class="keyword">await</span> getStaticPaths</span><br><span class="line">    getServerSideProps = <span class="keyword">await</span> getServerSideProps</span><br><span class="line">    <span class="keyword">const</span> pageConfig = (<span class="keyword">await</span> <span class="title class_">ComponentMod</span>.<span class="property">config</span>) || &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="title class_">Component</span>,</span><br><span class="line">      pageConfig,</span><br><span class="line">      getStaticProps,</span><br><span class="line">      getStaticPaths,</span><br><span class="line">      getServerSideProps,</span><br><span class="line">      <span class="title class_">ComponentMod</span>,</span><br><span class="line">    &#125; <span class="keyword">as</span> <span class="title class_">LoadComponentsReturnType</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码看到这里我们知道了</p>
+<ul>
+<li>getInitialProps 和 getServerSideProps 是服务端渲染时才会运行的用于注水的钩子函数, Next.js 推荐使用 getServerSideProps 函数</li>
+<li>getStaticProps 是构建时才会运行的用于注水的钩子函数</li>
+</ul>
+<h3 id="如何区分"><a href="#如何区分" class="headerlink" title="如何区分"></a>如何区分</h3><p>通过下面的代码可以看见可以通过 Next.js 注入的 <strong>NEXT_DATA</strong> 的 gsp, gssp, gip 等值即可以快速判断当前页面是何种方式进行的渲染方式</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packages/next/server/render.tsx</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">renderToHTML</span>(<span class="params"></span></span><br><span class="line"><span class="params">  req: IncomingMessage,</span></span><br><span class="line"><span class="params">  res: ServerResponse,</span></span><br><span class="line"><span class="params">  pathname: <span class="built_in">string</span>,</span></span><br><span class="line"><span class="params">  query: NextParsedUrlQuery,</span></span><br><span class="line"><span class="params">  renderOpts: RenderOpts</span></span><br><span class="line"><span class="params"></span>): <span class="title class_">Promise</span>&lt;<span class="title class_">RenderResult</span> | <span class="literal">null</span>&gt; &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> <span class="attr">htmlProps</span>: <span class="title class_">HtmlProps</span> = &#123;</span><br><span class="line">    <span class="attr">__NEXT_DATA__</span>: &#123;</span><br><span class="line">      props, <span class="comment">// The result of getInitialProps</span></span><br><span class="line">      <span class="attr">nextExport</span>: nextExport === <span class="literal">true</span> ? <span class="literal">true</span> : <span class="literal">undefined</span>, <span class="comment">// If this is a page exported by `next export`</span></span><br><span class="line">      <span class="attr">autoExport</span>: isAutoExport === <span class="literal">true</span> ? <span class="literal">true</span> : <span class="literal">undefined</span>, <span class="comment">// If this is an auto exported page</span></span><br><span class="line">      <span class="attr">gsp</span>: !!getStaticProps ? <span class="literal">true</span> : <span class="literal">undefined</span>, <span class="comment">// whether the page is getStaticProps</span></span><br><span class="line">      <span class="attr">gssp</span>: !!getServerSideProps ? <span class="literal">true</span> : <span class="literal">undefined</span>, <span class="comment">// whether the page is getServerSideProps</span></span><br><span class="line">      <span class="attr">rsc</span>: isServerComponent ? <span class="literal">true</span> : <span class="literal">undefined</span>, <span class="comment">// whether the page is a server components page</span></span><br><span class="line">      customServer, <span class="comment">// whether the user is using a custom server</span></span><br><span class="line">      <span class="attr">gip</span>: hasPageGetInitialProps ? <span class="literal">true</span> : <span class="literal">undefined</span>, <span class="comment">// whether the page has getInitialProps</span></span><br><span class="line">      <span class="attr">appGip</span>: !defaultAppGetInitialProps ? <span class="literal">true</span> : <span class="literal">undefined</span>, <span class="comment">// whether the _app has getInitialProps</span></span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RenderResult</span>(<span class="title function_">chainStreams</span>(streams))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>知道如何区分后回头看看该项目返回的 html 就可以快速知道该页面是没有定义 getStaticProps、getInitialProps、getServerSideProps 任意一个静态方法的即 isStatic 为 true 的静态页面<br><img src="https://user-images.githubusercontent.com/23253540/162563683-6ff27dde-b153-480a-87fe-6ebd21ae9469.png" alt="image"></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>由于没有定义 getInitialProps、getServerSideProps 任意一个静态方法故 Node 实时的获取 CDN 配置信息以及渲染的逻辑没有运行, 该页面的请求都是 Node 直接返回的静态 html。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E6%97%B6"><span class="toc-number">3.1.</span> <span class="toc-text">构建时</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="toc-number">3.2.</span> <span class="toc-text">运行时</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%8C%BA%E5%88%86"><span class="toc-number">3.3.</span> <span class="toc-text">如何区分</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/04/09/b18/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&text=Next.js 未能实时渲染问题排查"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&title=Next.js 未能实时渲染问题排查"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&is_video=false&description=Next.js 未能实时渲染问题排查"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Next.js 未能实时渲染问题排查&body=Check out this article: https://xiaoxiaojx.github.io/2022/04/09/b18/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&title=Next.js 未能实时渲染问题排查"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&title=Next.js 未能实时渲染问题排查"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&title=Next.js 未能实时渲染问题排查"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&title=Next.js 未能实时渲染问题排查"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/04/09/b18/&name=Next.js 未能实时渲染问题排查&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/04/09/b18/&t=Next.js 未能实时渲染问题排查"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

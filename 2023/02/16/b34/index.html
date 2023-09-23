@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="b 同学反馈他负责的项目在测试环境有两个 js 文件 404">
+<meta property="og:type" content="article">
+<meta property="og:title" content="webpack 打包后的文件名中包含 undefined 排查">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2023/02/16/b34/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="b 同学反馈他负责的项目在测试环境有两个 js 文件 404">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/219097341-78617fb0-05c5-4f35-913e-44f6cb0c26b8.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23253540/219007598-6f10cca7-ab4c-45b3-873e-0c4ab3fc203c.png">
+<meta property="article:published_time" content="2023-02-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.932Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="webpack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23253540/219097341-78617fb0-05c5-4f35-913e-44f6cb0c26b8.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>webpack 打包后的文件名中包含 undefined 排查</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/04/09/b36/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/02/07/b32/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/02/16/b34/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&text=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&title=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&is_video=false&description=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=webpack 打包后的文件名中包含 undefined 排查&body=Check out this article: https://xiaoxiaojx.github.io/2023/02/16/b34/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&title=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&title=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&title=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&title=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&name=webpack 打包后的文件名中包含 undefined 排查&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/02/16/b34/&t=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">问题背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%83%BD%E6%80%A71-%E7%94%9F%E6%88%90-chunkhash-%E7%9A%84%E7%AE%97%E6%B3%95%E5%87%BA%E4%BA%86%E9%97%AE%E9%A2%98-%E8%BF%94%E5%9B%9E%E4%BA%86-undefined"><span class="toc-number">2.1.</span> <span class="toc-text">可能性1: 生成 chunkhash 的算法出了问题, 返回了 undefined</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E5%8F%AF%E8%83%BD%E6%80%A7"><span class="toc-number">2.2.</span> <span class="toc-text">其他可能性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">3.</span> <span class="toc-text">问题解决</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        webpack 打包后的文件名中包含 undefined 排查
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-02-15T16:00:00.000Z" class="dt-published" itemprop="datePublished">2023-02-16</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/webpack/" rel="tag">webpack</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://user-images.githubusercontent.com/23253540/219097341-78617fb0-05c5-4f35-913e-44f6cb0c26b8.png"></p>
+<blockquote>
+<p>⚠️ webpack v4.44.2 版本以下存在的 bug</p>
+</blockquote>
+<h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>b 同学反馈他负责的项目在测试环境有两个 js 文件 404 了, 一看文件名又很诡异, 即下图的 <code>xx.undefined.chunk.xx.js</code></p>
+<p><img src="https://user-images.githubusercontent.com/23253540/219007598-6f10cca7-ab4c-45b3-873e-0c4ab3fc203c.png" alt="image"></p>
+<p>查看 webpackConfig 中配置的文件名的生成规则 chunkFilename 字段, 知道了原本应该是长度为 8 的 chunkhash 字符串变成了 undefined 导致了本次问题</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line"><span class="comment">// webpack.config.js</span></span><br><span class="line">  </span><br><span class="line">  <span class="attr">output</span>: &#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="attr">chunkFilename</span>: <span class="string">`static/js/[name].[chunkhash:8].chunk.<span class="subst">$&#123;release&#125;</span>.js`</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><h3 id="可能性1-生成-chunkhash-的算法出了问题-返回了-undefined"><a href="#可能性1-生成-chunkhash-的算法出了问题-返回了-undefined" class="headerlink" title="可能性1: 生成 chunkhash 的算法出了问题, 返回了 undefined"></a>可能性1: 生成 chunkhash 的算法出了问题, 返回了 undefined</h3><p>首先我们找到把 [chunkhash:8] 这个占位符替换为计算后真实值的代码处, 接着拦截一下该函数运算的所有结果, 发现没有一个文件名字符串中包含 undefined, 故排除了该可能性</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/TemplatedPathPlugin.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">replacePathVariables</span> = (<span class="params">path, data, assetInfo</span>) =&gt; &#123;</span><br><span class="line">	<span class="keyword">const</span> chunk = data.<span class="property">chunk</span>;</span><br><span class="line">	<span class="keyword">const</span> chunkId = chunk &amp;&amp; chunk.<span class="property">id</span>;</span><br><span class="line">	<span class="keyword">const</span> chunkName = chunk &amp;&amp; (chunk.<span class="property">name</span> || chunk.<span class="property">id</span>);</span><br><span class="line">	<span class="keyword">const</span> chunkHash = chunk &amp;&amp; (chunk.<span class="property">renderedHash</span> || chunk.<span class="property">hash</span>);</span><br><span class="line">	<span class="keyword">const</span> chunkHashWithLength = chunk &amp;&amp; chunk.<span class="property">hashWithLength</span>;</span><br><span class="line">	<span class="keyword">const</span> contentHashType = data.<span class="property">contentHashType</span>;</span><br><span class="line">	<span class="keyword">const</span> contentHash =</span><br><span class="line">		(chunk &amp;&amp; chunk.<span class="property">contentHash</span> &amp;&amp; chunk.<span class="property">contentHash</span>[contentHashType]) ||</span><br><span class="line">		data.<span class="property">contentHash</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> (</span><br><span class="line">		path</span><br><span class="line">			.<span class="title function_">replace</span>(</span><br><span class="line">				<span class="variable constant_">REGEXP_HASH</span>,</span><br><span class="line">				<span class="title function_">withHashLength</span>(<span class="title function_">getReplacer</span>(data.<span class="property">hash</span>), data.<span class="property">hashWithLength</span>, assetInfo)</span><br><span class="line">			)</span><br><span class="line">			.<span class="title function_">replace</span>(</span><br><span class="line">				<span class="variable constant_">REGEXP_CHUNKHASH</span>,</span><br><span class="line">				<span class="title function_">withHashLength</span>(<span class="title function_">getReplacer</span>(chunkHash), chunkHashWithLength, assetInfo)</span><br><span class="line">			)</span><br><span class="line">			.<span class="title function_">replace</span>(</span><br><span class="line">				<span class="variable constant_">REGEXP_CONTENTHASH</span>,</span><br><span class="line">				<span class="title function_">withHashLength</span>(</span><br><span class="line">					<span class="title function_">getReplacer</span>(contentHash),</span><br><span class="line">					contentHashWithLength,</span><br><span class="line">					assetInfo</span><br><span class="line">				)</span><br><span class="line">			)</span><br><span class="line">			.<span class="title function_">replace</span>(</span><br><span class="line">				<span class="variable constant_">REGEXP_MODULEHASH</span>,</span><br><span class="line">				<span class="title function_">withHashLength</span>(<span class="title function_">getReplacer</span>(moduleHash), moduleHashWithLength, assetInfo)</span><br><span class="line">			)</span><br><span class="line">			.<span class="title function_">replace</span>(<span class="variable constant_">REGEXP_ID</span>, <span class="title function_">getReplacer</span>(chunkId))</span><br><span class="line">			.<span class="title function_">replace</span>(<span class="variable constant_">REGEXP_MODULEID</span>, <span class="title function_">getReplacer</span>(moduleId))</span><br><span class="line">			.<span class="title function_">replace</span>(<span class="variable constant_">REGEXP_NAME</span>, <span class="title function_">getReplacer</span>(chunkName))</span><br><span class="line">			.<span class="title function_">replace</span>(<span class="variable constant_">REGEXP_FILE</span>, <span class="title function_">getReplacer</span>(data.<span class="property">filename</span>))</span><br><span class="line">			.<span class="title function_">replace</span>(<span class="variable constant_">REGEXP_FILEBASE</span>, <span class="title function_">getReplacer</span>(data.<span class="property">basename</span>))</span><br><span class="line">			<span class="comment">// query is optional, it&#x27;s OK if it&#x27;s in a path but there&#x27;s nothing to replace it with</span></span><br><span class="line">			.<span class="title function_">replace</span>(<span class="variable constant_">REGEXP_QUERY</span>, <span class="title function_">getReplacer</span>(data.<span class="property">query</span>, <span class="literal">true</span>))</span><br><span class="line">			<span class="comment">// only available in sourceMappingURLComment</span></span><br><span class="line">			.<span class="title function_">replace</span>(<span class="variable constant_">REGEXP_URL</span>, <span class="title function_">getReplacer</span>(data.<span class="property">url</span>))</span><br><span class="line">			.<span class="title function_">replace</span>(<span class="regexp">/\[\\(\\*[\w:]+\\*)\\\]/gi</span>, <span class="string">&quot;[$1]&quot;</span>)</span><br><span class="line">	);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="其他可能性"><a href="#其他可能性" class="headerlink" title="其他可能性"></a>其他可能性</h3><p>本地复现后从错误堆栈发现是如下打包后的代码<code>__webpack_require__.e(10)</code> 调用后产生的错误</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">AsyncCaptcha</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="comment">// state 里不能存放 fn，React 无法区分是否需要调用</span></span><br><span class="line">    <span class="keyword">var</span> _a = <span class="title class_">Object</span>(react__WEBPACK_IMPORTED_MODULE_0__[<span class="string">&quot;useState&quot;</span>])(), <span class="title class_">Module</span> = _a[<span class="number">0</span>], setModule = _a[<span class="number">1</span>];</span><br><span class="line">    <span class="title class_">Object</span>(react__WEBPACK_IMPORTED_MODULE_0__[<span class="string">&quot;useEffect&quot;</span>])(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!props.<span class="property">isBApp</span>) &#123;</span><br><span class="line">            <span class="title class_">Promise</span>.<span class="title function_">all</span>(<span class="comment">/* import() */</span>[__webpack_require__.<span class="title function_">e</span>(<span class="number">10</span>), __webpack_require__.<span class="title function_">e</span>(<span class="number">53</span>)]).<span class="title function_">then</span>(__webpack_require__.<span class="title function_">bind</span>(<span class="literal">null</span>, <span class="number">144</span>))</span><br><span class="line">                .<span class="title function_">then</span>(<span class="keyword">function</span> (<span class="params">r</span>) &#123; <span class="keyword">return</span> <span class="title function_">setModule</span>(r); &#125;)</span><br><span class="line">                .<span class="title function_">catch</span>(<span class="keyword">function</span> (<span class="params">e</span>) &#123; <span class="keyword">return</span> <span class="title class_">Object</span>(_pmm__WEBPACK_IMPORTED_MODULE_1__[<span class="comment">/* reportError */</span> <span class="string">&quot;c&quot;</span>])(e); &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, [props.<span class="property">isBApp</span>]);</span><br><span class="line">    <span class="keyword">if</span> (<span class="title class_">Module</span>)</span><br><span class="line">        <span class="keyword">return</span> react__WEBPACK_IMPORTED_MODULE_0___default.<span class="property">a</span>.<span class="title function_">createElement</span>(<span class="title class_">Module</span>.<span class="property">default</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>__webpack_require__.e</code> 函数是 webpack 对于动态 import 函数的实现, 如上对应的打包前的代码是</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span>, &#123; useEffect, useState &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123; reportError &#125; <span class="keyword">from</span> <span class="string">&#x27;../pmm&#x27;</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">AsyncCaptcha</span>(<span class="params">props</span>) &#123;</span><br><span class="line">  <span class="comment">// state 里不能存放 fn，React 无法区分是否需要调用</span></span><br><span class="line">  <span class="keyword">var</span> _a = <span class="title function_">useState</span>(),</span><br><span class="line">    <span class="title class_">Module</span> = _a[<span class="number">0</span>],</span><br><span class="line">    setModule = _a[<span class="number">1</span>]</span><br><span class="line">  <span class="title function_">useEffect</span>(</span><br><span class="line">    <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!props.<span class="property">isBApp</span>) &#123;</span><br><span class="line">        <span class="keyword">import</span>(<span class="string">&#x27;@xxxx/captcha-prompt-mobile&#x27;</span>)</span><br><span class="line">          .<span class="title function_">then</span>(<span class="keyword">function</span> (<span class="params">r</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="title function_">setModule</span>(r)</span><br><span class="line">          &#125;)</span><br><span class="line">          .<span class="title function_">catch</span>(<span class="keyword">function</span> (<span class="params">e</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="title function_">reportError</span>(e)</span><br><span class="line">          &#125;)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    [props.<span class="property">isBApp</span>]</span><br><span class="line">  )</span><br><span class="line">  <span class="keyword">if</span> (<span class="title class_">Module</span>) <span class="keyword">return</span> <span class="title class_">React</span>.<span class="title function_">createElement</span>(<span class="title class_">Module</span>.<span class="property">default</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着我们查看<code>__webpack_require__.e</code>函数的实现, 知道了传入的参数 10 与 53 是 chunkId, 但是不存在下面这个对象的 key 中, 所以 <code>&#123; 55: &#39;aec66236&#39;, 57: &#39;833f5543&#39;, 59: &#39;6b297fa3&#39;, 62: &#39;d7940dbd&#39; &#125;[chunkId]</code>取值是 undefined, 这就解释了为什么文件名中出现了 undefined, 原来完整的文件名是在这里拼接而成</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******/</span> <span class="keyword">function</span> <span class="title function_">jsonpScriptSrc</span>(<span class="params">chunkId</span>) &#123;</span><br><span class="line">  <span class="comment">/******/</span> <span class="keyword">return</span> (</span><br><span class="line">    __webpack_require__.<span class="property">p</span> +</span><br><span class="line">    <span class="string">&#x27;static/js/&#x27;</span> +</span><br><span class="line">    (&#123;&#125;[chunkId] || chunkId) +</span><br><span class="line">    <span class="string">&#x27;.&#x27;</span> +</span><br><span class="line">    &#123; <span class="number">55</span>: <span class="string">&#x27;aec66236&#x27;</span>, <span class="number">57</span>: <span class="string">&#x27;833f5543&#x27;</span>, <span class="number">59</span>: <span class="string">&#x27;6b297fa3&#x27;</span>, <span class="number">62</span>: <span class="string">&#x27;d7940dbd&#x27;</span> &#125;[</span><br><span class="line">      chunkId</span><br><span class="line">    ] +</span><br><span class="line">    <span class="string">&#x27;.chunk.v20230215191953_91080d6e.js&#x27;</span></span><br><span class="line">  )</span><br><span class="line">  <span class="comment">/******/</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/******/</span> __webpack_require__.<span class="property">e</span> = <span class="keyword">function</span> <span class="title function_">requireEnsure</span>(<span class="params">chunkId</span>) &#123;</span><br><span class="line">  <span class="comment">/******/</span> <span class="keyword">var</span> script = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;script&#x27;</span>)</span><br><span class="line">  <span class="comment">/******/</span> <span class="keyword">var</span> onScriptComplete</span><br><span class="line">  <span class="comment">/******/</span> script.<span class="property">src</span> = <span class="title function_">jsonpScriptSrc</span>(chunkId)</span><br><span class="line">  <span class="comment">/******/</span> onScriptComplete = <span class="keyword">function</span> (<span class="params">event</span>) &#123;</span><br><span class="line">    <span class="comment">/******/</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">/******/</span> <span class="keyword">var</span> timeout = <span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">/******/</span> <span class="title function_">onScriptComplete</span>(&#123; <span class="attr">type</span>: <span class="string">&#x27;timeout&#x27;</span>, <span class="attr">target</span>: script &#125;)</span><br><span class="line">    <span class="comment">/******/</span></span><br><span class="line">  &#125;, <span class="number">120000</span>)</span><br><span class="line">  <span class="comment">/******/</span> script.<span class="property">onerror</span> = script.<span class="property">onload</span> = onScriptComplete</span><br><span class="line">  <span class="comment">/******/</span> <span class="variable language_">document</span>.<span class="property">head</span>.<span class="title function_">appendChild</span>(script)</span><br><span class="line">  <span class="comment">/******/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面我们看看<code>&#123; 55: &#39;aec66236&#39;, 57: &#39;833f5543&#39;, 59: &#39;6b297fa3&#39;, 62: &#39;d7940dbd&#39; &#125;</code>对象的生成逻辑, 为什么漏掉了 10 这个 key?</p>
+<p>从代码可以看出 55, 57, 59, 62 这些 key 值其实是 <code>this.getAllAsyncChunks()</code>函数返回的 chunk 的 id, 从函数名<code>getAllAsyncChunks</code>可以知道返回值是该页面所有动态加载的 AsyncChunk, 而 chunk.id 为 10 对应的 <code>&#39;@xxxx/captcha-prompt-mobile&#39;</code>模块确实也是动态加载的, 那么是什么原因 webpack 漏掉了 <code>import(&#39;@xxxx/captcha-prompt-mobile&#39;)</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/Chunk.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Chunk</span> &#123;</span><br><span class="line">  <span class="title function_">getChunkMaps</span>(<span class="params">realHash</span>) &#123;</span><br><span class="line">    <span class="comment">/** <span class="doctag">@type</span> &#123;<span class="type">Record&lt;string|number, string&gt;</span>&#125; */</span></span><br><span class="line">    <span class="keyword">const</span> chunkHashMap = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line">    <span class="comment">/** <span class="doctag">@type</span> &#123;<span class="type">Record&lt;string|number, Record&lt;string, string&gt;&gt;</span>&#125; */</span></span><br><span class="line">    <span class="keyword">const</span> chunkContentHashMap = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line">    <span class="comment">/** <span class="doctag">@type</span> &#123;<span class="type">Record&lt;string|number, string&gt;</span>&#125; */</span></span><br><span class="line">    <span class="keyword">const</span> chunkNameMap = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> chunk <span class="keyword">of</span> <span class="variable language_">this</span>.<span class="title function_">getAllAsyncChunks</span>()) &#123;</span><br><span class="line">      chunkHashMap[chunk.<span class="property">id</span>] = realHash ? chunk.<span class="property">hash</span> : chunk.<span class="property">renderedHash</span></span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">of</span> <span class="title class_">Object</span>.<span class="title function_">keys</span>(chunk.<span class="property">contentHash</span>)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!chunkContentHashMap[key]) &#123;</span><br><span class="line">          chunkContentHashMap[key] = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        chunkContentHashMap[key][chunk.<span class="property">id</span>] = chunk.<span class="property">contentHash</span>[key]</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (chunk.<span class="property">name</span>) &#123;</span><br><span class="line">        chunkNameMap[chunk.<span class="property">id</span>] = chunk.<span class="property">name</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="attr">hash</span>: chunkHashMap,</span><br><span class="line">      <span class="attr">contentHash</span>: chunkContentHashMap,</span><br><span class="line">      <span class="attr">name</span>: chunkNameMap</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>继续阅读代码后发现 <code>import(&#39;@xxxx/captcha-prompt-mobile&#39;)</code>是没有走到第 6 步与父 chunkGroup 连接起来 (文件之间的引用关系可以用数据结构 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Graph_(abstract_data_type)">Graph</a> 来描叙, 没有连接则表示后续父 chunkGroup 通过 Graph 查询不到与之的依赖关系), 所以 getAllAsyncChunks 函数不包含该 chunk。原因是被如下的 filterFn 函数给过滤了, 被过滤的原因是<code>import(&#39;@xxxx/captcha-prompt-mobile&#39;)</code>对应的模块出现在了resultingAvailableModules 中, 继续查看依赖关系发现是有一个 npm 包同步<code>import &#39;@xxxx/captcha-prompt-mobile&#39;</code>, 原来一切是因为还同时存在一个同步的 import 导致 webpack 认为它不是 AsyncChunk</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/buildChunkGraph.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">filterFn</span> = (<span class="params">dep</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> depChunkGroup = dep.<span class="property">chunkGroup</span></span><br><span class="line">  <span class="comment">// TODO is this needed?</span></span><br><span class="line">  <span class="keyword">if</span> (blocksWithNestedBlocks.<span class="title function_">has</span>(dep.<span class="property">block</span>)) <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="title function_">areModulesAvailable</span>(depChunkGroup, resultingAvailableModules)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span> <span class="comment">// break all modules are already available</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// For all deps, check if chunk groups need to be connected</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> [chunkGroup, deps] <span class="keyword">of</span> chunkDependencies) &#123;</span><br><span class="line">  <span class="keyword">if</span> (deps.<span class="property">length</span> === <span class="number">0</span>) <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 1. Get info from chunk group info map</span></span><br><span class="line">  <span class="keyword">const</span> info = chunkGroupInfoMap.<span class="title function_">get</span>(chunkGroup)</span><br><span class="line">  resultingAvailableModules = info.<span class="property">resultingAvailableModules</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. Foreach edge</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; deps.<span class="property">length</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">const</span> dep = deps[i]</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Filter inline, rather than creating a new array from `.filter()`</span></span><br><span class="line">    <span class="comment">// TODO check if inlining filterFn makes sense here</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_">filterFn</span>(dep)) &#123;</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> depChunkGroup = dep.<span class="property">chunkGroup</span></span><br><span class="line">    <span class="keyword">const</span> depBlock = dep.<span class="property">block</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 5. Connect block with chunk</span></span><br><span class="line">    <span class="title class_">GraphHelpers</span>.<span class="title function_">connectDependenciesBlockAndChunkGroup</span>(depBlock, depChunkGroup)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 6. Connect chunk with parent</span></span><br><span class="line">    <span class="title class_">GraphHelpers</span>.<span class="title function_">connectChunkGroupParentAndChild</span>(chunkGroup, depChunkGroup)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>按理来说同步 import 与动态 import 引用这两者都引用同一个文件虽然少见, 但也不应该造成 bug 。难道是该项目是多页应用还有其他未知的秘密？于是我们删除了其他页面, 仅留当前页面进行测试</p>
+<p>最后发现只留下一个页面是正常的, 与多个页面打包后的代码不同的是<code>__webpack_require__.e(10)</code> 变成了 <code>Promise.resolve(/* import() */)</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">AsyncCaptcha</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="comment">// state 里不能存放 fn，React 无法区分是否需要调用</span></span><br><span class="line">    <span class="keyword">var</span> _a = <span class="title class_">Object</span>(react__WEBPACK_IMPORTED_MODULE_0__[<span class="string">&quot;useState&quot;</span>])(), <span class="title class_">Module</span> = _a[<span class="number">0</span>], setModule = _a[<span class="number">1</span>];</span><br><span class="line">    <span class="title class_">Object</span>(react__WEBPACK_IMPORTED_MODULE_0__[<span class="string">&quot;useEffect&quot;</span>])(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!props.<span class="property">isBApp</span>) &#123;</span><br><span class="line">            <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="comment">/* import() */</span>).<span class="title function_">then</span>(__webpack_require__.<span class="title function_">bind</span>(<span class="literal">null</span>, <span class="number">105</span>))</span><br><span class="line">                .<span class="title function_">then</span>(<span class="keyword">function</span> (<span class="params">r</span>) &#123; <span class="keyword">return</span> <span class="title function_">setModule</span>(r); &#125;)</span><br><span class="line">                .<span class="title function_">catch</span>(<span class="keyword">function</span> (<span class="params">e</span>) &#123; <span class="keyword">return</span> <span class="title class_">Object</span>(_pmm__WEBPACK_IMPORTED_MODULE_1__[<span class="comment">/* reportError */</span> <span class="string">&quot;c&quot;</span>])(e); &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, [props.<span class="property">isBApp</span>]);</span><br><span class="line">    <span class="keyword">if</span> (<span class="title class_">Module</span>)</span><br><span class="line">        <span class="keyword">return</span> react__WEBPACK_IMPORTED_MODULE_0___default.<span class="property">a</span>.<span class="title function_">createElement</span>(<span class="title class_">Module</span>.<span class="property">default</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>于是查看这块的 blockPromise 函数实现发现是第一个 if 条件为 true, 所以返回的是<code>Promise.resolve(/* import() */)</code>。 此时 block.chunkGroup 为 undefined, 这也对应了上面说的是被 filterFn 函数过滤了, 所以没有走到为 block.chunkGroup 赋值的代码处</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/RuntimeTemplate.js</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="keyword">class</span> <span class="title class_">RuntimeTemplate</span> &#123;</span><br><span class="line">  <span class="title function_">blockPromise</span>(<span class="params">&#123; block, message &#125;</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!block || !block.<span class="property">chunkGroup</span> || block.<span class="property">chunkGroup</span>.<span class="property">chunks</span>.<span class="property">length</span> === <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> comment = <span class="variable language_">this</span>.<span class="title function_">comment</span>(&#123;</span><br><span class="line">        message</span><br><span class="line">      &#125;)</span><br><span class="line">      <span class="keyword">return</span> <span class="string">`Promise.resolve(<span class="subst">$&#123;comment.trim()&#125;</span>)`</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> chunks = block.<span class="property">chunkGroup</span>.<span class="property">chunks</span>.<span class="title function_">filter</span>(</span><br><span class="line">      <span class="function">(<span class="params">chunk</span>) =&gt;</span> !chunk.<span class="title function_">hasRuntime</span>() &amp;&amp; chunk.<span class="property">id</span> !== <span class="literal">null</span></span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">const</span> comment = <span class="variable language_">this</span>.<span class="title function_">comment</span>(&#123;</span><br><span class="line">      message,</span><br><span class="line">      <span class="attr">chunkName</span>: block.<span class="property">chunkName</span>,</span><br><span class="line">      <span class="attr">chunkReason</span>: block.<span class="property">chunkReason</span></span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">if</span> (chunks.<span class="property">length</span> === <span class="number">1</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> chunkId = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(chunks[<span class="number">0</span>].<span class="property">id</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="string">`__webpack_require__.e(<span class="subst">$&#123;comment&#125;</span><span class="subst">$&#123;chunkId&#125;</span>)`</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (chunks.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> <span class="title function_">requireChunkId</span> = (<span class="params">chunk</span>) =&gt;</span><br><span class="line">        <span class="string">`__webpack_require__.e(<span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(chunk.id)&#125;</span>)`</span></span><br><span class="line">      <span class="keyword">return</span> <span class="string">`Promise.all(<span class="subst">$&#123;comment.trim()&#125;</span>[<span class="subst">$&#123;chunks</span></span></span><br><span class="line"><span class="subst"><span class="string">        .map(requireChunkId)</span></span></span><br><span class="line"><span class="subst"><span class="string">        .join(<span class="string">&#x27;, &#x27;</span>)&#125;</span>])`</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="string">`Promise.resolve(<span class="subst">$&#123;comment.trim()&#125;</span>)`</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来我们需要排查为啥多页时返回的是<code>__webpack_require__.e</code>, 按照上面的分析多页的 block.chunkGroup 应该也为 undefined 才对。再次回到 buildChunkGraph 文件代码, 发现是<code>import(&#39;@xxxx/captcha-prompt-mobile&#39;)</code>对应的模块被另一个页面仅动态 import 引用了, 所以如下的 for 循环有一次走到了第 6 步连接上了这个页面对应的  chunkGroup, 而第 5 就给该 block 设置了 chunkGroup, 即多页时 block.chunkGroup 是存在的, 所以上面的 blockPromise 函数返回的是 <code>__webpack_require__.e</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack/lib/buildChunkGraph.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">filterFn</span> = (<span class="params">dep</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> depChunkGroup = dep.<span class="property">chunkGroup</span></span><br><span class="line">  <span class="comment">// TODO is this needed?</span></span><br><span class="line">  <span class="keyword">if</span> (blocksWithNestedBlocks.<span class="title function_">has</span>(dep.<span class="property">block</span>)) <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="title function_">areModulesAvailable</span>(depChunkGroup, resultingAvailableModules)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span> <span class="comment">// break all modules are already available</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// For all deps, check if chunk groups need to be connected</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> [chunkGroup, deps] <span class="keyword">of</span> chunkDependencies) &#123;</span><br><span class="line">  <span class="keyword">if</span> (deps.<span class="property">length</span> === <span class="number">0</span>) <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 1. Get info from chunk group info map</span></span><br><span class="line">  <span class="keyword">const</span> info = chunkGroupInfoMap.<span class="title function_">get</span>(chunkGroup)</span><br><span class="line">  resultingAvailableModules = info.<span class="property">resultingAvailableModules</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. Foreach edge</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; deps.<span class="property">length</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">const</span> dep = deps[i]</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Filter inline, rather than creating a new array from `.filter()`</span></span><br><span class="line">    <span class="comment">// TODO check if inlining filterFn makes sense here</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_">filterFn</span>(dep)) &#123;</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> depChunkGroup = dep.<span class="property">chunkGroup</span></span><br><span class="line">    <span class="keyword">const</span> depBlock = dep.<span class="property">block</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 5. Connect block with chunk</span></span><br><span class="line">    <span class="title class_">GraphHelpers</span>.<span class="title function_">connectDependenciesBlockAndChunkGroup</span>(depBlock, depChunkGroup)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 6. Connect chunk with parent</span></span><br><span class="line">    <span class="title class_">GraphHelpers</span>.<span class="title function_">connectChunkGroupParentAndChild</span>(chunkGroup, depChunkGroup)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>把当前 webpack 版本 v4.39.0 升级到小版本最新的 v4.46.0 发现问题已经不存在, 于是查看 <a target="_blank" rel="noopener" href="https://github.com/webpack/webpack/releases">Release 日志</a>找到是 <a target="_blank" rel="noopener" href="https://github.com/webpack/webpack/releases/tag/v4.44.2">v4.44.2</a> 版本进行的修复</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">问题背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%83%BD%E6%80%A71-%E7%94%9F%E6%88%90-chunkhash-%E7%9A%84%E7%AE%97%E6%B3%95%E5%87%BA%E4%BA%86%E9%97%AE%E9%A2%98-%E8%BF%94%E5%9B%9E%E4%BA%86-undefined"><span class="toc-number">2.1.</span> <span class="toc-text">可能性1: 生成 chunkhash 的算法出了问题, 返回了 undefined</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E5%8F%AF%E8%83%BD%E6%80%A7"><span class="toc-number">2.2.</span> <span class="toc-text">其他可能性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">3.</span> <span class="toc-text">问题解决</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/02/16/b34/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&text=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&title=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&is_video=false&description=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=webpack 打包后的文件名中包含 undefined 排查&body=Check out this article: https://xiaoxiaojx.github.io/2023/02/16/b34/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&title=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&title=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&title=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&title=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/02/16/b34/&name=webpack 打包后的文件名中包含 undefined 排查&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/02/16/b34/&t=webpack 打包后的文件名中包含 undefined 排查"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

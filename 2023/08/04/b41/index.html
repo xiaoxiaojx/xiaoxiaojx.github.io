@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="12345678██╗  ██╗███████╗██╗     ██╗      ██████╗     ██╗    ██╗ ██████╗ ██████╗ ██╗     ██████╗ ██║  ██║██╔════╝██║     ██║     ██╔═══██╗    ██║    ██║██╔═══██╗██╔══██╗██║     ██╔══██╗███████║█████╗">
+<meta property="og:type" content="article">
+<meta property="og:title" content="逆向技术学习">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2023/08/04/b41/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="12345678██╗  ██╗███████╗██╗     ██╗      ██████╗     ██╗    ██╗ ██████╗ ██████╗ ██╗     ██████╗ ██║  ██║██╔════╝██║     ██║     ██╔═══██╗    ██║    ██║██╔═══██╗██╔══██╗██║     ██╔══██╗███████║█████╗">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-08-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.933Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>逆向技术学习</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/08/16/b42/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/07/13/b40/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/08/04/b41/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&text=逆向技术学习"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&title=逆向技术学习"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&is_video=false&description=逆向技术学习"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=逆向技术学习&body=Check out this article: https://xiaoxiaojx.github.io/2023/08/04/b41/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&title=逆向技术学习"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&title=逆向技术学习"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&title=逆向技术学习"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&title=逆向技术学习"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&name=逆向技术学习&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/08/04/b41/&t=逆向技术学习"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">实现原理</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        逆向技术学习
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-08-03T16:00:00.000Z" class="dt-published" itemprop="datePublished">2023-08-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/C/" rel="tag">C++</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">██╗  ██╗███████╗██╗     ██╗      ██████╗     ██╗    ██╗ ██████╗ ██████╗ ██╗     ██████╗ </span><br><span class="line">██║  ██║██╔════╝██║     ██║     ██╔═══██╗    ██║    ██║██╔═══██╗██╔══██╗██║     ██╔══██╗</span><br><span class="line">███████║█████╗  ██║     ██║     ██║   ██║    ██║ █╗ ██║██║   ██║██████╔╝██║     ██║  ██║</span><br><span class="line">██╔══██║██╔══╝  ██║     ██║     ██║   ██║    ██║███╗██║██║   ██║██╔══██╗██║     ██║  ██║</span><br><span class="line">██║  ██║███████╗███████╗███████╗╚██████╔╝    ╚███╔███╔╝╚██████╔╝██║  ██║███████╗██████╔╝</span><br><span class="line">╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝ ╚═════╝      ╚══╝╚══╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═════╝ </span><br><span class="line">                                                                                   </span><br></pre></td></tr></table></figure>
+
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近出于需求需要, 学习了一下微信逆向 <a target="_blank" rel="noopener" href="https://github.com/ttttupup/wxhelper">wxhelper</a> 的代码实现, wxhelper 暴露了大量的微信接口, 使得能够轻易基于此实现一个微信机器人 🤖️。因为是第一次接触逆向相关技术, 出于好奇就记录一下</p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">                                      |----------------</span><br><span class="line">--------------------------    注入    |  WeChat.exe    |</span><br><span class="line">| ConsoleApplication.exe  |————————&gt;  |----------------           --------------    访问      ---------</span><br><span class="line">|                         |           | wxhelper.dll   |————————&gt;| 启动http服务  | &lt;----------| clent |</span><br><span class="line">|--------------------------           |-----------------          --------------              --------    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>如上的流程图</p>
+<ol>
+<li>首先需要通过一些手段获取到微信中需要被暴露的关键 Call, 作者把自己常用的方法记录在 <a target="_blank" rel="noopener" href="https://github.com/ttttupup/wxhelper/wiki">wxhelper&#x2F;wiki</a> 文档, 感兴趣可以查阅</li>
+<li>编译 wxhelper dll 程序注入到微信进程</li>
+<li>该 dll 会创建一个端口为 19088 的 http server 向外提供接口来开放调用关键 Call 的能力</li>
+</ol>
+<p>下面讲一下该 wxhelper dll 如何实现 hook 微信的关键 Call, 如下 dll 入口函数主要是调用了 GlobalContext::GetInstance().initialize 函数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/dllMain.cc</span></span><br><span class="line"></span><br><span class="line"><span class="function">BOOL APIENTRY <span class="title">DllMain</span><span class="params">(HMODULE hModule, DWORD ul_reason_for_call,</span></span></span><br><span class="line"><span class="params"><span class="function">                      LPVOID lpReserved)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span> (ul_reason_for_call) &#123;</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_ATTACH: &#123;</span><br><span class="line">      <span class="built_in">DisableThreadLibraryCalls</span>(hModule);</span><br><span class="line">      GlobalContext::<span class="built_in">GetInstance</span>().<span class="built_in">initialize</span>(hModule);</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_ATTACH: &#123;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_DETACH: &#123;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_DETACH: &#123;</span><br><span class="line">      GlobalContext::<span class="built_in">GetInstance</span>().<span class="built_in">finally</span>();</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>initialize 函数主要是启动了一个 http server</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/global_context.cc</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">GlobalContext::initialize</span><span class="params">(HMODULE <span class="keyword">module</span>)</span> </span>&#123;</span><br><span class="line">  state =GlobalContextState::INITIALIZING;</span><br><span class="line">  module_ = <span class="keyword">module</span>;</span><br><span class="line">  <span class="meta">#<span class="keyword">ifndef</span> _DEBUG</span></span><br><span class="line">  Utils::<span class="built_in">Hide</span>(<span class="keyword">module</span>);</span><br><span class="line">  <span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">  UINT64 base = Utils::<span class="built_in">GetWeChatWinBase</span>();</span><br><span class="line">  config.<span class="built_in">emplace</span>();</span><br><span class="line">  config-&gt;<span class="built_in">Initialize</span>();</span><br><span class="line">  log.<span class="built_in">emplace</span>();</span><br><span class="line">  log-&gt;<span class="built_in">Initialize</span>();</span><br><span class="line">  http_server = std::<span class="built_in">unique_ptr</span>&lt;HttpServer&gt;( <span class="keyword">new</span> <span class="built_in">HttpServer</span>(config-&gt;<span class="built_in">GetPort</span>()));</span><br><span class="line">  http_server-&gt;<span class="built_in">HttpStart</span>();</span><br><span class="line">  ThreadPool::<span class="built_in">GetInstance</span>().<span class="built_in">Create</span>(<span class="number">2</span>, <span class="number">8</span>);</span><br><span class="line">  mgr = std::<span class="built_in">unique_ptr</span>&lt;Manager&gt;(<span class="keyword">new</span> <span class="built_in">Manager</span>(base));</span><br><span class="line">  DB::<span class="built_in">GetInstance</span>().<span class="built_in">init</span>(base);</span><br><span class="line">  state =GlobalContextState::INITIALIZED;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>http server 的请求处理函数 HttpDispatch 即表示了向外提供的 hook 微信关键 Call 的实现。以 &#x2F;api&#x2F;hookSyncMsg 路径的请求为例, 如果客户端想通过调用该接口来监听微信收到消息的事件</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/http_server_callback.cc</span></span><br><span class="line"></span><br><span class="line"><span class="function">std::string <span class="title">HttpDispatch</span><span class="params">(<span class="keyword">struct</span> mg_connection *c, <span class="keyword">struct</span> mg_http_message *hm)</span> </span>&#123;</span><br><span class="line">  std::string ret;</span><br><span class="line">   <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">mg_http_match_uri</span>(hm, <span class="string">&quot;/api/checkLogin&quot;</span>)) &#123;</span><br><span class="line">    INT64 success = wxhelper::GlobalContext::<span class="built_in">GetInstance</span>().mgr-&gt;<span class="built_in">CheckLogin</span>();</span><br><span class="line">    nlohmann::json ret_data = &#123;</span><br><span class="line">        &#123;<span class="string">&quot;code&quot;</span>, success&#125;, &#123;<span class="string">&quot;data&quot;</span>, &#123;&#125;&#125;, &#123;<span class="string">&quot;msg&quot;</span>, <span class="string">&quot;success&quot;</span>&#125;&#125;;</span><br><span class="line">    ret = ret_data.<span class="built_in">dump</span>();</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">mg_http_match_uri</span>(hm, <span class="string">&quot;/api/userInfo&quot;</span>)) &#123;</span><br><span class="line">    common::SelfInfoInner self_info;</span><br><span class="line">    INT64 success =</span><br><span class="line">        wxhelper::GlobalContext::<span class="built_in">GetInstance</span>().mgr-&gt;<span class="built_in">GetSelfInfo</span>(self_info);</span><br><span class="line">    nlohmann::json ret_data = &#123;</span><br><span class="line">        &#123;<span class="string">&quot;code&quot;</span>, success&#125;, &#123;<span class="string">&quot;data&quot;</span>, &#123;&#125;&#125;, &#123;<span class="string">&quot;msg&quot;</span>, <span class="string">&quot;success&quot;</span>&#125;&#125;;</span><br><span class="line">    <span class="keyword">if</span> (success) &#123;</span><br><span class="line">      nlohmann::json j_info = &#123;</span><br><span class="line">          &#123;<span class="string">&quot;name&quot;</span>, self_info.name&#125;,</span><br><span class="line">          &#123;<span class="string">&quot;city&quot;</span>, self_info.city&#125;,</span><br><span class="line">          &#123;<span class="string">&quot;province&quot;</span>, self_info.province&#125;,</span><br><span class="line">          &#123;<span class="string">&quot;country&quot;</span>, self_info.country&#125;,</span><br><span class="line">          &#123;<span class="string">&quot;account&quot;</span>, self_info.account&#125;,</span><br><span class="line">          &#123;<span class="string">&quot;wxid&quot;</span>, self_info.wxid&#125;,</span><br><span class="line">          &#123;<span class="string">&quot;mobile&quot;</span>, self_info.mobile&#125;,</span><br><span class="line">          &#123;<span class="string">&quot;headImage&quot;</span>, self_info.head_img&#125;,</span><br><span class="line">          &#123;<span class="string">&quot;signature&quot;</span>, self_info.signature&#125;,</span><br><span class="line">          &#123;<span class="string">&quot;dataSavePath&quot;</span>, self_info.data_save_path&#125;,</span><br><span class="line">          &#123;<span class="string">&quot;currentDataPath&quot;</span>, self_info.current_data_path&#125;,</span><br><span class="line">          &#123;<span class="string">&quot;dbKey&quot;</span>, self_info.db_key&#125;,</span><br><span class="line">      &#125;;</span><br><span class="line">      ret_data[<span class="string">&quot;data&quot;</span>] = j_info;</span><br><span class="line">    &#125;</span><br><span class="line">    ret = ret_data.<span class="built_in">dump</span>();</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">mg_http_match_uri</span>(hm, <span class="string">&quot;/api/sendTextMsg&quot;</span>)) &#123;</span><br><span class="line">    std::wstring wxid = <span class="built_in">GetWStringParam</span>(j_param, <span class="string">&quot;wxid&quot;</span>);</span><br><span class="line">    std::wstring msg = <span class="built_in">GetWStringParam</span>(j_param, <span class="string">&quot;msg&quot;</span>);</span><br><span class="line">    INT64 success =</span><br><span class="line">        wxhelper::GlobalContext::<span class="built_in">GetInstance</span>().mgr-&gt;<span class="built_in">SendTextMsg</span>(wxid, msg);</span><br><span class="line">    nlohmann::json ret_data = &#123;</span><br><span class="line">        &#123;<span class="string">&quot;code&quot;</span>, success&#125;, &#123;<span class="string">&quot;data&quot;</span>, &#123;&#125;&#125;, &#123;<span class="string">&quot;msg&quot;</span>, <span class="string">&quot;success&quot;</span>&#125;&#125;;</span><br><span class="line">    ret = ret_data.<span class="built_in">dump</span>();</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">mg_http_match_uri</span>(hm, <span class="string">&quot;/api/hookSyncMsg&quot;</span>)) &#123;</span><br><span class="line">    <span class="type">int</span> port = <span class="built_in">GetIntParam</span>(j_param, <span class="string">&quot;port&quot;</span>);</span><br><span class="line">    std::string ip = <span class="built_in">GetStringParam</span>(j_param, <span class="string">&quot;ip&quot;</span>);</span><br><span class="line">    <span class="type">int</span> enable = <span class="built_in">GetIntParam</span>(j_param, <span class="string">&quot;enableHttp&quot;</span>);</span><br><span class="line">    std::string url = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="type">int</span> timeout = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (enable) &#123;</span><br><span class="line">      url = <span class="built_in">GetStringParam</span>(j_param, <span class="string">&quot;url&quot;</span>);</span><br><span class="line">      timeout = <span class="built_in">GetIntParam</span>(j_param, <span class="string">&quot;timeout&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    INT64 success =</span><br><span class="line">        wxhelper::hooks::<span class="built_in">HookSyncMsg</span>(ip, port, url, timeout, enable);</span><br><span class="line">    nlohmann::json ret_data = &#123;</span><br><span class="line">        &#123;<span class="string">&quot;code&quot;</span>, success&#125;, &#123;<span class="string">&quot;data&quot;</span>, &#123;&#125;&#125;, &#123;<span class="string">&quot;msg&quot;</span>, <span class="string">&quot;success&quot;</span>&#125;&#125;;</span><br><span class="line">    ret = ret_data.<span class="built_in">dump</span>();</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>收到该请求后核心是调用了 wxhelper::hooks::HookSyncMsg 函数。可以发现 HookSyncMsg 函数中出现了关键的DetourAttach 系统调用</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/hooks.cc</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">HookSyncMsg</span><span class="params">(std::string client_ip, <span class="type">int</span> port, std::string url,</span></span></span><br><span class="line"><span class="params"><span class="function">                <span class="type">uint64_t</span> timeout, <span class="type">bool</span> enable)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (kMsgHookFlag) &#123;</span><br><span class="line">    <span class="built_in">SPDLOG_INFO</span>(<span class="string">&quot;recv msg hook already called&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  kEnableHttp = enable;</span><br><span class="line">  <span class="keyword">if</span> (kEnableHttp) &#123;</span><br><span class="line">    HttpClient::<span class="built_in">GetInstance</span>().<span class="built_in">SetConfig</span>(url, timeout);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (client_ip.<span class="built_in">size</span>() &lt; <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-2</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  kServerPort = port;</span><br><span class="line">  <span class="built_in">strcpy_s</span>(kServerIp, client_ip.<span class="built_in">c_str</span>());</span><br><span class="line">  UINT64 base = Utils::<span class="built_in">GetWeChatWinBase</span>();</span><br><span class="line">  <span class="keyword">if</span> (!base) &#123;</span><br><span class="line">    <span class="built_in">SPDLOG_INFO</span>(<span class="string">&quot;base addr is null&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">DetourRestoreAfterWith</span>();</span><br><span class="line">  <span class="built_in">DetourTransactionBegin</span>();</span><br><span class="line">  <span class="built_in">DetourUpdateThread</span>(<span class="built_in">GetCurrentThread</span>());</span><br><span class="line">  UINT64 do_add_msg_addr = base + offset::kDoAddMsg;</span><br><span class="line">  <span class="built_in">DetourAttach</span>(&amp;(PVOID&amp;)R_DoAddMsg, &amp;HandleSyncMsg);</span><br><span class="line">  LONG ret = <span class="built_in">DetourTransactionCommit</span>();</span><br><span class="line">  <span class="keyword">if</span>(ret == NO_ERROR)&#123;</span><br><span class="line">    kMsgHookFlag = <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>DetourAttach 是 Windows 平台上的一个函数，它是微软研究院开发的 Detours 库中的一部分。Detours 库提供了一种用于修改和重定向函数调用的技术，常用于实现函数的钩子和函数的动态修改。<br>DetourAttach 函数的作用是将一个目标函数的地址与一个自定义的回调函数关联起来，从而在目标函数被调用时执行回调函数。具体来说，DetourAttach 函数会修改目标函数的代码，使其在执行前调用指定的回调函数。DetourAttach 函数的原型如下:</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LONG <span class="title function_">DetourAttach</span><span class="params">(PVOID *ppPointer, PVOID pDetour)</span>;</span><br></pre></td></tr></table></figure>
+<p>现在总算明白了, 原来是通过 DetourAttach 系统调用把微信收到消息的处理函数 R_DoAddMsg 给代理了, 也就是把 R_DoAddMsg 调用重定向为了 HandleSyncMsg, 而 HandleSyncMsg 函数里就可以写你的业务逻辑, 最后 HandleSyncMsg 的尾部调用一下微信的原始处理函数 R_DoAddMsg 即可</p>
+<p>用 JavaScript 解释 DetourAttach 的行为就是</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> rawHandler = wx.<span class="property">R_DoAddMsg</span></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">newHandler</span> = (<span class="params">...args</span>) =&gt; &#123;</span><br><span class="line">    <span class="comment">// do something</span></span><br><span class="line">    <span class="title function_">rawHandler</span>()</span><br><span class="line">&#125;</span><br><span class="line">wx.<span class="property">R_DoAddMsg</span> = newHandler</span><br></pre></td></tr></table></figure>
+<p>最后的一个关键点就是如何获取微信原本的处理函数 R_DoAddMsg 的地址, 可以看到 R_DoAddMsg 地址其实就是该 dll 的地址 GetWeChatWinBase() + 之前通过逆向手段获取到的该函数的偏移量 offset::kDoAddMsg</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/hooks.cc</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="title">UINT64</span> <span class="params">(*R_DoAddMsg)</span><span class="params">(UINT64, UINT64, UINT64)</span> </span>= (<span class="built_in">UINT64</span>(*)(</span><br><span class="line">    UINT64, UINT64, UINT64))(Utils::<span class="built_in">GetWeChatWinBase</span>() + offset::kDoAddMsg);</span><br></pre></td></tr></table></figure>
+<p>获取该 dll 的地址核心是 GetModuleHandleA 系统调用</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/utils.cc</span></span><br><span class="line"></span><br><span class="line"><span class="function">UINT64 <span class="title">Utils::GetWeChatWinBase</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (UINT64)<span class="built_in">GetModuleHandleA</span>(<span class="string">&quot;WeChatWin.dll&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>GetModuleHandleA 是 Windows 平台上的一个函数，用于获取指定模块的句柄（handle）。获取到的模块句柄可以用于后续的操作，例如获取模块中的函数地址、修改模块中的数据等。函数原型如下:</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HMODULE <span class="title function_">GetModuleHandleA</span><span class="params">(LPCSTR lpModuleName)</span>;</span><br></pre></td></tr></table></figure>
+<p>至于如何获取关键 Call 的偏移量见上面提到的 <a target="_blank" rel="noopener" href="https://github.com/ttttupup/wxhelper/wiki">wxhelper&#x2F;wiki</a> 文档</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">实现原理</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/08/04/b41/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&text=逆向技术学习"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&title=逆向技术学习"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&is_video=false&description=逆向技术学习"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=逆向技术学习&body=Check out this article: https://xiaoxiaojx.github.io/2023/08/04/b41/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&title=逆向技术学习"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&title=逆向技术学习"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&title=逆向技术学习"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&title=逆向技术学习"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/08/04/b41/&name=逆向技术学习&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/08/04/b41/&t=逆向技术学习"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

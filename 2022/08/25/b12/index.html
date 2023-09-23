@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="近期时常有其他团队同学询问运行 Next.js 项目遇见的如下报错">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Next.js Invalid or unexpected token 问题记录">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2022/08/25/b12/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="近期时常有其他团队同学询问运行 Next.js 项目遇见的如下报错">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-08-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.929Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="SSR">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Next.js Invalid or unexpected token 问题记录</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/09/25/b11/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/08/13/b13/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/08/25/b12/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&text=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&title=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&is_video=false&description=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Next.js Invalid or unexpected token 问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/08/25/b12/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&title=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&title=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&title=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&title=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&name=Next.js Invalid or unexpected token 问题记录&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/08/25/b12/&t=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">问题简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0"><span class="toc-number">2.</span> <span class="toc-text">问题原因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">3.</span> <span class="toc-text">问题解决</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Next.js Invalid or unexpected token 问题记录
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-08-24T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-08-25</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/SSR/" rel="tag">SSR</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="问题简述"><a href="#问题简述" class="headerlink" title="问题简述"></a>问题简述</h2><p>近期时常有其他团队同学询问运行 Next.js 项目遇见的如下报错, 考虑到这块资料较少, 所以本次就简单记录一下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 错误信息1</span></span><br><span class="line"></span><br><span class="line">&gt; Build error occurred</span><br><span class="line">&#123; /xxx/node_modules/pkg/index.scss:1</span><br><span class="line"><span class="variable">$color</span>: <span class="comment">#4c9ffe;</span></span><br><span class="line">                      ^</span><br><span class="line"></span><br><span class="line">SyntaxError: Invalid or unexpected token</span><br><span class="line">    at Module._compile (internal/modules/cjs/loader.js:723:23)</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 错误信息2</span></span><br><span class="line"></span><br><span class="line">error - ./node_modules/pkg/index.scss:1</span><br><span class="line">Global CSS cannot be imported from within node_modules.</span><br></pre></td></tr></table></figure>
+
+<h2 id="问题原因"><a href="#问题原因" class="headerlink" title="问题原因"></a>问题原因</h2><p><em><strong>错误信息1</strong></em> 的原因是 Node 环境进行时发现 node_modules 中有 js 文件 require 了 *.scss 文件, 因为 Node 默认只能解析 .js, .mjs, .json, .node 后缀文件。</p>
+<blockquote>
+<p>注意 SSR 项目会打包出两份文件, 一份是正常的客户端渲染时在浏览器端运行, 一份是服务端渲染时 Node 端运行。Node 端运行的这份代码通常会把 node_modules 的包设置为 <a target="_blank" rel="noopener" href="https://webpack.js.org/configuration/externals/">externals</a>, 这样能有效避免 node_modules 中某个包如果不 externals 会存在一个引用在 bundle.js, 一个引用在 node_modules 中。externals 后如 react 就仅 node_modules 中一个实例。</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// node_modules/pkg/index.js</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">require</span>(<span class="string">&quot;./index.scss&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>如何扩展 Node 可识别的文件类型了, 了解过 <a target="_blank" rel="noopener" href="https://github.com/TypeStrong/ts-node">ts-node</a> 实现就比较清楚了。 如下代码即可设置 Node 对于 .scss 文件的处理函数。这里我们无需真实转换, 设置一个空函数忽略即可。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>.<span class="property">extensions</span>[<span class="string">&#x27;.scss&#x27;</span>] = <span class="function">() =&gt;</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>作为对照, 可以看下如下 Node 处理 .json 文件的逻辑</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/modules/cjs/loader.js</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Native extension for .json</span></span><br><span class="line"><span class="title class_">Module</span>.<span class="property">_extensions</span>[<span class="string">&#x27;.json&#x27;</span>] = <span class="keyword">function</span>(<span class="params"><span class="variable language_">module</span>, filename</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> content = fs.<span class="title function_">readFileSync</span>(filename, <span class="string">&#x27;utf8&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (policy?.<span class="property">manifest</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> moduleURL = <span class="title function_">pathToFileURL</span>(filename);</span><br><span class="line">    policy.<span class="property">manifest</span>.<span class="title function_">assertIntegrity</span>(moduleURL, content);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title class_">JSON</span>Parse(<span class="title function_">stripBOM</span>(content));</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    err.<span class="property">message</span> = filename + <span class="string">&#x27;: &#x27;</span> + err.<span class="property">message</span>;</span><br><span class="line">    <span class="keyword">throw</span> err;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>综上所述, next.config.js 加入如下代码, next dev 就解决 <em><strong>报错1</strong></em> 了。为什么 next export &#x2F; next build 命令还会有问题了? 原因是 next 进行 <a target="_blank" rel="noopener" href="https://nextjs.org/docs/advanced-features/static-html-export">SSG</a> 时, 是按照每个页面一个单独的线程并行进行的任务, 如下的赋值语句子线程不能生效。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>.<span class="property">extensions</span>[<span class="string">&#x27;.scss&#x27;</span>] = <span class="function">() =&gt;</span> &#123;&#125;</span><br><span class="line"><span class="built_in">require</span>.<span class="property">extensions</span>[<span class="string">&#x27;.sass&#x27;</span>] = <span class="function">() =&gt;</span> &#123;&#125;</span><br><span class="line"><span class="built_in">require</span>.<span class="property">extensions</span>[<span class="string">&#x27;.less&#x27;</span>] = <span class="function">() =&gt;</span> &#123;&#125;</span><br><span class="line"><span class="built_in">require</span>.<span class="property">extensions</span>[<span class="string">&#x27;.css&#x27;</span>] = <span class="function">() =&gt;</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>那么我们可以在每个页面运行加上上面的代码就能解决了。不过我们要加入的是如下的代码, 因为 require 关键字会被 webpack 给编译, webpack 会提供 <a target="_blank" rel="noopener" href="https://webpack.js.org/api/module-methods/#requirecontext">require</a> 相关的 api, 编译后 require 将不复存在。故 webpack 提供了 <a target="_blank" rel="noopener" href="https://webpack.js.org/api/module-variables/#__non_webpack_require__-webpack-specific"><strong>non_webpack_require</strong> </a> 使得编译后能够保留 require 关键字, 即 <strong>non_webpack_require</strong> (编译前) &#x3D;&gt; require (编译后)。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">__non_webpack_require__.<span class="property">extensions</span>[<span class="string">&#x27;.scss&#x27;</span>] = <span class="function">() =&gt;</span> &#123;&#125;</span><br><span class="line">__non_webpack_require__.<span class="property">extensions</span>[<span class="string">&#x27;.sass&#x27;</span>] = <span class="function">() =&gt;</span> &#123;&#125;</span><br><span class="line">__non_webpack_require__.<span class="property">extensions</span>[<span class="string">&#x27;.less&#x27;</span>] = <span class="function">() =&gt;</span> &#123;&#125;</span><br><span class="line">__non_webpack_require__.<span class="property">extensions</span>[<span class="string">&#x27;.css&#x27;</span>] = <span class="function">() =&gt;</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p><em><strong>错误信息2</strong></em> 是打包给客户端渲染时的代码遇见了发现 node_modules 中有 js 文件 require 了 *.css 等文件的校验报错。即不给这样的代码放行。</p>
+<p>解决的办法就是遍历 webpackConfig 剔除校验的 error-loader。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (item.<span class="property">use</span> &amp;&amp; item.<span class="property">use</span>.<span class="property">loader</span> === <span class="string">&quot;error-loader&quot;</span>) &#123;</span><br><span class="line">   <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Next.js v12 已经内置了 .scss, .css 文件的支持, 但是不会处理 node_modules 中的 js 文件 require 的 *.css。</p>
+<p>解决的办法就是遍历 webpackConfig 篡改 issuer.not 的配置使得能够支持。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (</span><br><span class="line">  item.<span class="property">issuer</span> &amp;&amp;</span><br><span class="line">  <span class="title class_">Array</span>.<span class="title function_">isArray</span>(item.<span class="property">issuer</span>.<span class="property">not</span>) &amp;&amp;</span><br><span class="line">  item.<span class="property">issuer</span>.<span class="property">not</span>.<span class="title function_">find</span>(<span class="function">(<span class="params">i</span>) =&gt;</span> i.<span class="title function_">toString</span>() === <span class="string">&quot;/node_modules/&quot;</span>)</span><br><span class="line">) &#123;</span><br><span class="line">  item.<span class="property">issuer</span>.<span class="property">not</span> = item.<span class="property">issuer</span>.<span class="property">not</span>.<span class="title function_">filter</span>(</span><br><span class="line">    <span class="function">(<span class="params">i</span>) =&gt;</span> i.<span class="title function_">toString</span>() !== <span class="string">&quot;/node_modules/&quot;</span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>这块解决的代码 2年写到这个包中, 本次也是适配了 Next.js v12, 有需要或者想查阅完整的代码可以点击 <a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/with-ssr-entry">xiaoxiaojx&#x2F;with-ssr-entry</a></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// next.config.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> withSsrEntry = <span class="built_in">require</span>(<span class="string">&#x27;with-ssr-entry&#x27;</span>)</span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">withSsrEntry</span>() <span class="comment">// like withCss, withSass</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>以上介绍的都是如何逃避 Next.js 的检查, 适用于推动不了第三包去修改代码。如果你是这些包的负责人, 则可以像 antd 这样书写正确推荐的代码。即对于 antd 组件来说 date-picker.js 内部不引入 .css 文件, 转而由业务项目 src 下的代码去引入所需的 css。</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// my-app/src/**</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 引入 js</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">DatePicker</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;antd&#x27;</span>;</span><br><span class="line"><span class="comment">// 一次性引入全部的 css 或者按需引入当前组件的 css</span></span><br><span class="line"><span class="comment">// import &#x27;antd/es/date-picker/style/css&#x27;</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;antd/dist/antd.css&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">ReactDOM</span>.<span class="title function_">render</span>(<span class="language-xml"><span class="tag">&lt;<span class="name">DatePicker</span> /&gt;</span></span>, mountNode);</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">问题简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0"><span class="toc-number">2.</span> <span class="toc-text">问题原因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">3.</span> <span class="toc-text">问题解决</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2022/08/25/b12/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&text=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&title=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&is_video=false&description=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Next.js Invalid or unexpected token 问题记录&body=Check out this article: https://xiaoxiaojx.github.io/2022/08/25/b12/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&title=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&title=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&title=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&title=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2022/08/25/b12/&name=Next.js Invalid or unexpected token 问题记录&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2022/08/25/b12/&t=Next.js Invalid or unexpected token 问题记录"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

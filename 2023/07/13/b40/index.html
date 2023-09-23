@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="背景Q 同学反映自己负责的 SSR 项目线上环境 Node.js 性能指标 首字节 TTFB 上涨了约 30ms, 而当次发布没有涉及配置的变更、基础包的升级等, 甚至同样的代码重新构建发布又恢复正常了… 问题排查Cat 监控首先查看了一下监控系统, 发现 SSR 项目涉及的渲染时延 Transaction , 后端接口时延 Transaction 等关键指标均没有明显波动  这里我们使用的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="同步日志写入导致的 Node.js 性能上涨">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2023/07/13/b40/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="背景Q 同学反映自己负责的 SSR 项目线上环境 Node.js 性能指标 首字节 TTFB 上涨了约 30ms, 而当次发布没有涉及配置的变更、基础包的升级等, 甚至同样的代码重新构建发布又恢复正常了… 问题排查Cat 监控首先查看了一下监控系统, 发现 SSR 项目涉及的渲染时延 Transaction , 后端接口时延 Transaction 等关键指标均没有明显波动  这里我们使用的">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/15bb6872-dbf9-40ce-9b75-9e2fac151412">
+<meta property="og:image" content="https://camo.githubusercontent.com/0f7b7432f8e51a53e0c996079567773974901440e8480f3751a5e4f7b2a58a66/68747470733a2f2f7261772e6769746875622e636f6d2f6469616e70696e672f6361742f6d61737465722f6361742d686f6d652f7372632f6d61696e2f7765626170702f696d616765732f6c6f6776696577416c6c30312e706e67">
+<meta property="og:image" content="https://github.com/pinojs/pino/raw/master/pino-banner.png">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/5c897579-6b05-4d16-be16-e200006736c7">
+<meta property="article:published_time" content="2023-07-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-23T18:00:23.933Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="Node.js">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/15bb6872-dbf9-40ce-9b75-9e2fac151412">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>同步日志写入导致的 Node.js 性能上涨</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/08/04/b41/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/06/08/b39/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/07/13/b40/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&text=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&title=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&is_video=false&description=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=同步日志写入导致的 Node.js 性能上涨&body=Check out this article: https://xiaoxiaojx.github.io/2023/07/13/b40/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&title=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&title=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&title=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&title=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&name=同步日志写入导致的 Node.js 性能上涨&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/07/13/b40/&t=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Cat-%E7%9B%91%E6%8E%A7"><span class="toc-number">2.1.</span> <span class="toc-text">Cat 监控</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pino-%E6%97%A5%E5%BF%97"><span class="toc-number">2.2.</span> <span class="toc-text">pino 日志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#k8s-%E6%94%AF%E6%8C%81"><span class="toc-number">2.3.</span> <span class="toc-text">k8s 支持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ChatGPT-%E6%94%AF%E6%8C%81"><span class="toc-number">2.4.</span> <span class="toc-text">ChatGPT 支持</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">3.</span> <span class="toc-text">问题解决</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%A2%E7%B4%A2"><span class="toc-number">4.</span> <span class="toc-text">问题探索</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        同步日志写入导致的 Node.js 性能上涨
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-07-12T16:00:00.000Z" class="dt-published" itemprop="datePublished">2023-07-13</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Node-js/" rel="tag">Node.js</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <img width="1439" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/15bb6872-dbf9-40ce-9b75-9e2fac151412">
+
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>Q 同学反映自己负责的 SSR 项目线上环境 Node.js 性能指标 <a target="_blank" rel="noopener" href="https://web.dev/ttfb/">首字节 TTFB</a> 上涨了约 30ms, 而当次发布没有涉及配置的变更、基础包的升级等, 甚至同样的代码重新构建发布又恢复正常了…</p>
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><h3 id="Cat-监控"><a href="#Cat-监控" class="headerlink" title="Cat 监控"></a>Cat 监控</h3><p>首先查看了一下监控系统, 发现 SSR 项目涉及的渲染时延 Transaction , 后端接口时延 Transaction 等关键指标均没有明显波动</p>
+<blockquote>
+<p>这里我们使用的 <a target="_blank" rel="noopener" href="https://github.com/dianping/cat">Cat</a> 进行的数据采集, 下图为 Cat 监控示例图与本次无关</p>
+</blockquote>
+<p><img src="https://camo.githubusercontent.com/0f7b7432f8e51a53e0c996079567773974901440e8480f3751a5e4f7b2a58a66/68747470733a2f2f7261772e6769746875622e636f6d2f6469616e70696e672f6361742f6d61737465722f6361742d686f6d652f7372632f6d61696e2f7765626170702f696d616765732f6c6f6776696577416c6c30312e706e67"><br>于是只能追加了更多的时延 Transaction 打点, 最终发现竟然是一行日志输出时而达到了 15ms 时而又小于 1ms 到可以忽略, 每个请求存在两条这样的日志输出故导致性能上涨了 30ms 🤯</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SSR</span></span><br><span class="line"></span><br><span class="line">ctx.<span class="property">logger</span>.<span class="title function_">info</span>(<span class="string">&#x27;[xxx] xxx success, ret: %o&#x27;</span>, ret)</span><br></pre></td></tr></table></figure>
+
+<h3 id="pino-日志"><a href="#pino-日志" class="headerlink" title="pino 日志"></a>pino 日志</h3><p>对于上面一个小于 200 字符串的日志输出为什么会消耗了 15ms, 继续查看代码发现使用的 logger 其实是基于 <a target="_blank" rel="noopener" href="https://github.com/pinojs/pino">pino</a> 6.11.3 版本</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SSR</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pino <span class="keyword">from</span> <span class="string">&#x27;pino&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> logger = <span class="title function_">pino</span>(opts, pino.<span class="title function_">destination</span>())</span><br></pre></td></tr></table></figure>
+<p><img src="https://github.com/pinojs/pino/raw/master/pino-banner.png"><br>然后再查看 pino.destination 的实现发现了比较刺眼的<code>sync: true</code>传参</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/pinojs/pino/blob/v6.11.3/pino.js</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span>.<span class="property">destination</span> = <span class="function">(<span class="params">dest = process.stdout.fd</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> dest === <span class="string">&#x27;object&#x27;</span>) &#123;</span><br><span class="line">    dest.<span class="property">dest</span> = dest.<span class="property">dest</span> || process.<span class="property">stdout</span>.<span class="property">fd</span></span><br><span class="line">    <span class="keyword">return</span> <span class="title function_">buildSafeSonicBoom</span>(dest)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_">buildSafeSonicBoom</span>(&#123; dest, <span class="attr">minLength</span>: <span class="number">0</span>, <span class="attr">sync</span>: <span class="literal">true</span> &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>继续深挖发现当传参是<code>sync: true</code>时会调用<code>fs.writeSync(process.stdout.fd</code>去写日志, 可以理解为等同于<code>console.log</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/pinojs/sonic-boom/blob/1.x/index.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (sonic.<span class="property">sync</span>) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> written = fs.<span class="title function_">writeSync</span>(sonic.<span class="property">fd</span>, buf, <span class="string">&#x27;utf8&#x27;</span>)</span><br><span class="line">        <span class="title function_">release</span>(<span class="literal">null</span>, written)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">        <span class="title function_">release</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    fs.<span class="title function_">write</span>(sonic.<span class="property">fd</span>, buf, <span class="string">&#x27;utf8&#x27;</span>, release)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="k8s-支持"><a href="#k8s-支持" class="headerlink" title="k8s 支持"></a>k8s 支持</h3><p>最后询问了 k8s 的同学, 为什么一行同步输出的日志时延波动这么大？ k8s 同学给出的回答是我们的 Pod 上的标准输出会落到云盘中, 网络抖动就可能造成这样的波动</p>
+<h3 id="ChatGPT-支持"><a href="#ChatGPT-支持" class="headerlink" title="ChatGPT 支持"></a>ChatGPT 支持</h3><p>当然 k8s 的同学不会忽悠我, 但本着学习的心理让我们继续向 ChatGPT 🤖️ 来探索一下这个问题。当 k8s 标准输出落到云盘的场景中, 同步日志输出是否会阻塞程序直到云盘写入成功? </p>
+<blockquote>
+<p>ChatGPT 🤖️: 在默认情况下，程序的标准输出日志是通过标准输出流（stdout）输出的，而标准输出流通常是实时输出的，即时写入到日志文件或云盘中。因此，当你在程序中打印一条日志时，它不会被阻塞到写入云盘直到成功。相反，它会尽快地写入到标准输出流中。<br>然而，具体的日志写入到云盘的速度取决于多个因素，如磁盘性能、网络延迟等。如果写入到云盘的速度较慢，可能会导致一些日志消息在写入过程中被堆积。这可能会导致程序的标准输出流缓冲区填满，从而导致程序阻塞或出现其他问题。</p>
+</blockquote>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>通过传入<code>sync: false</code>来进行异步写入日志即可解决本次的问题</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pino <span class="keyword">from</span> <span class="string">&#x27;pino&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> logger = <span class="title function_">pino</span>(opts, pino.<span class="title function_">destination</span>(&#123; <span class="attr">sync</span>: <span class="literal">false</span> &#125;))</span><br></pre></td></tr></table></figure>
+<h2 id="问题探索"><a href="#问题探索" class="headerlink" title="问题探索"></a>问题探索</h2><p>这里一个疑问是 ChatGPT 指出同步输入日志会先写入缓冲区, 所以不会阻塞, 那么实际情况我们还是被阻塞了 15ms 了?</p>
+<p>对 Node.js 源码比较了解的同学应该知道 Node.js 程序刚开始运行的代码中就通过 <a target="_blank" rel="noopener" href="https://en.cppreference.com/w/c/io/setvbuf">setvbuf</a> 系统调用把缓冲区给禁止掉了…</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/nodejs/node/blob/main/src/node.cc#L486</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span> &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Disable stdio buffering, it interacts poorly with printf()</span></span><br><span class="line">  <span class="comment">// calls elsewhere in the program (e.g., any logging from V8.)</span></span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, nullptr, _IONBF, <span class="number">0</span>);</span><br><span class="line">  setvbuf(<span class="built_in">stderr</span>, nullptr, _IONBF, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">return</span> node::Start(argc, argv);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以我们把传参改为<code>sync: false</code>时, 看看 <a target="_blank" rel="noopener" href="https://github.com/pinojs/sonic-boom">sonic-boom</a> 是如何实现</p>
+<p>虽然 Node.js 禁止了系统输出流的缓冲行为, 不代表 JavaScript 层面不可以通过把数据缓存在内存中进行模拟实现, 实际 sonic-boom 就是这样去做的</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/nodejs/node/blob/main/src/node.cc#L486</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">SonicBoom</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">write</span> = <span class="keyword">function</span> (<span class="params">data</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">destroyed</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;SonicBoom destroyed&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">_buf</span> += data</span><br><span class="line">  <span class="keyword">const</span> len = <span class="variable language_">this</span>.<span class="property">_buf</span>.<span class="property">length</span></span><br><span class="line">  <span class="keyword">if</span> (!<span class="variable language_">this</span>.<span class="property">_writing</span> &amp;&amp; len &gt; <span class="variable language_">this</span>.<span class="property">minLength</span>) &#123;</span><br><span class="line">    <span class="title function_">actualWrite</span>(<span class="variable language_">this</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> len &lt; <span class="number">16384</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后要说明的一点是当 sonic-boom 设置的缓存数据上限后, 开始进行 i&#x2F;o 写入操作时会有一个请求会被阻塞？</p>
+<p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/5c897579-6b05-4d16-be16-e200006736c7" alt="image"></p>
+<p>其实是不会的, 当达到设置的上限值 sonic-boom 会调用<code>fs.write</code>去异步写入日志, 而写入这个操作是在子线程中进行的, 故不会阻塞主线程, 这部分内容见我之前写的<a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/blog/issues/2">【libuv 源码学习笔记】线程池与i&#x2F;o</a></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fs.<span class="title function_">write</span>(sonic.<span class="property">fd</span>, buf, <span class="string">&#x27;utf8&#x27;</span>, release)</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Cat-%E7%9B%91%E6%8E%A7"><span class="toc-number">2.1.</span> <span class="toc-text">Cat 监控</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pino-%E6%97%A5%E5%BF%97"><span class="toc-number">2.2.</span> <span class="toc-text">pino 日志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#k8s-%E6%94%AF%E6%8C%81"><span class="toc-number">2.3.</span> <span class="toc-text">k8s 支持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ChatGPT-%E6%94%AF%E6%8C%81"><span class="toc-number">2.4.</span> <span class="toc-text">ChatGPT 支持</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">3.</span> <span class="toc-text">问题解决</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%A2%E7%B4%A2"><span class="toc-number">4.</span> <span class="toc-text">问题探索</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/07/13/b40/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&text=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&title=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&is_video=false&description=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=同步日志写入导致的 Node.js 性能上涨&body=Check out this article: https://xiaoxiaojx.github.io/2023/07/13/b40/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&title=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&title=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&title=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&title=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/07/13/b40/&name=同步日志写入导致的 Node.js 性能上涨&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/07/13/b40/&t=同步日志写入导致的 Node.js 性能上涨"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
