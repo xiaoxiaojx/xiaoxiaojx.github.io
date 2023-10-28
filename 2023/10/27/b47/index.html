@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="如何获取一个快照文件 如果是 Node.js 环境参考官方文档 v8.writeHeapSnapshot([filename])  1234const &amp;#123; writeHeapSnapshot &amp;#125; &#x3D; require(&amp;#x27;node:v8&amp;#x27;);const filename &#x3D; writeHeapSnapshot();console.log(&#96;main thre">
+<meta property="og:type" content="article">
+<meta property="og:title" content=".heapsnapshot">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2023/10/27/b47/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="如何获取一个快照文件 如果是 Node.js 环境参考官方文档 v8.writeHeapSnapshot([filename])  1234const &amp;#123; writeHeapSnapshot &amp;#125; &#x3D; require(&amp;#x27;node:v8&amp;#x27;);const filename &#x3D; writeHeapSnapshot();console.log(&#96;main thre">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/93cafb6f-37d2-4f87-a022-c471b79e9ecd">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/bbf5b6a7-9b10-407f-a77b-d63bfbac36b3">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/aaa14bca-23b7-44fb-b59b-55a3bee65be2">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/a411a033-e63f-4e7c-8053-28010088ac2a">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/c38c82bc-8898-46cb-b190-0c26b6296e32">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/8b476581-18ea-4c91-b1fb-434a43957d91">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/a4946c1b-9e4c-456a-abb2-96956df69eca">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/25273fb4-e7ea-4cd6-abd0-e88f382fdefc">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/2f8ec75c-d776-4547-89a9-bf1358d1ee83">
+<meta property="article:published_time" content="2023-10-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-28T02:07:35.313Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/93cafb6f-37d2-4f87-a022-c471b79e9ecd">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>.heapsnapshot</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/10/07/b46/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/10/27/b47/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&text=.heapsnapshot"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&title=.heapsnapshot"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&is_video=false&description=.heapsnapshot"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=.heapsnapshot&body=Check out this article: https://xiaoxiaojx.github.io/2023/10/27/b47/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&title=.heapsnapshot"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&title=.heapsnapshot"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&title=.heapsnapshot"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&title=.heapsnapshot"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&name=.heapsnapshot&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/10/27/b47/&t=.heapsnapshot"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E4%B8%80%E4%B8%AA%E5%BF%AB%E7%85%A7%E6%96%87%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">如何获取一个快照文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%AB%E7%85%A7%E6%96%87%E4%BB%B6%E9%A2%84%E8%A7%88"><span class="toc-number">2.</span> <span class="toc-text">快照文件预览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%AB%E7%85%A7%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">快照文件解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SerializeNodes"><span class="toc-number">3.1.</span> <span class="toc-text">SerializeNodes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SerializeEdges"><span class="toc-number">3.2.</span> <span class="toc-text">SerializeEdges</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SerializeLocations"><span class="toc-number">3.3.</span> <span class="toc-text">SerializeLocations</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%AB%E7%85%A7%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7"><span class="toc-number">4.</span> <span class="toc-text">快照文件分析工具</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Chrome-Devtools-Memory"><span class="toc-number">4.1.</span> <span class="toc-text">Chrome Devtools Memory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#devtoolx"><span class="toc-number">4.2.</span> <span class="toc-text">devtoolx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#v8-profiler-rs"><span class="toc-number">4.3.</span> <span class="toc-text">v8-profiler-rs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#memlab"><span class="toc-number">4.4.</span> <span class="toc-text">memlab</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        .heapsnapshot
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-26T16:00:00.000Z" class="dt-published" itemprop="datePublished">2023-10-27</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/C/" rel="tag">C++</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <img width="1507" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/93cafb6f-37d2-4f87-a022-c471b79e9ecd">
+
+<h2 id="如何获取一个快照文件"><a href="#如何获取一个快照文件" class="headerlink" title="如何获取一个快照文件"></a>如何获取一个快照文件</h2><ul>
+<li>如果是 Node.js 环境参考官方文档 <a target="_blank" rel="noopener" href="https://nodejs.org/dist/latest-v18.x/docs/api/v8.html#v8writeheapsnapshotfilename">v8.writeHeapSnapshot([filename])</a></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; writeHeapSnapshot &#125; = <span class="built_in">require</span>(<span class="string">&#x27;node:v8&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> filename = <span class="title function_">writeHeapSnapshot</span>();</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`main thread heapdump: <span class="subst">$&#123;filename&#125;</span>`</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果是浏览器环境则点击 Chrome Devtools Memory 面板下的 Take snapshot 按钮</li>
+</ul>
+<p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/bbf5b6a7-9b10-407f-a77b-d63bfbac36b3" alt="image"></p>
+<h2 id="快照文件预览"><a href="#快照文件预览" class="headerlink" title="快照文件预览"></a>快照文件预览</h2><p>当我们获取到 xxx.heapsnapshot 文件后通过编辑器打开预览其实是一个 JSON 对象</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;snapshot&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;meta&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;node_fields&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;type&quot;</span><span class="punctuation">,</span> <span class="string">&quot;name&quot;</span><span class="punctuation">,</span> <span class="string">&quot;id&quot;</span><span class="punctuation">,</span> <span class="string">&quot;self_size&quot;</span><span class="punctuation">,</span> <span class="string">&quot;edge_count&quot;</span><span class="punctuation">,</span> <span class="string">&quot;trace_node_id&quot;</span><span class="punctuation">,</span> <span class="string">&quot;detachedness&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;node_types&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">[</span><span class="string">&quot;hidden&quot;</span><span class="punctuation">,</span><span class="string">&quot;array&quot;</span><span class="punctuation">,</span> <span class="string">&quot;string&quot;</span><span class="punctuation">,</span> <span class="string">&quot;object&quot;</span><span class="punctuation">,</span> <span class="string">&quot;code&quot;</span><span class="punctuation">,</span> <span class="string">&quot;closure&quot;</span><span class="punctuation">,</span> <span class="string">&quot;regexp&quot;</span><span class="punctuation">,</span> <span class="string">&quot;number&quot;</span><span class="punctuation">,</span> <span class="string">&quot;native&quot;</span><span class="punctuation">,</span> <span class="string">&quot;synthetic&quot;</span><span class="punctuation">,</span> <span class="string">&quot;concatenated string&quot;</span><span class="punctuation">,</span> <span class="string">&quot;sliced string&quot;</span><span class="punctuation">,</span> <span class="string">&quot;symbol&quot;</span><span class="punctuation">,</span> <span class="string">&quot;bigint&quot;</span><span class="punctuation">,</span> <span class="string">&quot;object shape&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;string&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;number&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;number&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;number&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;number&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;number&quot;</span></span><br><span class="line">      <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;edge_fields&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;type&quot;</span><span class="punctuation">,</span> <span class="string">&quot;name_or_index&quot;</span><span class="punctuation">,</span> <span class="string">&quot;to_node&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;edge_types&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">[</span><span class="string">&quot;context&quot;</span><span class="punctuation">,</span> <span class="string">&quot;element&quot;</span><span class="punctuation">,</span> <span class="string">&quot;property&quot;</span><span class="punctuation">,</span> <span class="string">&quot;internal&quot;</span><span class="punctuation">,</span> <span class="string">&quot;hidden&quot;</span><span class="punctuation">,</span> <span class="string">&quot;shortcut&quot;</span><span class="punctuation">,</span> <span class="string">&quot;weak&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;string_or_number&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;node&quot;</span></span><br><span class="line">      <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;trace_function_info_fields&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;trace_node_fields&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;sample_fields&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;location_fields&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;node_count&quot;</span><span class="punctuation">:</span> <span class="number">86352</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;edge_count&quot;</span><span class="punctuation">:</span> <span class="number">348827</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;trace_function_count&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;nodes&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="number">9</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">6</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span></span><br><span class="line">  <span class="punctuation">,</span> <span class="number">9</span><span class="punctuation">,</span> <span class="number">2</span><span class="punctuation">,</span> <span class="number">3</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">25</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">   <span class="number">9</span><span class="punctuation">,</span> <span class="number">3</span><span class="punctuation">,</span> <span class="number">5</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span></span><br><span class="line">   <span class="comment">// 省略...</span></span><br><span class="line"><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;edges&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="number">1</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">7</span></span><br><span class="line">  <span class="punctuation">,</span> <span class="number">5</span><span class="punctuation">,</span> <span class="number">2916</span><span class="punctuation">,</span> <span class="number">21742</span></span><br><span class="line">  <span class="punctuation">,</span> <span class="number">5</span><span class="punctuation">,</span> <span class="number">2917</span><span class="punctuation">,</span> <span class="number">21812</span></span><br><span class="line">  <span class="punctuation">,</span> <span class="number">5</span><span class="punctuation">,</span> <span class="number">2918</span><span class="punctuation">,</span> <span class="number">22008</span></span><br><span class="line">  <span class="comment">// 省略...</span></span><br><span class="line"><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;strings&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;&lt;dummy&gt;&quot;</span><span class="punctuation">,</span> <span class="string">&quot;&quot;</span><span class="punctuation">,</span> <span class="string">&quot;(GC roots)&quot;</span><span class="punctuation">,</span> <span class="string">&quot;(Bootstrapper)&quot;</span><span class="punctuation">,</span> <span class="string">&quot;(Builtins)&quot;</span> <span class="comment">// 省略... ],</span></span><br><span class="line">  <span class="attr">&quot;locations&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="number">109032</span><span class="punctuation">,</span> <span class="number">2</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span></span><br><span class="line">  <span class="punctuation">,</span> <span class="number">136794</span><span class="punctuation">,</span> <span class="number">3</span><span class="punctuation">,</span> <span class="number">9</span><span class="punctuation">,</span> <span class="number">35</span></span><br><span class="line">  <span class="punctuation">,</span> <span class="number">136808</span><span class="punctuation">,</span> <span class="number">3</span><span class="punctuation">,</span> <span class="number">9</span><span class="punctuation">,</span> <span class="number">35</span></span><br><span class="line">  <span class="comment">// 省略...</span></span><br><span class="line"><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="快照文件解析"><a href="#快照文件解析" class="headerlink" title="快照文件解析"></a>快照文件解析</h2><p>.heapsnapshot 文件主要记录的是当前页面&#x2F;进程的内存快照信息，比如你的代码中有如下对象</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> d = &#123;&#125;</span><br><span class="line"><span class="keyword">const</span> b = &#123;</span><br><span class="line">    d</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> c = &#123;</span><br><span class="line">    b,</span><br><span class="line">    d</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> a = &#123;</span><br><span class="line">    b,</span><br><span class="line">    c</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它们之间的引用关系用 <a target="_blank" rel="noopener" href="https://github.com/trekhleb/javascript-algorithms/blob/master/src/data-structures/graph/Graph.js">Graph</a> 描述就类似下面这样<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/aaa14bca-23b7-44fb-b59b-55a3bee65be2" alt="image"><br>Object a, b, c, d 就相当于 Graph 的节点 Node，对象之间的引用关系就相当于 Graph 的边 Edge</p>
+<p>确实我们在 .heapsnapshot 文件发现了 nodes 与 edges 数据，但数据却需要解密才能够理解</p>
+<p>比如 nodes 数组的数据是下面这样，每一项都是数字</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;nodes&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="number">9</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">6</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span></span><br><span class="line">  <span class="punctuation">,</span> <span class="number">9</span><span class="punctuation">,</span> <span class="number">2</span><span class="punctuation">,</span> <span class="number">3</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">25</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">   <span class="number">9</span><span class="punctuation">,</span> <span class="number">3</span><span class="punctuation">,</span> <span class="number">5</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span></span><br><span class="line">   <span class="comment">// 省略...</span></span><br><span class="line"><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<h3 id="SerializeNodes"><a href="#SerializeNodes" class="headerlink" title="SerializeNodes"></a>SerializeNodes</h3><p>此时我们需要阅读 v8 源码了解一个 Graph 的节点 Node 是如何进行的序列化。发现一个 Node 节点会依次记录它的 type、name、id、self_size、children_count、trace_node_id、detachedness 的值，每个 Node 节点的结束写入一个 \n\0 的换行。如上的 nodes 数组换行了 3 次故包含 3 个 Node 节点</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// v8/src/profiler/heap-snapshot-generator.cc</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">HeapSnapshotJSONSerializer::SerializeNode</span><span class="params">(<span class="type">const</span> HeapEntry* entry)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// The buffer needs space for 5 unsigned ints, 1 size_t, 1 uint8_t, 7 commas,</span></span><br><span class="line">  <span class="comment">// \n and \0</span></span><br><span class="line">  <span class="type">static</span> <span class="type">const</span> <span class="type">int</span> kBufferSize =</span><br><span class="line">      <span class="number">5</span> * MaxDecimalDigitsIn&lt;<span class="built_in">sizeof</span>(<span class="type">unsigned</span>)&gt;::kUnsigned +</span><br><span class="line">      MaxDecimalDigitsIn&lt;<span class="built_in">sizeof</span>(<span class="type">size_t</span>)&gt;::kUnsigned +</span><br><span class="line">      MaxDecimalDigitsIn&lt;<span class="built_in">sizeof</span>(<span class="type">uint8_t</span>)&gt;::kUnsigned + <span class="number">7</span> + <span class="number">1</span> + <span class="number">1</span>;</span><br><span class="line">  base::EmbeddedVector&lt;<span class="type">char</span>, kBufferSize&gt; buffer;</span><br><span class="line">  <span class="type">int</span> buffer_pos = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">to_node_index</span>(entry) != <span class="number">0</span>) &#123;</span><br><span class="line">    buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(entry-&gt;<span class="built_in">type</span>(), buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(<span class="built_in">GetStringId</span>(entry-&gt;<span class="built_in">name</span>()), buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(entry-&gt;<span class="built_in">id</span>(), buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(entry-&gt;<span class="built_in">self_size</span>(), buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(entry-&gt;<span class="built_in">children_count</span>(), buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(entry-&gt;<span class="built_in">trace_node_id</span>(), buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(entry-&gt;<span class="built_in">detachedness</span>(), buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">  writer_-&gt;<span class="built_in">AddString</span>(buffer.<span class="built_in">begin</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么一个 Node 包含的数据用 JavaScript 表示类似如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Node</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">type, name, id, self_size, children_count, trace_node_id, detachedness</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">type</span> = type;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">id</span> = id;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">self_size</span> = self_size;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">children_count</span> = children_count;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">trace_node_id</span> = trace_node_id;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">detachedness</span> = detachedness;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的 nodes 数组解密后就类似如下</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;nodes&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span>new Node(<span class="number">9</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">6</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span>)</span><br><span class="line">  <span class="punctuation">,</span> new Node(<span class="number">9</span><span class="punctuation">,</span> <span class="number">2</span><span class="punctuation">,</span> <span class="number">3</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">25</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span>)</span><br><span class="line">  <span class="punctuation">,</span> new Node(<span class="number">9</span><span class="punctuation">,</span> <span class="number">3</span><span class="punctuation">,</span> <span class="number">5</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span>)</span><br><span class="line">   <span class="comment">// 省略...</span></span><br><span class="line"><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>此时 Node 的所有属性 type、name 都是数字可读性依然很差，那么需要继续进行解密。通过继续阅读源码可知 </p>
+<ul>
+<li>name: 1 这里的 name 通常是构造函数的 name，1 其实也是数组的索引，对应的值是 strings[1]，于是得出了第一个 Node 的 name 是 “”</li>
+<li>id: id 只是序列化时一个自增长的数字</li>
+<li>self_size: 该 Node 的自身所占内存大小，不包含它引用的对象</li>
+<li>children_count: 该 Node 节点引用的对象的数量</li>
+<li>…</li>
+</ul>
+<h3 id="SerializeEdges"><a href="#SerializeEdges" class="headerlink" title="SerializeEdges"></a>SerializeEdges</h3><p>上面我们已经解密了 nodes 字段，接下来看看 Graph 的边 Edge。发现一个 Edge 会依次记录它的 type、name_or_index、to 的值，每个 Edge 节点的结束也会写入一个 \n\0 的换行</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// v8/src/profiler/heap-snapshot-generator.cc</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">HeapSnapshotJSONSerializer::SerializeEdge</span><span class="params">(HeapGraphEdge* edge,</span></span></span><br><span class="line"><span class="params"><span class="function">                                               <span class="type">bool</span> first_edge)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// The buffer needs space for 3 unsigned ints, 3 commas, \n and \0</span></span><br><span class="line">  <span class="type">static</span> <span class="type">const</span> <span class="type">int</span> kBufferSize =</span><br><span class="line">      MaxDecimalDigitsIn&lt;<span class="built_in">sizeof</span>(<span class="type">unsigned</span>)&gt;::kUnsigned * <span class="number">3</span> + <span class="number">3</span> + <span class="number">2</span>;</span><br><span class="line">  base::EmbeddedVector&lt;<span class="type">char</span>, kBufferSize&gt; buffer;</span><br><span class="line">  <span class="type">int</span> edge_name_or_index = edge-&gt;<span class="built_in">type</span>() == HeapGraphEdge::kElement ||</span><br><span class="line">                                   edge-&gt;<span class="built_in">type</span>() == HeapGraphEdge::kHidden</span><br><span class="line">                               ? edge-&gt;<span class="built_in">index</span>()</span><br><span class="line">                               : <span class="built_in">GetStringId</span>(edge-&gt;<span class="built_in">name</span>());</span><br><span class="line">  <span class="type">int</span> buffer_pos = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> (!first_edge) &#123;</span><br><span class="line">    buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(edge-&gt;<span class="built_in">type</span>(), buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(edge_name_or_index, buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(<span class="built_in">to_node_index</span>(edge-&gt;<span class="built_in">to</span>()), buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">  writer_-&gt;<span class="built_in">AddString</span>(buffer.<span class="built_in">begin</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于一个 Edge 其实是需要具备 from 与 to 的 Node 节点，比如例子中的 Object(a) 引用了 Object(b)，此时 from 是 a, to 是 b，但上面记录却只包含 to? </p>
+<p>要正确找到 from 对应的 Node 节点，就需要借助于 Node 节点的 children_count 属性的值。比如上面解密的</p>
+<ul>
+<li>第一个 Node 节点的 children_count 为 6，那么 edges 数组中 0 ～ 5 个 Edge 的 from 都是第一个 Node</li>
+<li>第二个 Node 节点的 children_count 为 25，那么 edges 数组中 6 ～ 30 个 Edge 的 from 都是第二个 Node</li>
+<li>第三个 Node 节点的 children_count 为 0，那么 edges 数组中没有 from 是该 Node 节点，直接跳过</li>
+<li>…</li>
+</ul>
+<p>用 JavaScript 表示类似如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Edge</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">type, name_or_index, to</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">type</span> = type;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">name_or_index</span> = name_or_index;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">to</span> = to;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的 edges 数组解密后就类似如下</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;edges&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span>new Edge(<span class="number">1</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">7</span>) <span class="comment">// this.from = Node1</span></span><br><span class="line">  <span class="punctuation">,</span> new Edge(<span class="number">5</span><span class="punctuation">,</span> <span class="number">2916</span><span class="punctuation">,</span> <span class="number">21742</span>) <span class="comment">// this.from = Node1</span></span><br><span class="line">  <span class="punctuation">,</span> new Edge(<span class="number">5</span><span class="punctuation">,</span> <span class="number">2917</span><span class="punctuation">,</span> <span class="number">21812</span>) <span class="comment">// this.from = Node1</span></span><br><span class="line">  <span class="punctuation">,</span> new Edge(<span class="number">5</span><span class="punctuation">,</span> <span class="number">2918</span><span class="punctuation">,</span> <span class="number">22008</span>) <span class="comment">// this.from = Node1</span></span><br><span class="line">  <span class="comment">// 省略...</span></span><br><span class="line"><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>type: 为数组索引，比如第一个 Edge 的 type 为 1 找到 snapshot.meta.edge_types[0][1] 的值 是 element，所有的 type 包括</p>
+<ul>
+<li>context: 表示一个JavaScript对象（通常是函数或闭包）与其上下文变量之间的关系。上下文变量是在函数作用域内声明的变量</li>
+<li>element: 表示一个对象是数组，并且该边表示数组的元素。通常用于表示数组元素之间的关系</li>
+<li>property: 表示一个对象的普通属性（non-indexed property）。这是指通过对象的名称访问的属性，而不是通过数组索引访问的属性</li>
+<li>internal: 表示一个对象的内部（内置）属性。内部属性是对象的系统级属性，通常不可见或不可枚举</li>
+<li>shortcut: 表示一个对象的“快捷方式”引用。在堆图中，有时候可以使用快捷方式直接引用到对象，而不需要沿着一条正常的引用路径hidden: 表示一个对象的隐藏属性。隐藏属性是对象的附加属性，通常在JavaScript代码中不可见，但在内部使用</li>
+<li>weak: 表示一个弱引用关系。弱引用不会阻止对象被垃圾回收，当没有强引用指向对象时，对象可以被回收</li>
+</ul>
+</li>
+<li><p>edge_name_or_index:</p>
+<ul>
+<li>比如第一个  Edge 的 type 为 1 是 element, element 表示 to 是 from 数组的其中一个元素，那么此时的 1 为 to 在 from 数组中的索引，即 from[1] &#x3D; to</li>
+<li>如果该 Edge 的 type 为 2 找到 snapshot.meta.edge_types[0][2] 的值是 property, property 表示 to 是 from 对象的一个属性，即 key &#x3D; strings[edge_name_or_index]; from &#x3D; {[key]: to}</li>
+</ul>
+</li>
+<li><p>to: Edge 中为 to 的 Node 节点的索引，比如第一个 Edge 的 to 为 7, 从 nodes 数组中找到索引为 7 的元素，因为一个 Node 节点在 nodes 数组中 占据 7 位，那索引为 7 的元素表示的是第二个 Node 节点</p>
+</li>
+</ul>
+<p>from 的 children_count 与 edges 数组索引的有耦合的这层隐藏关系的代码实现见如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// v8/src/profiler/heap-snapshot-generator.cc</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">HeapSnapshot::FillChildren</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">DCHECK</span>(<span class="built_in">children</span>().<span class="built_in">empty</span>());</span><br><span class="line">  <span class="type">int</span> children_index = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (HeapEntry&amp; entry : <span class="built_in">entries</span>()) &#123;</span><br><span class="line">    children_index = entry.<span class="built_in">set_children_index</span>(children_index);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">DCHECK_EQ</span>(<span class="built_in">edges</span>().<span class="built_in">size</span>(), <span class="built_in">static_cast</span>&lt;<span class="type">size_t</span>&gt;(children_index));</span><br><span class="line">  <span class="built_in">children</span>().<span class="built_in">resize</span>(<span class="built_in">edges</span>().<span class="built_in">size</span>());</span><br><span class="line">  <span class="keyword">for</span> (HeapGraphEdge&amp; edge : <span class="built_in">edges</span>()) &#123;</span><br><span class="line">    edge.<span class="built_in">from</span>()-&gt;<span class="built_in">add_child</span>(&amp;edge);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="SerializeLocations"><a href="#SerializeLocations" class="headerlink" title="SerializeLocations"></a>SerializeLocations</h3><p>最后需要解密的是 locations 字段，它包含了 Node 节点对应的源码文件与行列，有利于我们快速定位问题代码。location 会依次记录它的 entry_index、scriptId、line、col 的值，每个 location 节点的结束也会写入一个 \n\0 的换行</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// v8/src/profiler/heap-snapshot-generator.cc</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">HeapSnapshotJSONSerializer::SerializeLocation</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">const</span> SourceLocation&amp; location)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// The buffer needs space for 4 unsigned ints, 3 commas, \n and \0</span></span><br><span class="line">  <span class="type">static</span> <span class="type">const</span> <span class="type">int</span> kBufferSize =</span><br><span class="line">      MaxDecimalDigitsIn&lt;<span class="built_in">sizeof</span>(<span class="type">unsigned</span>)&gt;::kUnsigned * <span class="number">4</span> + <span class="number">3</span> + <span class="number">2</span>;</span><br><span class="line">  base::EmbeddedVector&lt;<span class="type">char</span>, kBufferSize&gt; buffer;</span><br><span class="line">  <span class="type">int</span> buffer_pos = <span class="number">0</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(<span class="built_in">to_node_index</span>(location.entry_index), buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(location.scriptId, buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(location.line, buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;,&#x27;</span>;</span><br><span class="line">  buffer_pos = <span class="built_in">utoa</span>(location.col, buffer, buffer_pos);</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">  buffer[buffer_pos++] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">  writer_-&gt;<span class="built_in">AddString</span>(buffer.<span class="built_in">begin</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用 JavaScript 表示类似如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Location</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">entry_index, scriptId, line, col</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">entry_index</span> = entry_index;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">scriptId</span> = scriptId;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">line</span> = line;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">col</span> = col;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的 locations 数组解密后就类似如下</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;locations&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span>new Location(<span class="number">109032</span><span class="punctuation">,</span> <span class="number">2</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span>)</span><br><span class="line">  <span class="punctuation">,</span> new Location(<span class="number">136794</span><span class="punctuation">,</span> <span class="number">3</span><span class="punctuation">,</span> <span class="number">9</span><span class="punctuation">,</span> <span class="number">35</span>)</span><br><span class="line">  <span class="punctuation">,</span> new Location(<span class="number">136808</span><span class="punctuation">,</span> <span class="number">3</span><span class="punctuation">,</span> <span class="number">9</span><span class="punctuation">,</span> <span class="number">35</span>)</span><br><span class="line"><span class="comment">// 省略...</span></span><br><span class="line"><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>entry_index: 对应的是 Node 节点的索引，注意一个 Node 节点在 nodes 数组中占用 7 位</li>
+<li>scriptId: v8 生成的一个唯一 id，如果你在 Chrome Memory 中打了一个快照，通过这个 scriptId 就能找到当前正在运行的页面 v8 内存中的 script 信息，继续根据行列信息就能定位到源码</li>
+<li>line: Node 节点的行</li>
+<li>col: Node 节点的列</li>
+</ul>
+<p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/a411a033-e63f-4e7c-8053-28010088ac2a" alt="image"><br>如果是从其他人电脑下载的 .heapsnapshot 文件，其携带的 scriptId 与当前页面内存的 scriptId 将无法对应，故不能定位到源码<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/c38c82bc-8898-46cb-b190-0c26b6296e32" alt="image"></p>
+<h2 id="快照文件分析工具"><a href="#快照文件分析工具" class="headerlink" title="快照文件分析工具"></a>快照文件分析工具</h2><h3 id="Chrome-Devtools-Memory"><a href="#Chrome-Devtools-Memory" class="headerlink" title="Chrome Devtools Memory"></a>Chrome Devtools Memory</h3><ul>
+<li>特点: 官方工具, 信息全面, 如果是本机下载的快照文件能够定位到源码</li>
+<li>缺点: 信息过多难以聚焦</li>
+<li>文档: <a target="_blank" rel="noopener" href="https://developer.chrome.com/docs/devtools/memory-problems/memory-101/">Chrome DevTools Memory</a></li>
+</ul>
+<img width="1511" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/8b476581-18ea-4c91-b1fb-434a43957d91">
+
+<h3 id="devtoolx"><a href="#devtoolx" class="headerlink" title="devtoolx"></a>devtoolx</h3><ul>
+<li>特点: 缩减了大量的无用信息, 默认排序显示内存占用最大的对象, 可以认为是精细化的 Chrome Devtools Memory</li>
+<li>缺点: 没有多个快照对比功能</li>
+<li>文档: <a target="_blank" rel="noopener" href="https://github.com/noslate-project/devtoolx">devtoolx</a></li>
+</ul>
+<img width="1511" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/a4946c1b-9e4c-456a-abb2-96956df69eca">
+
+
+<h3 id="v8-profiler-rs"><a href="#v8-profiler-rs" class="headerlink" title="v8-profiler-rs"></a>v8-profiler-rs</h3><ul>
+<li>特点: 通过图形可视化的形式非常直观的展示内存信息, 也缩减了大量的无用信息, 能够很快找到内存占用最大的对象。并且具备多个快照对比的功能</li>
+<li>文档: <a target="_blank" rel="noopener" href="https://github.com/zhangyuang/v8-profiler-rs">v8-profiler-rs</a></li>
+</ul>
+<img width="1511" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/25273fb4-e7ea-4cd6-abd0-e88f382fdefc">
+
+<h3 id="memlab"><a href="#memlab" class="headerlink" title="memlab"></a>memlab</h3><ul>
+<li>特点: 能够通过写测试脚本自动化抓取快照进行分析</li>
+<li>文档: <a target="_blank" rel="noopener" href="https://github.com/facebook/memlab">memlab</a></li>
+</ul>
+<img width="1511" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/2f8ec75c-d776-4547-89a9-bf1358d1ee83">
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E4%B8%80%E4%B8%AA%E5%BF%AB%E7%85%A7%E6%96%87%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">如何获取一个快照文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%AB%E7%85%A7%E6%96%87%E4%BB%B6%E9%A2%84%E8%A7%88"><span class="toc-number">2.</span> <span class="toc-text">快照文件预览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%AB%E7%85%A7%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">快照文件解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SerializeNodes"><span class="toc-number">3.1.</span> <span class="toc-text">SerializeNodes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SerializeEdges"><span class="toc-number">3.2.</span> <span class="toc-text">SerializeEdges</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SerializeLocations"><span class="toc-number">3.3.</span> <span class="toc-text">SerializeLocations</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%AB%E7%85%A7%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7"><span class="toc-number">4.</span> <span class="toc-text">快照文件分析工具</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Chrome-Devtools-Memory"><span class="toc-number">4.1.</span> <span class="toc-text">Chrome Devtools Memory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#devtoolx"><span class="toc-number">4.2.</span> <span class="toc-text">devtoolx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#v8-profiler-rs"><span class="toc-number">4.3.</span> <span class="toc-text">v8-profiler-rs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#memlab"><span class="toc-number">4.4.</span> <span class="toc-text">memlab</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/10/27/b47/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&text=.heapsnapshot"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&title=.heapsnapshot"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&is_video=false&description=.heapsnapshot"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=.heapsnapshot&body=Check out this article: https://xiaoxiaojx.github.io/2023/10/27/b47/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&title=.heapsnapshot"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&title=.heapsnapshot"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&title=.heapsnapshot"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&title=.heapsnapshot"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/10/27/b47/&name=.heapsnapshot&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/10/27/b47/&t=.heapsnapshot"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

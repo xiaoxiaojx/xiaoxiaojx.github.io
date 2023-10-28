@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="之前我们在 Docker 中使用 WineHQ 运行了微信, 奇怪的是隔几天会出现一次程序崩溃, 于是准备使用 WinDbg 分析微信的错误报告中的 .dmp 文件来找到崩溃的原因   WinDbg 提供了一组命令行和图形界面工具，用于分析内存转储文件（通常是由操作系统或应用程序崩溃时生成的 .DMP文件），跟踪程序执行、检查变量和数据结构、分析堆栈跟踪、监视系统性能等。它通常被开发人员和系统管">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows 中使用 WinDbg 分析 .dmp 文件">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2023/10/07/b46/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="之前我们在 Docker 中使用 WineHQ 运行了微信, 奇怪的是隔几天会出现一次程序崩溃, 于是准备使用 WinDbg 分析微信的错误报告中的 .dmp 文件来找到崩溃的原因   WinDbg 提供了一组命令行和图形界面工具，用于分析内存转储文件（通常是由操作系统或应用程序崩溃时生成的 .DMP文件），跟踪程序执行、检查变量和数据结构、分析堆栈跟踪、监视系统性能等。它通常被开发人员和系统管">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/6dcd91b2-e00f-4b41-9bba-1414d6d2cc5b">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/0b2efc27-88a2-4a21-abf2-139e4389c657">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/8bd5bb5b-e619-465d-ac7d-32a87294218b">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/a68b93b2-7049-4955-8da6-bd70d4d14f3f">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/bf750185-43ad-4069-9997-168483cb9fdd">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/3bcdeefb-2db8-478d-bdd4-6fba0d0878bb">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/e37f8b83-67b9-42d1-870b-a3744216e1ce">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/213d763c-e92f-41ad-825c-c42bd421924e">
+<meta property="article:published_time" content="2023-10-06T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-28T01:57:23.076Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/6dcd91b2-e00f-4b41-9bba-1414d6d2cc5b">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Windows 中使用 WinDbg 分析 .dmp 文件</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/10/27/b47/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/09/24/b45/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/10/07/b46/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&text=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&title=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&is_video=false&description=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Windows 中使用 WinDbg 分析 .dmp 文件&body=Check out this article: https://xiaoxiaojx.github.io/2023/10/07/b46/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&title=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&title=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&title=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&title=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&name=Windows 中使用 WinDbg 分析 .dmp 文件&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/10/07/b46/&t=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87-dmp-%E6%96%87%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">准备 .dmp 文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-WinDbg"><span class="toc-number">2.</span> <span class="toc-text">配置 WinDbg</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">开始分析</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Windows 中使用 WinDbg 分析 .dmp 文件
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-06T16:00:00.000Z" class="dt-published" itemprop="datePublished">2023-10-07</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/C/" rel="tag">C++</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/6dcd91b2-e00f-4b41-9bba-1414d6d2cc5b" alt="image"></p>
+<p>之前我们在 Docker 中使用 <a target="_blank" rel="noopener" href="https://www.winehq.org/">WineHQ</a> 运行了微信, 奇怪的是隔几天会出现一次程序崩溃, 于是准备使用 <a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/windows-hardware/drivers/debugger/windbg-overview">WinDbg</a> 分析微信的错误报告中的 .dmp 文件来找到崩溃的原因</p>
+<p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/0b2efc27-88a2-4a21-abf2-139e4389c657" alt="image"></p>
+<blockquote>
+<p>WinDbg 提供了一组命令行和图形界面工具，用于分析内存转储文件（通常是由操作系统或应用程序崩溃时生成的 .DMP文件），跟踪程序执行、检查变量和数据结构、分析堆栈跟踪、监视系统性能等。它通常被开发人员和系统管理员用于解决复杂的软件问题，特别是在开发或维护大型、复杂的 Windows 应用程序时。</p>
+</blockquote>
+<h2 id="准备-dmp-文件"><a href="#准备-dmp-文件" class="headerlink" title="准备 .dmp 文件"></a>准备 .dmp 文件</h2><p>作为示例我们可以写个会崩溃的程序并且退出时会生成 .dmp 文件, 使用 Visual Studio 时需要在链接器 &gt; 输入 &gt; 附加依赖性中增加 DbgHelp.lib<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/8bd5bb5b-e619-465d-ac7d-32a87294218b" alt="image"></p>
+<h2 id="配置-WinDbg"><a href="#配置-WinDbg" class="headerlink" title="配置 WinDbg"></a>配置 WinDbg</h2><p>首先可以通过 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/FKdelphi/p/12213710.html">WinDbg 独立安装包下载</a>,<br>然后把 .dmp 文件拖动到 WinDbg 中</p>
+<p>此时我们必须配置 WinDbg 符号文件的目录, 再勾选 Reload 最后点击 OK 按钮。其中我们需要先新建 c:\symbols 目录作为符号文件的缓存目录, 符号文件是从 <a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/windows-hardware/drivers/debugger/microsoft-public-symbols">Microsoft 公共符号服务器</a> 的地址下载而来</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cache*c:\symbols;SRV*https://msdl.microsoft.com/download/symbols</span><br></pre></td></tr></table></figure>
+<p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/a68b93b2-7049-4955-8da6-bd70d4d14f3f" alt="image"></p>
+<p>符号文件包含大量的数据，这些数据在运行二进制文件时实际上并不需要，但在调试过程中很有用。可以认为相当于 JavaScript 中的 SourceMap 文件, 这是反解源码的必要条件</p>
+<p>点击 OK 按钮后会发现目录会出现下载完成的符号文件<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/bf750185-43ad-4069-9997-168483cb9fdd" alt="image"></p>
+<h2 id="开始分析"><a href="#开始分析" class="headerlink" title="开始分析"></a>开始分析</h2><p>当符合文件链接完成, 就可以输入如下命令开始分析</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!analyze -v</span><br></pre></td></tr></table></figure>
+<p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/3bcdeefb-2db8-478d-bdd4-6fba0d0878bb" alt="image"></p>
+<p>分析结束 WinDbg 就可以回溯到程序崩溃的代码行列了</p>
+<p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/e37f8b83-67b9-42d1-870b-a3744216e1ce" alt="image"></p>
+<p>如果发现不好使就只能在 Docker 中运行 winedbg xxx.dmp 命令来使用 <a target="_blank" rel="noopener" href="https://wiki.winehq.org/Wine_Developer%27s_Guide/Debugging_Wine#Crashes">WineDbg</a>  分析了<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/213d763c-e92f-41ad-825c-c42bd421924e" alt="image"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87-dmp-%E6%96%87%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">准备 .dmp 文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-WinDbg"><span class="toc-number">2.</span> <span class="toc-text">配置 WinDbg</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">开始分析</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/10/07/b46/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&text=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&title=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&is_video=false&description=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Windows 中使用 WinDbg 分析 .dmp 文件&body=Check out this article: https://xiaoxiaojx.github.io/2023/10/07/b46/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&title=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&title=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&title=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&title=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/10/07/b46/&name=Windows 中使用 WinDbg 分析 .dmp 文件&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/10/07/b46/&t=Windows 中使用 WinDbg 分析 .dmp 文件"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
