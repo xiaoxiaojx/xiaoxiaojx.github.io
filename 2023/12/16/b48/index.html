@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="问题背景最近其他团队交接过来一个 Node.js 服务, 在完成该服务的技术架构迁移后发现了一个奇怪的现象, 表现是代码发布上线后第一次请求该服务 100% 会超时 (延时超过 2000ms), 第二次及以后的请求恢复正常 (延时稳定在 600ms 左右)。 问题排查Cat Transaction首先查看 Cat 延时监控来确认是上游依赖的接口超时还是 Node.js 代码运行卡住导致的超时。插">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js 读取 Error.stack 属性耗时过长导致的性能问题">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2023/12/16/b48/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="问题背景最近其他团队交接过来一个 Node.js 服务, 在完成该服务的技术架构迁移后发现了一个奇怪的现象, 表现是代码发布上线后第一次请求该服务 100% 会超时 (延时超过 2000ms), 第二次及以后的请求恢复正常 (延时稳定在 600ms 左右)。 问题排查Cat Transaction首先查看 Cat 延时监控来确认是上游依赖的接口超时还是 Node.js 代码运行卡住导致的超时。插">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/df3b209c-d43e-4f77-a3ca-ccc462c2380a">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/2ab355e4-20f2-493b-a554-f36c23fa0fb2">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/facdda7a-727b-4b70-bf81-f418eeef89e1">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/64303c98-2368-4cbf-a27c-e35ce714cb4e">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/e37deed4-4c03-4888-8df2-aecc34acfa42">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/932ac9be-a124-4963-bca0-e7f99b3a62da">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/bde5f5c7-c55f-4df0-884a-a926659ef0a1">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/efd1f17f-d55f-435c-866b-3a42c6c10d6f">
+<meta property="article:published_time" content="2023-12-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-21T23:32:51.546Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="Node.js">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/df3b209c-d43e-4f77-a3ca-ccc462c2380a">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Node.js 读取 Error.stack 属性耗时过长导致的性能问题</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/10/27/b47/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/12/16/b48/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&text=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&title=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&is_video=false&description=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Node.js 读取 Error.stack 属性耗时过长导致的性能问题&body=Check out this article: https://xiaoxiaojx.github.io/2023/12/16/b48/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&title=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&title=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&title=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&title=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&name=Node.js 读取 Error.stack 属性耗时过长导致的性能问题&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/12/16/b48/&t=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">问题背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Cat-Transaction"><span class="toc-number">2.1.</span> <span class="toc-text">Cat Transaction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Error-stack"><span class="toc-number">2.2.</span> <span class="toc-text">Error.stack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Performance"><span class="toc-number">2.3.</span> <span class="toc-text">Performance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Call-Tree"><span class="toc-number">2.4.</span> <span class="toc-text">Call Tree</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%A2%E7%B4%A2"><span class="toc-number">3.</span> <span class="toc-text">问题探索</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%BB%93%E8%AE%BA"><span class="toc-number">4.</span> <span class="toc-text">问题结论</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Node.js 读取 Error.stack 属性耗时过长导致的性能问题
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-12-15T16:00:00.000Z" class="dt-published" itemprop="datePublished">2023-12-16</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Node-js/" rel="tag">Node.js</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/df3b209c-d43e-4f77-a3ca-ccc462c2380a" alt="image"></p>
+<h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>最近其他团队交接过来一个 Node.js 服务, 在完成该服务的技术架构迁移后发现了一个奇怪的现象, 表现是代码发布上线后第一次请求该服务 100% 会超时 (延时超过 2000ms), 第二次及以后的请求恢复正常 (延时稳定在 600ms 左右)。</p>
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><h3 id="Cat-Transaction"><a href="#Cat-Transaction" class="headerlink" title="Cat Transaction"></a>Cat Transaction</h3><p>首先查看 <a target="_blank" rel="noopener" href="https://github.com/dianping/cat">Cat</a> 延时监控来确认是上游依赖的接口超时还是 Node.js 代码运行卡住导致的超时。插曲是第一次请求超时的记录却丢失了, 花了一些时间先排查解决了基础上报库的 bug。<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/2ab355e4-20f2-493b-a554-f36c23fa0fb2" alt="image"></p>
+<blockquote>
+<p>非真实监控图, 示例图来自 <a target="_blank" rel="noopener" href="https://github.com/dianping/cat/wiki/transaction">cat&#x2F;wiki&#x2F;transaction</a></p>
+</blockquote>
+<p>记录丢失问题修复后发现上游依赖的接口的第一次耗时也就 600ms 左右, 那超时的原因只能是 Node.js 的某些代码存在严重的性能问题, 卡住了 JS 的主线程 1400ms +。</p>
+<h3 id="Error-stack"><a href="#Error-stack" class="headerlink" title="Error.stack"></a>Error.stack</h3><p>接着对大量可疑的代码进行了埋点, 最终定位到如下仅一行代码 ❌ <code>this.stack = new Error().stack;</code> 运行耗时约 1600ms</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">TestError</span>(<span class="params">message = <span class="string">&#x27;TestError&#x27;</span></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = <span class="string">&#x27;TestError&#x27;</span>;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">message</span> = message;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">errorCode</span> = <span class="number">100</span>;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">stack</span> = <span class="keyword">new</span> <span class="title class_">Error</span>().<span class="property">stack</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当我给出这个排查结果时大家都是不敢相信, 确实读取一个 Error 对象的 stack 属性能有这么大的能量 ?</p>
+<p>紧接着我本地运行该 Node.js 服务来复现, 发现自己的 M1 电脑第一次运行这行代码也花费了约 1200ms, 第二次及以后基本就是 1ms 或者 0.x ms 可以忽略不计了。</p>
+<h3 id="Performance"><a href="#Performance" class="headerlink" title="Performance"></a>Performance</h3><p>定位 JS 代码性能比较好用的就是火焰图了, 我们可以使用下面的命令通过调试模式启动该服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node --inspect you-app.js</span><br></pre></td></tr></table></figure>
+<p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/facdda7a-727b-4b70-bf81-f418eeef89e1" alt="image"></p>
+<p>随着调用堆栈的展示, Error.stack 的真相才慢慢浮出水面</p>
+<h3 id="Call-Tree"><a href="#Call-Tree" class="headerlink" title="Call Tree"></a>Call Tree</h3><p>从调用堆栈我们发现了当运行 Error.stack 这行代码时, </p>
+<ol>
+<li><p>首先会运行 Node.js 源码中的 prepareStackTrace 函数, prepareStackTrace 函数会判断是否有全局被复写的实现, 如果有则调用</p>
+<img width="1180" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/64303c98-2368-4cbf-a27c-e35ce714cb4e">
+</li>
+<li><p>而该项目依赖的 <a target="_blank" rel="noopener" href="https://github.com/evanw/node-source-map-support/">source-map-support</a> 库正好复写了 Error.prepareStackTrace 的值</p>
+<img width="1094" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/e37deed4-4c03-4888-8df2-aecc34acfa42">
+</li>
+<li><p>source-map-support 库的 prepareStackTrace 函数则会读取报错的文件获取到该文件的 sourceMap 的地址最后把错误堆栈反解指向原始文件 (通常 js 文件的最后一行是 sourceMap 的地址)。比如代码打包后报错文件名是 dist&#x2F;app.js 则可以把报错堆栈文件名改为 src&#x2F;app.ts</p>
+<img width="1006" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/932ac9be-a124-4963-bca0-e7f99b3a62da">
+</li>
+<li><p>好家伙这个报错的文件有 11MB 使得文件的同步读取操作以及后续的 sourceMap 反解操作一下把耗时怼上去了, 在性能差电脑上尤其明显。注意上图代码 fileContentsCache 等缓存使得第二次及以后运行性能不受影响<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/bde5f5c7-c55f-4df0-884a-a926659ef0a1" alt="image"></p>
+</li>
+</ol>
+<h2 id="问题探索"><a href="#问题探索" class="headerlink" title="问题探索"></a>问题探索</h2><p>最后我们再说一下运行 Error.stack 代码后为什么会先运行 Node.js 源码中的 prepareStackTrace 函数 ?</p>
+<ol>
+<li><p>Node.js 源码启动时中调用了 setPrepareStackTraceCallback 函数, 参数是 prepareStackTrace 函数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/nodejs/node/blob/v12.13.1/lib/internal/bootstrap/node.js#L314C3-L314C51</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">setPrepareStackTraceCallback</span>(prepareStackTrace);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>SetPrepareStackTraceCallback 函数内部会调用 set_prepare_stack_trace_callback 函数把传入的参数 prepareStackTrace 函数保存下来</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/nodejs/node/blob/v12.13.1/src/node_errors.cc#L819</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> <span class="title class_">SetPrepareStackTraceCallback</span>(<span class="keyword">const</span> <span class="title class_">FunctionCallbackInfo</span>&lt;<span class="title class_">Value</span>&gt;&amp; args) &#123;</span><br><span class="line">  <span class="title class_">Environment</span>* env = <span class="title class_">Environment</span>::<span class="title class_">GetCurrent</span>(args);</span><br><span class="line">  <span class="title function_">CHECK</span>(args[<span class="number">0</span>]-&gt;<span class="title class_">IsFunction</span>());</span><br><span class="line">  env-&gt;<span class="title function_">set_prepare_stack_trace_callback</span>(args[<span class="number">0</span>].<span class="property">As</span>&lt;<span class="title class_">Function</span>&gt;());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Node.js 源码启动时会调用 v8 的 <a target="_blank" rel="noopener" href="https://v8.github.io/api/head/classv8_1_1Isolate.html#aac7685df7bf649f6238ee2af76b52eeb">SetPrepareStackTraceCallback</a> API 设置当读取 Error.stack 时的回调函数为 PrepareStackTraceCallback, PrepareStackTraceCallback 内部则会调用步骤 2 与 步骤 1 中传入的 prepareStackTrace 函数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/nodejs/node/blob/v12.13.1/src/api/environment.cc#L199</span></span><br><span class="line"></span><br><span class="line">isolate-&gt;<span class="title class_">SetPrepareStackTraceCallback</span>(<span class="title class_">PrepareStackTraceCallback</span>);</span><br></pre></td></tr></table></figure>
+<img width="945" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/efd1f17f-d55f-435c-866b-3a42c6c10d6f"></li>
+</ol>
+<h2 id="问题结论"><a href="#问题结论" class="headerlink" title="问题结论"></a>问题结论</h2><p>由于 v8 的 SetPrepareStackTraceCallback API 提供的底层能力让用户可以设置读取 Error.stack 属性时的回调, 相当于 JS Object 设置 getter 函数, 使得一些库比如 source-map-support 复写了 Error.prepareStackTrace 的值将可能导致预期外的性能问题。</p>
+<p>更多关于 v8 Stack trace API 的内容见: <a target="_blank" rel="noopener" href="https://v8.dev/docs/stack-trace-api#customizing-stack-traces">Customizing stack traces</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">问题背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Cat-Transaction"><span class="toc-number">2.1.</span> <span class="toc-text">Cat Transaction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Error-stack"><span class="toc-number">2.2.</span> <span class="toc-text">Error.stack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Performance"><span class="toc-number">2.3.</span> <span class="toc-text">Performance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Call-Tree"><span class="toc-number">2.4.</span> <span class="toc-text">Call Tree</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%A2%E7%B4%A2"><span class="toc-number">3.</span> <span class="toc-text">问题探索</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%BB%93%E8%AE%BA"><span class="toc-number">4.</span> <span class="toc-text">问题结论</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2023/12/16/b48/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&text=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&title=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&is_video=false&description=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Node.js 读取 Error.stack 属性耗时过长导致的性能问题&body=Check out this article: https://xiaoxiaojx.github.io/2023/12/16/b48/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&title=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&title=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&title=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&title=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2023/12/16/b48/&name=Node.js 读取 Error.stack 属性耗时过长导致的性能问题&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2023/12/16/b48/&t=Node.js 读取 Error.stack 属性耗时过长导致的性能问题"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
