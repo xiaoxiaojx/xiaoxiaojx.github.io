@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="今天看到 Joyee Cheung 大佬写的 require(esm) in Node.js  这篇文章, 其实也没仔细看… 不禁让我开始思考 Node.js 是如何与 ES Modules 进行的交互? 于是阅读了 Node.js 这部分实现的代码记录一下 举个例子, Node.js 一开始都只是支持 CommonJs 规范, 它能方便的管理各个模块, 其实现原理和 webpack 管理模块是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js 如何与 ES Modules 交互">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2024/03/21/b48/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="今天看到 Joyee Cheung 大佬写的 require(esm) in Node.js  这篇文章, 其实也没仔细看… 不禁让我开始思考 Node.js 是如何与 ES Modules 进行的交互? 于是阅读了 Node.js 这部分实现的代码记录一下 举个例子, Node.js 一开始都只是支持 CommonJs 规范, 它能方便的管理各个模块, 其实现原理和 webpack 管理模块是">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/fcac79dc-f44c-4d54-8f76-aea40c930520">
+<meta property="article:published_time" content="2024-03-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-07-19T18:15:37.243Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/fcac79dc-f44c-4d54-8f76-aea40c930520">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Node.js 如何与 ES Modules 交互</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/06/28/b50/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/12/16/b49/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/03/21/b48/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&text=Node.js 如何与 ES Modules 交互"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&title=Node.js 如何与 ES Modules 交互"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&is_video=false&description=Node.js 如何与 ES Modules 交互"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Node.js 如何与 ES Modules 交互&body=Check out this article: https://xiaoxiaojx.github.io/2024/03/21/b48/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&title=Node.js 如何与 ES Modules 交互"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&title=Node.js 如何与 ES Modules 交互"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&title=Node.js 如何与 ES Modules 交互"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&title=Node.js 如何与 ES Modules 交互"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&name=Node.js 如何与 ES Modules 交互&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/03/21/b48/&t=Node.js 如何与 ES Modules 交互"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%981-%E6%A8%A1%E5%9D%97%E5%AF%BB%E5%9D%80%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">问题1: 模块寻址问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%982-%E5%8A%A8%E6%80%81-import-%E5%87%BD%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">问题2: 动态 import 函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%983-%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96-ES-Module-%E6%A8%A1%E5%9D%97%E5%AF%BC%E5%87%BA"><span class="toc-number">3.</span> <span class="toc-text">问题3: 如何获取 ES Module 模块导出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%984-%E5%A6%82%E4%BD%95-import-%E5%86%85%E7%BD%AE%E7%9A%84-CommonJs-%E6%A8%A1%E5%9D%97"><span class="toc-number">4.</span> <span class="toc-text">问题4: 如何 import 内置的 CommonJs 模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Node.js 如何与 ES Modules 交互
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-03-20T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-03-21</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/C/" rel="tag">C++</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/fcac79dc-f44c-4d54-8f76-aea40c930520" alt="image"></p>
+<p>今天看到 Joyee Cheung 大佬写的 <a target="_blank" rel="noopener" href="https://joyeecheung.github.io/blog/2024/03/18/require-esm-in-node-js/">require(esm) in Node.js
+</a> 这篇文章, 其实也没仔细看… 不禁让我开始思考 Node.js 是如何与 ES Modules 进行的交互? 于是阅读了 Node.js 这部分实现的代码记录一下</p>
+<p>举个例子, Node.js 一开始都只是支持 CommonJs 规范, 它能方便的管理各个模块, 其实现原理和 webpack 管理模块是类似的, 以我们熟悉的 webpack 产物来说</p>
+<p>我们的源码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/index.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> test = <span class="string">&#x27;1&#x27;</span>; </span><br></pre></td></tr></table></figure>
+<p>打包后的代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// dist/main.js</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line"> <span class="string">&quot;./src/index.js&quot;</span>:</span><br><span class="line"> (<span class="keyword">function</span>(<span class="params">__webpack_module__, __webpack_exports__, __webpack_require__</span>) &#123;</span><br><span class="line"> 	__webpack_exports__.<span class="property">test</span> = <span class="string">&#x27;1&#x27;</span>;</span><br><span class="line"> &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而 webpack 的运行时通过如下封装传入 <code>module.exports</code> 变量然后执行结束就能轻松拿到 <code>src/index.js</code> 模块的导出</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// dist/runtime.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> installedModules = &#123;&#125;;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">__webpack_require__</span>(<span class="params">moduleId</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span>(installedModules[moduleId]) &#123;</span><br><span class="line">    <span class="keyword">return</span> installedModules[moduleId].<span class="property">exports</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> <span class="variable language_">module</span> = installedModules[moduleId] = &#123;</span><br><span class="line">    <span class="attr">i</span>: moduleId,</span><br><span class="line">    <span class="attr">l</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">exports</span>: &#123;&#125;</span><br><span class="line">  &#125;;</span><br><span class="line">  modules[moduleId].<span class="title function_">call</span>(<span class="variable language_">module</span>.<span class="property">exports</span>, <span class="variable language_">module</span>, <span class="variable language_">module</span>.<span class="property">exports</span>, __webpack_require__);</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">module</span>.<span class="property">l</span> = <span class="literal">true</span>;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">module</span>.<span class="property">exports</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Node.js 几乎也是这样, 也是把用户的代码包裹在一个闭包函数中</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/modules/cjs/loader.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> wrapper = [</span><br><span class="line">  <span class="string">&#x27;(function (exports, require, module, __filename, __dirname) &#123; &#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;\n&#125;);&#x27;</span>,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<p>而 ES Modules 的 import 和 export 只能存在顶级作用域, 故上述 CommonJs 的实现就行不通了。因为 v8 原生支持 import 与 export, 模块的控制权就由 Node.js 转交到了 v8 的手上</p>
+<h3 id="问题1-模块寻址问题"><a href="#问题1-模块寻址问题" class="headerlink" title="问题1: 模块寻址问题"></a>问题1: 模块寻址问题</h3><p>Node.js 源码实现的 require 函数会去依次从核心模块(例如 fs、http)、文件模块、node_modules 等寻找确认模块路径, 那怎么保证 v8 实现的 import 能共用同一套寻址逻辑?</p>
+<p>通过阅读 Node.js 代码发现其实是借助了 v8 的 <a target="_blank" rel="noopener" href="https://v8docs.nodesource.com/node-16.0/d5/dda/classv8_1_1_isolate.html#a2336b2f81ec224928767ceabb1376db0">SetHostInitializeImportMetaObjectCallback</a> 函数来修改 import 的元数据, 包括寻址路径等</p>
+<p>Node.js 首先在如下文件调用了 SetHostInitializeImportMetaObjectCallback 函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/module_wrap.cc</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">ModuleWrap::SetInitializeImportMetaObjectCallback</span><span class="params">(</span></span><br><span class="line"><span class="params">    <span class="type">const</span> FunctionCallbackInfo&lt;Value&gt;&amp; args)</span> &#123;</span><br><span class="line">  Environment* env = Environment::GetCurrent(args);</span><br><span class="line">  Isolate* isolate = env-&gt;isolate();</span><br><span class="line"></span><br><span class="line">  CHECK_EQ(args.Length(), <span class="number">1</span>);</span><br><span class="line">  CHECK(args[<span class="number">0</span>]-&gt;IsFunction());</span><br><span class="line">  Local&lt;Function&gt; import_meta_callback = args[<span class="number">0</span>].As&lt;Function&gt;();</span><br><span class="line">  env-&gt;set_host_initialize_import_meta_object_callback(import_meta_callback);</span><br><span class="line"></span><br><span class="line">  isolate-&gt;SetHostInitializeImportMetaObjectCallback(</span><br><span class="line">      HostInitializeImportMetaObjectCallback);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其真实的回调是 initializeImportMeta 函数, 这样 v8 实现的 import 也能复用 require 函数的寻址逻辑</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/modules/esm/initialize_import_meta.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">initializeImportMeta</span>(<span class="params">meta, context, loader</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; url &#125; = context;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Alphabetical</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="title class_">StringPrototypeStartsWith</span>(url, <span class="string">&#x27;file:&#x27;</span>) === <span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="comment">// These only make sense for locally loaded modules,</span></span><br><span class="line">    <span class="comment">// i.e. network modules are not supported.</span></span><br><span class="line">    <span class="keyword">const</span> filePath = <span class="title function_">fileURLToPath</span>(url);</span><br><span class="line">    meta.<span class="property">dirname</span> = <span class="title function_">dirname</span>(filePath);</span><br><span class="line">    meta.<span class="property">filename</span> = filePath;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!loader || loader.<span class="property">allowImportMetaResolve</span>) &#123;</span><br><span class="line">    meta.<span class="property">resolve</span> = <span class="title function_">createImportMetaResolve</span>(url, loader, experimentalImportMetaResolve);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  meta.<span class="property">url</span> = url;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> meta;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="问题2-动态-import-函数"><a href="#问题2-动态-import-函数" class="headerlink" title="问题2: 动态 import 函数"></a>问题2: 动态 import 函数</h3><p>Node.js 实现了全局的 require 函数, 并未实现动态 import 函数。动态 import 函数和静态 import 都是 v8 原生实现, 那如何感知和修改这部分逻辑了?</p>
+<p>这里的 Node.js 的实现和上面说的类似, 其实是借助的 v8 <a target="_blank" rel="noopener" href="https://v8docs.nodesource.com/node-16.0/d5/dda/classv8_1_1_isolate.html#ac55c5d52d71052e74fa48f3424e0f3fa">SetHostImportModuleDynamicallyCallback</a> 来修改了 import 函数的执行逻辑, 相当于用 JS 自定义了 onImport 勾子</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/module_wrap.cc</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">ModuleWrap::SetImportModuleDynamicallyCallback</span><span class="params">(</span></span><br><span class="line"><span class="params">    <span class="type">const</span> FunctionCallbackInfo&lt;Value&gt;&amp; args)</span> &#123;</span><br><span class="line">  Isolate* isolate = args.GetIsolate();</span><br><span class="line">  Realm* realm = Realm::GetCurrent(args);</span><br><span class="line">  HandleScope <span class="title function_">handle_scope</span><span class="params">(isolate)</span>;</span><br><span class="line"></span><br><span class="line">  CHECK_EQ(args.Length(), <span class="number">1</span>);</span><br><span class="line">  CHECK(args[<span class="number">0</span>]-&gt;IsFunction());</span><br><span class="line">  Local&lt;Function&gt; import_callback = args[<span class="number">0</span>].As&lt;Function&gt;();</span><br><span class="line">  realm-&gt;set_host_import_module_dynamically_callback(import_callback);</span><br><span class="line"></span><br><span class="line">  isolate-&gt;SetHostImportModuleDynamicallyCallback(ImportModuleDynamically);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/modules/esm/utils.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">defaultImportModuleDynamically</span>(<span class="params">specifier, attributes, referrerName</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> parentURL = <span class="title function_">normalizeReferrerURL</span>(referrerName);</span><br><span class="line">  <span class="keyword">const</span> cascadedLoader = <span class="built_in">require</span>(<span class="string">&#x27;internal/modules/esm/loader&#x27;</span>).<span class="title function_">getOrInitializeCascadedLoader</span>();</span><br><span class="line">  <span class="keyword">return</span> cascadedLoader.<span class="keyword">import</span>(specifier, parentURL, attributes);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="问题3-如何获取-ES-Module-模块导出"><a href="#问题3-如何获取-ES-Module-模块导出" class="headerlink" title="问题3: 如何获取 ES Module 模块导出"></a>问题3: 如何获取 ES Module 模块导出</h3><p>当使用 ES Modules 时是直接借助 v8 的 <a target="_blank" rel="noopener" href="https://v8.github.io/api/head/classv8_1_1Module.html#a314c33807e4f3d42a6442ce03c9eabee">GetModuleNamespace</a> 函数调用获取到模块的导出 export, 所以 Node.js 是从自己实现的 require 函数获取模块信息转为了从 v8 api 中获取模块信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/module_wrap.cc</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">ModuleWrap::GetNamespaceSync</span><span class="params">(<span class="type">const</span> FunctionCallbackInfo&lt;Value&gt;&amp; args)</span> &#123;</span><br><span class="line">  Realm* realm = Realm::GetCurrent(args);</span><br><span class="line">  Isolate* isolate = args.GetIsolate();</span><br><span class="line">  ModuleWrap* obj;</span><br><span class="line">  ASSIGN_OR_RETURN_UNWRAP(&amp;obj, args.This());</span><br><span class="line">  Local&lt;Module&gt; module = obj-&gt;module_.Get(isolate);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  </span><br><span class="line">  Local&lt;Value&gt; result = module-&gt;GetModuleNamespace();</span><br><span class="line">  args.GetReturnValue().Set(result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="问题4-如何-import-内置的-CommonJs-模块"><a href="#问题4-如何-import-内置的-CommonJs-模块" class="headerlink" title="问题4: 如何 import 内置的 CommonJs 模块"></a>问题4: 如何 import 内置的 CommonJs 模块</h3><p>如果是正常的文件模块, 当 import 获取到正确的寻址路径后 v8 倒是能能够读取文件内容然后编译运行, 如果是核心模块比如 fs 被打包进 Node.js 的二进制文件中（ 详细可见: <a target="_blank" rel="noopener" href="https://github.com/xiaoxiaojx/blog/issues/13">lib 模块运行</a>）, 并且 fs 代码还是 CommonJs 的实现这又如何兼容了?</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/fs.js</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = fs = &#123;</span><br><span class="line">  appendFile,</span><br><span class="line">  appendFileSync,</span><br><span class="line">  access,</span><br><span class="line">  accessSync,</span><br><span class="line">  chown,</span><br><span class="line">  chownSync,</span><br><span class="line">  ...  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>比如当我们运行 <code>node test.js</code> 时</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// test.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> fs <span class="keyword">from</span> <span class="string">&quot;fs&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">consolelog</span>(fs);</span><br></pre></td></tr></table></figure>
+<p>Node.js 的实现是首先通过 v8 的 <a target="_blank" rel="noopener" href="https://v8.github.io/api/head/classv8_1_1Module.html#a4b4ce6316aff995379ef8a4b08d60682">GetModuleRequests</a> 函数获取到入口模块 <code>test.js</code> 所有的 import 信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/module_wrap.cc</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">ModuleWrap::Link</span><span class="params">(<span class="type">const</span> FunctionCallbackInfo&lt;Value&gt;&amp; args)</span> &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">  Local&lt;Function&gt; resolver_arg = args[<span class="number">0</span>].As&lt;Function&gt;();</span><br><span class="line"></span><br><span class="line">  Local&lt;Context&gt; mod_context = obj-&gt;context();</span><br><span class="line">  Local&lt;Module&gt; module = obj-&gt;module_.Get(isolate);</span><br><span class="line"></span><br><span class="line">  Local&lt;FixedArray&gt; module_requests = module-&gt;GetModuleRequests();</span><br><span class="line">  <span class="type">const</span> <span class="type">int</span> module_requests_length = module_requests-&gt;Length();</span><br><span class="line">  MaybeStackBuffer&lt;Local&lt;Value&gt;, <span class="number">16</span>&gt; promises(module_requests_length);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后根据 import 信息提前构造出 v8 <a target="_blank" rel="noopener" href="https://v8.github.io/api/head/classv8_1_1Module.html">Module</a></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/modules/esm/module_job.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> promises = <span class="variable language_">this</span>.<span class="property">module</span>.<span class="title function_">link</span>(<span class="keyword">async</span> (specifier, attributes) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> job = <span class="keyword">await</span> <span class="variable language_">this</span>.<span class="property">loader</span>.<span class="title function_">getModuleJob</span>(specifier, url, attributes);</span><br><span class="line">  <span class="title class_">ArrayPrototypePush</span>(dependencyJobs, job);</span><br><span class="line">  <span class="keyword">return</span> job.<span class="property">modulePromise</span>;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>对于被 import 的 fs 由于不存在文件系统中又是 CommonJs 实现, 其实是借助的 v8 <a target="_blank" rel="noopener" href="https://v8.github.io/api/head/classv8_1_1Module.html#ac2b1ee61d140fa05fb301c1f899b63f0">CreateSyntheticModule</a> 函数构造了一个 Module, 而 CreateSyntheticModule 构造函数需要传入导出, 则是通过 <code>Object.keys(require(&#39;fs&#39;))</code> 获得, 这样我们基于一个 CommonJs 模块构造出了一个 ES Module</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/module_wrap.cc</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (synthetic) &#123;</span><br><span class="line">  CHECK(args[<span class="number">2</span>]-&gt;IsArray());</span><br><span class="line">  Local&lt;Array&gt; export_names_arr = args[<span class="number">2</span>].As&lt;Array&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="type">uint32_t</span> len = export_names_arr-&gt;Length();</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Local&lt;String&gt;&gt; export_names(len);</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">uint32_t</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">    Local&lt;Value&gt; export_name_val =</span><br><span class="line">        export_names_arr-&gt;Get(context, i).ToLocalChecked();</span><br><span class="line">    CHECK(export_name_val-&gt;IsString());</span><br><span class="line">    export_names[i] = export_name_val.As&lt;String&gt;();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="type">const</span> MemorySpan&lt;<span class="type">const</span> Local&lt;String&gt;&gt; span(export_names.begin(),</span><br><span class="line">                                              export_names.size());</span><br><span class="line">  module = Module::CreateSyntheticModule(</span><br><span class="line">      isolate, url, span, SyntheticModuleEvaluationStepsCallback);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当调用 <code>module-&gt;InstantiateModule(context, ResolveModuleCallback))</code> 实例化入口模块 <code>test.js</code> 时,  v8 的 <a target="_blank" rel="noopener" href="https://v8.github.io/api/head/classv8_1_1Module.html#a59bbaeb546d911d10e89bd6a7e1353d4">InstantiateModule</a> 的第二个参数 ResolveModuleCallback 允许拦截修改模块的依赖。比如 fs 是 <code>test.js</code> 的依赖模块, 通过 ResolveModuleCallback 函数就可以修改 v8 默认的 fs Module 的构造逻辑, 篡改返回值为上一步提前为 fs 构造出的 CreateSyntheticModule 即可成功偷梁换柱</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>当上面几个问题确认后, 才明白了 Node.js 原来是这样支持的 ES Modules。概括一句话是 v8 提供了各种回调函数用于允许 Node.js 修改默认的行为</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%981-%E6%A8%A1%E5%9D%97%E5%AF%BB%E5%9D%80%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">问题1: 模块寻址问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%982-%E5%8A%A8%E6%80%81-import-%E5%87%BD%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">问题2: 动态 import 函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%983-%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96-ES-Module-%E6%A8%A1%E5%9D%97%E5%AF%BC%E5%87%BA"><span class="toc-number">3.</span> <span class="toc-text">问题3: 如何获取 ES Module 模块导出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%984-%E5%A6%82%E4%BD%95-import-%E5%86%85%E7%BD%AE%E7%9A%84-CommonJs-%E6%A8%A1%E5%9D%97"><span class="toc-number">4.</span> <span class="toc-text">问题4: 如何 import 内置的 CommonJs 模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/03/21/b48/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&text=Node.js 如何与 ES Modules 交互"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&title=Node.js 如何与 ES Modules 交互"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&is_video=false&description=Node.js 如何与 ES Modules 交互"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Node.js 如何与 ES Modules 交互&body=Check out this article: https://xiaoxiaojx.github.io/2024/03/21/b48/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&title=Node.js 如何与 ES Modules 交互"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&title=Node.js 如何与 ES Modules 交互"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&title=Node.js 如何与 ES Modules 交互"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&title=Node.js 如何与 ES Modules 交互"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/03/21/b48/&name=Node.js 如何与 ES Modules 交互&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/03/21/b48/&t=Node.js 如何与 ES Modules 交互"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2024
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

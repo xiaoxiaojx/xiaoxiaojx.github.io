@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Turbopack 为何打包速度如此之快？它的官网中提到了两点  highly optimized machine code，第一点很好理解，近年来新出来的无论是基于 Go 的 esbuild 还是基于 Rust 的 Turbopack 相比于基于 JavaScript 的 webpack 在语言层面就存在天然的优势。对于 JIT 编译语言 JavaScript 来说，命令行应用程序是最糟糕的性">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅析 Turbopack 函数级别缓存的实现">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2024/07/10/b51/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="Turbopack 为何打包速度如此之快？它的官网中提到了两点  highly optimized machine code，第一点很好理解，近年来新出来的无论是基于 Go 的 esbuild 还是基于 Rust 的 Turbopack 相比于基于 JavaScript 的 webpack 在语言层面就存在天然的优势。对于 JIT 编译语言 JavaScript 来说，命令行应用程序是最糟糕的性">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/user-attachments/assets/57778064-24cd-4758-b989-73a15afc2700">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0b208765-9ebc-47a2-8b61-bb2ebac4958a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/79c76ec4-fa81-4cfb-a3ed-4e35a2af4289">
+<meta property="og:image" content="https://github.com/user-attachments/assets/8bcc4bcf-8338-4939-b5be-ff0cbe849ab7">
+<meta property="article:published_time" content="2024-07-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-07-19T18:15:37.244Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/user-attachments/assets/57778064-24cd-4758-b989-73a15afc2700">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>浅析 Turbopack 函数级别缓存的实现</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/07/20/b52/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/06/28/b50/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/07/10/b51/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&text=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&title=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&is_video=false&description=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=浅析 Turbopack 函数级别缓存的实现&body=Check out this article: https://xiaoxiaojx.github.io/2024/07/10/b51/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&title=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&title=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&title=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&title=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&name=浅析 Turbopack 函数级别缓存的实现&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/07/10/b51/&t=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        浅析 Turbopack 函数级别缓存的实现
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-07-09T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-07-10</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Rust/" rel="tag">Rust</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://github.com/user-attachments/assets/57778064-24cd-4758-b989-73a15afc2700" alt="image"></p>
+<p>Turbopack 为何打包速度如此之快？它的官网中提到了两点</p>
+<ol>
+<li><em><strong>highly optimized machine code</strong></em>，第一点很好理解，近年来新出来的无论是基于 Go 的 esbuild 还是基于 Rust 的 Turbopack 相比于基于 JavaScript 的 webpack 在语言层面就存在天然的优势。对于 JIT 编译语言 JavaScript 来说，命令行应用程序是最糟糕的性能情况。每次运行打包时，JavaScript VM 都会第一次看到打包工具的代码，而没有任何优化提示。当 esbuild &#x2F; Turbopack 忙于解析您的 JavaScript 业务代码时，JavaScript VM 正忙于解析您的打包工具的 JavaScript。当 JavaScript VM 完成解析您的打包工具的代码时，esbuild &#x2F; Turbopack 可能已经退出，并且您的打包工具甚至还没有开始打包分析 JavaScript 业务代码</li>
+<li><em><strong>a low-level incremental computation engine that enables caching down to the level of individual functions</strong></em>，第二点提到能够将缓存级别细分到函数级别，使得 Turbopack 不会运行同样的工作两次?!</li>
+</ol>
+<p>看完第 2 点其实是比较疑惑的，何为函数级别？在常规的打包工具的缓存实现中，比如文件 <code>src/index.js</code> 第一次打包完成后，第二次由于该文件 contenthash 没变就可以直接缓存上一次打包的结果，难道 Turbopack 的函数级别指的是某个文件即使 contenthash 变了，如果文件中的某几个函数没变也能利用大部分缓存结果快速返回? 下面带着这些疑问让我们尝试从 Turbopack 源码中找到答案</p>
+<p>当我粗略阅读了几遍 Turbopack 源码后貌似就找到了一些蛛丝马迹，比如如下有大量的函数被 <code>#[turbo_tasks::function]</code> 宏定义给修饰了</p>
+<p><img src="https://github.com/user-attachments/assets/0b208765-9ebc-47a2-8b61-bb2ebac4958a" alt="image"></p>
+<p>我们先使用 <code>cargo expand</code> 命令把这个宏修辞后的代码展开就是如下的代码</p>
+<p><img src="https://github.com/user-attachments/assets/79c76ec4-fa81-4cfb-a3ed-4e35a2af4289" alt="image"></p>
+<p>看到展开后的代码我似乎已经明白了，下面我把这个行为换成 JavaScript 代码便于大家理解，比如你的打包工具 my_turbopack 有个 <code>build_internal</code> 函数</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">build_internal</span>(<span class="params">project_dir: <span class="built_in">string</span>, root_dir: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;开始打包 📦 ...&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>经过  <code>#[turbo_tasks::function]</code> 宏修饰后你的 <code>build_internal</code> 函数就大致变为了如下这样（当然实际 Turbopack 的实现会复杂很多!）</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> compiler_cache = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">build_internal</span>(<span class="params">project_dir: <span class="built_in">string</span>, root_dir: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="comment">// 最简模型的计算</span></span><br><span class="line">    <span class="keyword">const</span> cache_key = project_dir + root_dir</span><br><span class="line">    <span class="keyword">if</span> (compiler_cache[cache_key]) &#123;</span><br><span class="line">        <span class="keyword">return</span> compiler_cache[cache_key]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> compiler_cache[cache_key] = <span class="title function_">build_internal_inline_function</span>(<span class="attr">project_dir</span>: <span class="built_in">string</span>, <span class="attr">root_dir</span>: <span class="built_in">string</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">build_internal_inline_function</span>(<span class="params">project_dir: <span class="built_in">string</span>, root_dir: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;开始打包 📦 ...&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看到这里是不是就豁然开朗了，所谓函数级别缓存 Turbopack 不会运行同样的工作两次的底层原理其实就是某一个构建任务函数如果入参没变（经过一定的规则计算后），那么就可以直接返回上一次运行的结果!</p>
+<p>接下来让我们来验证下，于是写一个  <code>#[turbo_tasks::function]</code> 宏定义修辞的 <code>turbo_test_fn</code> 函数和一个普通的 <code>normal_test_fn</code>，最后运行时发现 <code>turbo_test_fn</code> 在参数没变的情况下只会运行一次而 <code>normal_test_fn</code> 会调用一次运行一次，符合预期!</p>
+<p><img src="https://github.com/user-attachments/assets/8bcc4bcf-8338-4939-b5be-ff0cbe849ab7" alt="image"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/07/10/b51/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&text=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&title=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&is_video=false&description=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=浅析 Turbopack 函数级别缓存的实现&body=Check out this article: https://xiaoxiaojx.github.io/2024/07/10/b51/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&title=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&title=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&title=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&title=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/07/10/b51/&name=浅析 Turbopack 函数级别缓存的实现&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/07/10/b51/&t=浅析 Turbopack 函数级别缓存的实现"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2024
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

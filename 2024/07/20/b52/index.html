@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="在调试 tokio 代码时发现一个有意思的点, 我在 examples&#x2F;tinyhttp.rs 的代码基础上添加了3个日志打点分别是[UserFuc1]、[UserFuc2]、[UserFuc3], 其打印的 thread_id 竟然各不相同 意味着基于 Rust 🦀️ 实现多线程并发的单位可以细化到函数块, 一个函数能够在多个线程并发接替着执行下去 🤔️。这个特性在其他语言库中比">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tokio 多线程并发的最小单位">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2024/07/20/b52/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="在调试 tokio 代码时发现一个有意思的点, 我在 examples&#x2F;tinyhttp.rs 的代码基础上添加了3个日志打点分别是[UserFuc1]、[UserFuc2]、[UserFuc3], 其打印的 thread_id 竟然各不相同 意味着基于 Rust 🦀️ 实现多线程并发的单位可以细化到函数块, 一个函数能够在多个线程并发接替着执行下去 🤔️。这个特性在其他语言库中比">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0b3a3ff8-0c53-483f-9cbd-68ec960a0b7c">
+<meta property="article:published_time" content="2024-07-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-07-19T18:16:22.119Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/user-attachments/assets/0b3a3ff8-0c53-483f-9cbd-68ec960a0b7c">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Tokio 多线程并发的最小单位</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/07/10/b51/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/07/20/b52/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&text=Tokio 多线程并发的最小单位"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&title=Tokio 多线程并发的最小单位"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&is_video=false&description=Tokio 多线程并发的最小单位"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Tokio 多线程并发的最小单位&body=Check out this article: https://xiaoxiaojx.github.io/2024/07/20/b52/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&title=Tokio 多线程并发的最小单位"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&title=Tokio 多线程并发的最小单位"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&title=Tokio 多线程并发的最小单位"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&title=Tokio 多线程并发的最小单位"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&name=Tokio 多线程并发的最小单位&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/07/20/b52/&t=Tokio 多线程并发的最小单位"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Tokio 多线程并发的最小单位
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-07-19T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-07-20</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Rust/" rel="tag">Rust</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://github.com/user-attachments/assets/0b3a3ff8-0c53-483f-9cbd-68ec960a0b7c" alt="image"></p>
+<p>在调试 <a target="_blank" rel="noopener" href="https://github.com/tokio-rs/tokio">tokio</a> 代码时发现一个有意思的点, 我在 <a target="_blank" rel="noopener" href="https://github.com/tokio-rs/tokio/blob/master/examples/tinyhttp.rs">examples&#x2F;tinyhttp.rs</a> 的代码基础上添加了3个日志打点分别是<code>[UserFuc1]、[UserFuc2]、[UserFuc3]</code>, 其打印的 thread_id 竟然各不相同</p>
+<p>意味着基于 Rust 🦀️ 实现多线程并发的单位可以细化到函数块, 一个函数能够在多个线程并发接替着执行下去 🤔️。这个特性在其他语言库中比如 C 的 <a target="_blank" rel="noopener" href="https://github.com/libuv/libuv">libuv</a> 中也未曾见到</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// examples/tinyhttp.rs</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;(), <span class="type">Box</span>&lt;<span class="keyword">dyn</span> Error&gt;&gt; &#123;</span><br><span class="line">    <span class="comment">// Parse the arguments, bind the TCP socket we&#x27;ll be listening to, spin up</span></span><br><span class="line">    <span class="comment">// our worker threads, and start shipping sockets to those worker threads.</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">addr</span> = env::<span class="title function_ invoke__">args</span>()</span><br><span class="line">        .<span class="title function_ invoke__">nth</span>(<span class="number">1</span>)</span><br><span class="line">        .<span class="title function_ invoke__">unwrap_or_else</span>(|| <span class="string">&quot;127.0.0.1:8080&quot;</span>.<span class="title function_ invoke__">to_string</span>());</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">server</span> = TcpListener::<span class="title function_ invoke__">bind</span>(&amp;addr).<span class="keyword">await</span>?;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Listening on: &#123;&#125;&quot;</span>, addr);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">loop</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> (stream, _) = server.<span class="title function_ invoke__">accept</span>().<span class="keyword">await</span>?;</span><br><span class="line">        tokio::<span class="title function_ invoke__">spawn</span>(<span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">thread_id</span> = std::thread::<span class="title function_ invoke__">current</span>().<span class="title function_ invoke__">id</span>();</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;[UserFuc1] Thread ID in spawned thread: &#123;:?&#125;&quot;</span>, thread_id);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Err</span>(e) = <span class="title function_ invoke__">process</span>(stream).<span class="keyword">await</span> &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">&quot;failed to process connection; error = &#123;&#125;&quot;</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">thread_id</span> = std::thread::<span class="title function_ invoke__">current</span>().<span class="title function_ invoke__">id</span>();</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;[UserFuc2] Thread ID in spawned thread: &#123;:?&#125;&quot;</span>, thread_id);</span><br><span class="line"></span><br><span class="line">            <span class="title function_ invoke__">test_fn</span>().<span class="keyword">await</span>;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">thread_id</span> = std::thread::<span class="title function_ invoke__">current</span>().<span class="title function_ invoke__">id</span>();</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;[UserFuc3] Thread ID in spawned thread: &#123;:?&#125;&quot;</span>, thread_id);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>还好之前有阅读过 <a target="_blank" rel="noopener" href="https://rust-lang.github.io/async-book/01_getting_started/04_async_await_primer.html">Rust 的异步编程文档</a>, 其中就有提到 <em><strong>async transforms a block of code into a state machine that implements a trait called Future</strong></em></p>
+<p>这表明 async 函数在 Rust 中类似于语法糖, 就好比在 JavaScript 中当你写了 async 函数又想兼容低版本浏览器环境, 通常会使用 <a target="_blank" rel="noopener" href="https://github.com/babel/babel">babel</a> 在其打包阶段编译为 es5 的代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Source.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">spawn_cb</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span>)</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">await</span> <span class="title function_">process</span>()</span><br><span class="line">  </span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如下编译后的代码 <code>case 0, 3, 4, end</code> 也就相当于是状态机中的 4种函数运行状态了, _context.next 就记录了下一个步骤的状态</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Transpiled.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">spawn_cb</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> _spawn_cb.<span class="title function_">apply</span>(<span class="variable language_">this</span>, <span class="variable language_">arguments</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">_spawn_cb</span>(<span class="params"></span>) &#123;</span><br><span class="line">  _spawn_cb = <span class="title function_">_asyncToGenerator</span>(</span><br><span class="line">  <span class="comment">/*#__PURE__*/</span></span><br><span class="line">  regeneratorRuntime.<span class="title function_">mark</span>(<span class="keyword">function</span> <span class="title function_">_callee</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> regeneratorRuntime.<span class="title function_">wrap</span>(<span class="keyword">function</span> <span class="title function_">_callee$</span>(<span class="params">_context</span>) &#123;</span><br><span class="line">      <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">switch</span> (_context.<span class="property">prev</span> = _context.<span class="property">next</span>) &#123;</span><br><span class="line">          <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span>);</span><br><span class="line">            _context.<span class="property">next</span> = <span class="number">3</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="title function_">process</span>();</span><br><span class="line"></span><br><span class="line">          <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">          <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">          <span class="keyword">case</span> <span class="string">&quot;end&quot;</span>:</span><br><span class="line">            <span class="keyword">return</span> _context.<span class="title function_">stop</span>();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;, _callee);</span><br><span class="line">  &#125;));</span><br><span class="line">  <span class="keyword">return</span> _spawn_cb.<span class="title function_">apply</span>(<span class="variable language_">this</span>, <span class="variable language_">arguments</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>回过头来说为什么一个函数能够在多个线程并发接替着执行下去不太好实现, 其原因就是当函数在线程1运行到了第几行代码, 其他线程 2,3,4 又怎会知道何谈接着往下运行了</p>
+<p>这里最大的阻碍是函数运行的状态与上下文变量需要记录下来, 而 Rust 会把 async 函数编译为状态机代码, 似乎一下就正好解决了这个问题</p>
+<p>最后让 ChatGPT 试着打印 Rust 把 async 函数编译为状态机的代码, 此时就比较清楚了</p>
+<p>编译后的代码有了记录当前运行的状态 State 与上下文变量 MyFuture, 当不同线程调用 poll 时, 如果在线程 1运行到了什么阶段然后通过 state 来记录下来, 其他线程调用 poll 时就能顺着最新 state 继续往下执行了~</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// examples/tinyhttp.rs</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">State</span> &#123;</span><br><span class="line">    Start,</span><br><span class="line">    AfterProcess,</span><br><span class="line">    AfterTestFn,</span><br><span class="line">    Done,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">MyFuture</span> &#123;</span><br><span class="line">    state: State,</span><br><span class="line">    stream: StreamType, <span class="comment">// 假设 process 函数的参数类型</span></span><br><span class="line">    process_future: <span class="type">Option</span>&lt;ProcessFuture&gt;, <span class="comment">// 假设 process 函数返回的 Future 类型</span></span><br><span class="line">    test_fn_future: <span class="type">Option</span>&lt;TestFnFuture&gt;, <span class="comment">// 假设 test_fn 函数返回的 Future 类型</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">Future</span> <span class="keyword">for</span> <span class="title class_">MyFuture</span> &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span> = ();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">poll</span>(<span class="keyword">mut</span> <span class="keyword">self</span>: Pin&lt;&amp;<span class="keyword">mut</span> <span class="keyword">Self</span>&gt;, cx: &amp;<span class="keyword">mut</span> Context&lt;<span class="symbol">&#x27;_</span>&gt;) <span class="punctuation">-&gt;</span> Poll&lt;<span class="keyword">Self</span>::Output&gt; &#123;</span><br><span class="line">        <span class="keyword">loop</span> &#123;</span><br><span class="line">            <span class="keyword">match</span> <span class="keyword">self</span>.state &#123;</span><br><span class="line">                State::Start =&gt; &#123;</span><br><span class="line">                    <span class="keyword">let</span> <span class="variable">thread_id</span> = std::thread::<span class="title function_ invoke__">current</span>().<span class="title function_ invoke__">id</span>();</span><br><span class="line">                    <span class="built_in">println!</span>(<span class="string">&quot;[UserFuc1] Thread ID in spawned thread: &#123;:?&#125;&quot;</span>, thread_id);</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">self</span>.process_future = <span class="title function_ invoke__">Some</span>(<span class="title function_ invoke__">process</span>(<span class="keyword">self</span>.stream));</span><br><span class="line">                    <span class="keyword">self</span>.state = State::AfterProcess;</span><br><span class="line">                &#125;</span><br><span class="line">                State::AfterProcess =&gt; &#123;</span><br><span class="line">                    <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(fut) = &amp;<span class="keyword">mut</span> <span class="keyword">self</span>.process_future &#123;</span><br><span class="line">                        <span class="keyword">match</span> Pin::<span class="title function_ invoke__">new</span>(fut).<span class="title function_ invoke__">poll</span>(cx) &#123;</span><br><span class="line">                            Poll::Pending =&gt; <span class="keyword">return</span> Poll::Pending,</span><br><span class="line">                            Poll::<span class="title function_ invoke__">Ready</span>(<span class="title function_ invoke__">Err</span>(e)) =&gt; &#123;</span><br><span class="line">                                <span class="built_in">println!</span>(<span class="string">&quot;failed to process connection; error = &#123;&#125;&quot;</span>, e);</span><br><span class="line">                                <span class="keyword">self</span>.process_future = <span class="literal">None</span>;</span><br><span class="line">                            &#125;</span><br><span class="line">                            Poll::<span class="title function_ invoke__">Ready</span>(<span class="title function_ invoke__">Ok</span>(_)) =&gt; &#123;</span><br><span class="line">                                <span class="keyword">self</span>.process_future = <span class="literal">None</span>;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">let</span> <span class="variable">thread_id</span> = std::thread::<span class="title function_ invoke__">current</span>().<span class="title function_ invoke__">id</span>();</span><br><span class="line">                    <span class="built_in">println!</span>(<span class="string">&quot;[UserFuc2] Thread ID in spawned thread: &#123;:?&#125;&quot;</span>, thread_id);</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">self</span>.test_fn_future = <span class="title function_ invoke__">Some</span>(<span class="title function_ invoke__">test_fn</span>());</span><br><span class="line">                    <span class="keyword">self</span>.state = State::AfterTestFn;</span><br><span class="line">                &#125;</span><br><span class="line">                State::AfterTestFn =&gt; &#123;</span><br><span class="line">                    <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(fut) = &amp;<span class="keyword">mut</span> <span class="keyword">self</span>.test_fn_future &#123;</span><br><span class="line">                        <span class="keyword">match</span> Pin::<span class="title function_ invoke__">new</span>(fut).<span class="title function_ invoke__">poll</span>(cx) &#123;</span><br><span class="line">                            Poll::Pending =&gt; <span class="keyword">return</span> Poll::Pending,</span><br><span class="line">                            Poll::<span class="title function_ invoke__">Ready</span>(_) =&gt; &#123;</span><br><span class="line">                                <span class="keyword">self</span>.test_fn_future = <span class="literal">None</span>;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">let</span> <span class="variable">thread_id</span> = std::thread::<span class="title function_ invoke__">current</span>().<span class="title function_ invoke__">id</span>();</span><br><span class="line">                    <span class="built_in">println!</span>(<span class="string">&quot;[UserFuc3] Thread ID in spawned thread: &#123;:?&#125;&quot;</span>, thread_id);</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">self</span>.state = State::Done;</span><br><span class="line">                &#125;</span><br><span class="line">                State::Done =&gt; &#123;</span><br><span class="line">                    <span class="keyword">return</span> Poll::<span class="title function_ invoke__">Ready</span>(());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/07/20/b52/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&text=Tokio 多线程并发的最小单位"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&title=Tokio 多线程并发的最小单位"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&is_video=false&description=Tokio 多线程并发的最小单位"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Tokio 多线程并发的最小单位&body=Check out this article: https://xiaoxiaojx.github.io/2024/07/20/b52/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&title=Tokio 多线程并发的最小单位"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&title=Tokio 多线程并发的最小单位"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&title=Tokio 多线程并发的最小单位"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&title=Tokio 多线程并发的最小单位"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/07/20/b52/&name=Tokio 多线程并发的最小单位&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/07/20/b52/&t=Tokio 多线程并发的最小单位"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2024
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

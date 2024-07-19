@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="截止今天（2024-06-28）Turbopack 仅支持在 Next.js 项目的开发环境使用，详细见: Getting started Turbopack 是否支持生产环境打包 🤔️ ？如何脱离 Next.js 使用 🤔️ ？如何进行源码调试 🤔️ ？ 这需要我们先对它的源码先有个初步的了解，下面是我的一些调试经验 Step1: 拉取源码1234git clone https:&#x2F;&#x2F;gi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Turbopack 源码调试">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2024/06/28/b50/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="截止今天（2024-06-28）Turbopack 仅支持在 Next.js 项目的开发环境使用，详细见: Getting started Turbopack 是否支持生产环境打包 🤔️ ？如何脱离 Next.js 使用 🤔️ ？如何进行源码调试 🤔️ ？ 这需要我们先对它的源码先有个初步的了解，下面是我的一些调试经验 Step1: 拉取源码1234git clone https:&#x2F;&#x2F;gi">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/9841f101-0ef1-4af6-9f97-7fac3903c833">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/c76a37c4-9d0a-4bcb-947d-56ceb9299c04">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/a5b51f7e-f671-4b81-994a-27e8d17e4301">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/b7af0133-ffce-407c-821f-aa52a2565247">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/bb11c4e8-748d-4093-97b0-a4e005ad30ad">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/5bf80043-8438-400e-a4a7-0a4717e7d852">
+<meta property="og:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/bab3c83e-1237-445a-91b5-e757cc227ce8">
+<meta property="article:published_time" content="2024-06-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-07-19T18:15:37.243Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/xiaoxiaojx/blog/assets/23253540/9841f101-0ef1-4af6-9f97-7fac3903c833">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Turbopack 源码调试</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/07/10/b51/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/03/21/b48/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/06/28/b50/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&text=Turbopack 源码调试"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&title=Turbopack 源码调试"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&is_video=false&description=Turbopack 源码调试"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Turbopack 源码调试&body=Check out this article: https://xiaoxiaojx.github.io/2024/06/28/b50/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&title=Turbopack 源码调试"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&title=Turbopack 源码调试"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&title=Turbopack 源码调试"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&title=Turbopack 源码调试"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&name=Turbopack 源码调试&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/06/28/b50/&t=Turbopack 源码调试"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Step1-%E6%8B%89%E5%8F%96%E6%BA%90%E7%A0%81"><span class="toc-number">1.</span> <span class="toc-text">Step1: 拉取源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step2-%E6%96%B0%E5%A2%9E-VS-Code-%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4"><span class="toc-number">2.</span> <span class="toc-text">Step2: 新增 VS Code 调试命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step3-%E6%9E%84%E5%BB%BA-turbopack-cli"><span class="toc-number">3.</span> <span class="toc-text">Step3: 构建 turbopack-cli</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step4-%E8%A1%A5%E5%85%85%E4%B8%80%E4%B8%8B-turbopack-cli-%E8%BF%90%E8%A1%8C%E9%9C%80%E8%A6%81%E7%9A%84-config"><span class="toc-number">4.</span> <span class="toc-text">Step4: 补充一下 turbopack-cli 运行需要的 config</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#dev-%E5%91%BD%E4%BB%A4"><span class="toc-number">4.1.</span> <span class="toc-text">dev 命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#build-%E5%91%BD%E4%BB%A4"><span class="toc-number">4.2.</span> <span class="toc-text">build 命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step5-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA-React-Demo-%E9%A1%B9%E7%9B%AE"><span class="toc-number">5.</span> <span class="toc-text">Step5: 创建一个 React Demo 项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step6-%E7%82%B9%E5%87%BB-turbo-build-%E6%88%96%E8%80%85-turbo-dev-%E6%9D%A5%E6%AD%A3%E5%BC%8F%E5%BC%80%E5%A7%8B%E8%B0%83%E8%AF%95"><span class="toc-number">6.</span> <span class="toc-text">Step6: 点击 turbo build 或者 turbo dev 来正式开始调试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#You-do-it"><span class="toc-number">7.</span> <span class="toc-text">You do it!</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Turbopack 源码调试
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-06-27T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-06-28</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Rust/" rel="tag">Rust</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/9841f101-0ef1-4af6-9f97-7fac3903c833" alt="image"></p>
+<p>截止今天（2024-06-28）Turbopack 仅支持在 Next.js 项目的开发环境使用，详细见: <a target="_blank" rel="noopener" href="https://turbo.build/pack/docs">Getting started</a><br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/c76a37c4-9d0a-4bcb-947d-56ceb9299c04" alt="image"></p>
+<p>Turbopack 是否支持生产环境打包 🤔️ ？如何脱离 Next.js 使用 🤔️ ？如何进行源码调试 🤔️ ？</p>
+<p>这需要我们先对它的源码先有个初步的了解，下面是我的一些调试经验</p>
+<h2 id="Step1-拉取源码"><a href="#Step1-拉取源码" class="headerlink" title="Step1: 拉取源码"></a>Step1: 拉取源码</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/vercel/turbo</span><br><span class="line"></span><br><span class="line">// 切换到目前最新的 commit, 后面的调试都基于该 commit</span><br><span class="line">git checkout 3bca6e8415</span><br></pre></td></tr></table></figure>
+
+<h2 id="Step2-新增-VS-Code-调试命令"><a href="#Step2-新增-VS-Code-调试命令" class="headerlink" title="Step2: 新增 VS Code 调试命令"></a>Step2: 新增 VS Code 调试命令</h2><p>Turbopack 代码挺规范的，按照常理 turbopack-cli 这个库就是我们调试 Turbopack 源码的入口了<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/a5b51f7e-f671-4b81-994a-27e8d17e4301" alt="image"></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;turbo dev&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;lldb&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;request&quot;</span><span class="punctuation">:</span> <span class="string">&quot;launch&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;program&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$&#123;workspaceRoot&#125;/target/debug/turbopack-cli&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;args&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;dev&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;cwd&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$&#123;workspaceRoot&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;presentation&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;group&quot;</span><span class="punctuation">:</span> <span class="string">&quot;commands&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;order&quot;</span><span class="punctuation">:</span> <span class="number">1</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;turbo build&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;lldb&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;request&quot;</span><span class="punctuation">:</span> <span class="string">&quot;launch&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;program&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$&#123;workspaceRoot&#125;/target/debug/turbopack-cli&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;args&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;build&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;cwd&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$&#123;workspaceRoot&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;presentation&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;group&quot;</span><span class="punctuation">:</span> <span class="string">&quot;commands&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;order&quot;</span><span class="punctuation">:</span> <span class="number">1</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Step3-构建-turbopack-cli"><a href="#Step3-构建-turbopack-cli" class="headerlink" title="Step3: 构建 turbopack-cli"></a>Step3: 构建 turbopack-cli</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> crates/turbopack-cli</span><br><span class="line">cargo build</span><br></pre></td></tr></table></figure>
+
+<h2 id="Step4-补充一下-turbopack-cli-运行需要的-config"><a href="#Step4-补充一下-turbopack-cli-运行需要的-config" class="headerlink" title="Step4: 补充一下 turbopack-cli 运行需要的 config"></a>Step4: 补充一下 turbopack-cli 运行需要的 config</h2><h3 id="dev-命令"><a href="#dev-命令" class="headerlink" title="dev 命令"></a>dev 命令</h3><img width="1275" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/b7af0133-ffce-407c-821f-aa52a2565247">
+
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> crate::arguments::CommonArguments;</span><br><span class="line"><span class="keyword">use</span> core::net::Ipv4Addr;</span><br><span class="line"><span class="comment">/// Start a devserver with the given args.</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">start_server</span>(args: &amp;DevArguments) <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;()&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">args</span> = DevArguments &#123;</span><br><span class="line">        port: <span class="number">3000</span>,</span><br><span class="line">        hostname: IpAddr::<span class="title function_ invoke__">V4</span>(Ipv4Addr::<span class="title function_ invoke__">new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)),</span><br><span class="line">        no_open: <span class="literal">true</span>,</span><br><span class="line">        eager_compile: <span class="literal">false</span>,</span><br><span class="line">        allow_retry: <span class="literal">false</span>,</span><br><span class="line">        common: CommonArguments &#123;</span><br><span class="line">            show_all: <span class="literal">true</span>,</span><br><span class="line">            log_detail: <span class="literal">true</span>,</span><br><span class="line">            full_stats: <span class="literal">true</span>,</span><br><span class="line">            memory_limit: <span class="title function_ invoke__">Some</span>(<span class="number">1024</span>),</span><br><span class="line">            log_level: <span class="built_in">Default</span>::<span class="title function_ invoke__">default</span>(),</span><br><span class="line">            entries: <span class="title function_ invoke__">Some</span>(<span class="built_in">vec!</span>[<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;app/page.tsx&quot;</span>)]),</span><br><span class="line">            dir: <span class="title function_ invoke__">Some</span>(PathBuf::<span class="title function_ invoke__">from</span>(<span class="string">&quot;/Users/xxx/my-app&quot;</span>)),</span><br><span class="line">            root: <span class="title function_ invoke__">Some</span>(PathBuf::<span class="title function_ invoke__">from</span>(<span class="string">&quot;/Users/xxx/my-app&quot;</span>))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="build-命令"><a href="#build-命令" class="headerlink" title="build 命令"></a>build 命令</h3><p>✅ 看来 turbopack 支持生产环境打包，只是官方还未开放出来</p>
+<img width="1273" alt="image" src="https://github.com/xiaoxiaojx/blog/assets/23253540/bb11c4e8-748d-4093-97b0-a4e005ad30ad">
+
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> crate::arguments::CommonArguments;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">build</span>(args: &amp;BuildArguments) <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;()&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">args</span> = BuildArguments &#123;</span><br><span class="line">        no_minify: <span class="literal">true</span>,</span><br><span class="line">        common: CommonArguments &#123;</span><br><span class="line">            show_all: <span class="literal">true</span>,</span><br><span class="line">            log_detail: <span class="literal">true</span>,</span><br><span class="line">            full_stats: <span class="literal">true</span>,</span><br><span class="line">            memory_limit: <span class="title function_ invoke__">Some</span>(<span class="number">1024</span>),</span><br><span class="line">            log_level: <span class="built_in">Default</span>::<span class="title function_ invoke__">default</span>(),</span><br><span class="line">            entries: <span class="title function_ invoke__">Some</span>(<span class="built_in">vec!</span>[<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;app/page.tsx&quot;</span>)]),</span><br><span class="line">            dir: <span class="title function_ invoke__">Some</span>(PathBuf::<span class="title function_ invoke__">from</span>(<span class="string">&quot;/Users/xxx/my-ap&quot;</span>)),</span><br><span class="line">            root: <span class="title function_ invoke__">Some</span>(PathBuf::<span class="title function_ invoke__">from</span>(<span class="string">&quot;/Users/xxx/my-ap&quot;</span>))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Step5-创建一个-React-Demo-项目"><a href="#Step5-创建一个-React-Demo-项目" class="headerlink" title="Step5: 创建一个 React Demo 项目"></a>Step5: 创建一个 React Demo 项目</h2><p>接着我们准备一个用于 turbopack-cli 进行打包的 React Demo 项目，然后把上面的 dev 与 build 命令的 dir、root 目录的值改为下面命令创建好的目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx create-next-app --example with-turbopack</span><br></pre></td></tr></table></figure>
+
+<h2 id="Step6-点击-turbo-build-或者-turbo-dev-来正式开始调试"><a href="#Step6-点击-turbo-build-或者-turbo-dev-来正式开始调试" class="headerlink" title="Step6: 点击 turbo build 或者 turbo dev 来正式开始调试"></a>Step6: 点击 turbo build 或者 turbo dev 来正式开始调试</h2><p><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/5bf80043-8438-400e-a4a7-0a4717e7d852" alt="image"></p>
+<h2 id="You-do-it"><a href="#You-do-it" class="headerlink" title="You do it!"></a>You do it!</h2><p>✅ turbopack 已经能够脱离 Next.js 使用<br><img src="https://github.com/xiaoxiaojx/blog/assets/23253540/bab3c83e-1237-445a-91b5-e757cc227ce8" alt="image"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Step1-%E6%8B%89%E5%8F%96%E6%BA%90%E7%A0%81"><span class="toc-number">1.</span> <span class="toc-text">Step1: 拉取源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step2-%E6%96%B0%E5%A2%9E-VS-Code-%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4"><span class="toc-number">2.</span> <span class="toc-text">Step2: 新增 VS Code 调试命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step3-%E6%9E%84%E5%BB%BA-turbopack-cli"><span class="toc-number">3.</span> <span class="toc-text">Step3: 构建 turbopack-cli</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step4-%E8%A1%A5%E5%85%85%E4%B8%80%E4%B8%8B-turbopack-cli-%E8%BF%90%E8%A1%8C%E9%9C%80%E8%A6%81%E7%9A%84-config"><span class="toc-number">4.</span> <span class="toc-text">Step4: 补充一下 turbopack-cli 运行需要的 config</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#dev-%E5%91%BD%E4%BB%A4"><span class="toc-number">4.1.</span> <span class="toc-text">dev 命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#build-%E5%91%BD%E4%BB%A4"><span class="toc-number">4.2.</span> <span class="toc-text">build 命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step5-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA-React-Demo-%E9%A1%B9%E7%9B%AE"><span class="toc-number">5.</span> <span class="toc-text">Step5: 创建一个 React Demo 项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step6-%E7%82%B9%E5%87%BB-turbo-build-%E6%88%96%E8%80%85-turbo-dev-%E6%9D%A5%E6%AD%A3%E5%BC%8F%E5%BC%80%E5%A7%8B%E8%B0%83%E8%AF%95"><span class="toc-number">6.</span> <span class="toc-text">Step6: 点击 turbo build 或者 turbo dev 来正式开始调试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#You-do-it"><span class="toc-number">7.</span> <span class="toc-text">You do it!</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/06/28/b50/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&text=Turbopack 源码调试"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&title=Turbopack 源码调试"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&is_video=false&description=Turbopack 源码调试"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Turbopack 源码调试&body=Check out this article: https://xiaoxiaojx.github.io/2024/06/28/b50/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&title=Turbopack 源码调试"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&title=Turbopack 源码调试"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&title=Turbopack 源码调试"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&title=Turbopack 源码调试"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/06/28/b50/&name=Turbopack 源码调试&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/06/28/b50/&t=Turbopack 源码调试"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2024
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
