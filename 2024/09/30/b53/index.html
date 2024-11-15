@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="今天（2024-09-29）排查的一个编译问题，关键词: esbuild、decorators、esnext、mobx  如下代码被 esbuild 编译时 123456789import &amp;#123; observable &amp;#125; from &amp;#x27;mobx&amp;#x27;class MyStore &amp;#123;    @observable    data &#x3D; []&amp;#125;cons">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JS 类实例属性写法的区别">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2024/09/30/b53/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="今天（2024-09-29）排查的一个编译问题，关键词: esbuild、decorators、esnext、mobx  如下代码被 esbuild 编译时 123456789import &amp;#123; observable &amp;#125; from &amp;#x27;mobx&amp;#x27;class MyStore &amp;#123;    @observable    data &#x3D; []&amp;#125;cons">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/user-attachments/assets/53c42c9f-f399-44b8-9938-3bb2fcf45b43">
+<meta property="article:published_time" content="2024-09-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-11-15T17:25:04.166Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="JS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/user-attachments/assets/53c42c9f-f399-44b8-9938-3bb2fcf45b43">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>JS 类实例属性写法的区别</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/16/b54/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/07/20/b52/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/09/30/b53/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&text=JS 类实例属性写法的区别"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&title=JS 类实例属性写法的区别"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&is_video=false&description=JS 类实例属性写法的区别"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JS 类实例属性写法的区别&body=Check out this article: https://xiaoxiaojx.github.io/2024/09/30/b53/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&title=JS 类实例属性写法的区别"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&title=JS 类实例属性写法的区别"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&title=JS 类实例属性写法的区别"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&title=JS 类实例属性写法的区别"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&name=JS 类实例属性写法的区别&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/09/30/b53/&t=JS 类实例属性写法的区别"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        JS 类实例属性写法的区别
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-09-29T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-09-30</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/JS/" rel="tag">JS</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>今天（2024-09-29）排查的一个编译问题，关键词: <a target="_blank" rel="noopener" href="https://github.com/evanw/esbuild">esbuild</a>、decorators、esnext、<a target="_blank" rel="noopener" href="https://github.com/mobxjs/mobx">mobx</a></p>
+</blockquote>
+<p>如下代码被 esbuild 编译时</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; observable &#125; <span class="keyword">from</span> <span class="string">&#x27;mobx&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyStore</span> &#123;</span><br><span class="line">    @observable</span><br><span class="line">    data = []</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> instance = <span class="keyword">new</span> <span class="title class_">MyStore</span>()</span><br><span class="line">instance.<span class="property">data</span>.<span class="title function_">toJS</span>();</span><br></pre></td></tr></table></figure>
+<p>Case1: 当 target: esnext 时被编译为，此时 data.toJS() 会抛错 ❌，data.toJS is not a function</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">import &#123; observable &#125; from &#x27;mobx&#x27;</span><br><span class="line"></span><br><span class="line">class MyStore &#123;</span><br><span class="line"><span class="addition">+  data = [];</span></span><br><span class="line">&#125;</span><br><span class="line">__decorateClass([</span><br><span class="line">  observable</span><br><span class="line">], MyStore.prototype, &quot;data&quot;, 2);</span><br><span class="line"></span><br><span class="line">const instance = new MyStore()</span><br><span class="line">instance.data.toJS();</span><br></pre></td></tr></table></figure>
+<p>Case2: 当 target: es6 时被编译为，代码正常运行 ✅</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">import &#123; observable &#125; from &#x27;mobx&#x27;</span><br><span class="line"></span><br><span class="line">class MyStore &#123;</span><br><span class="line"><span class="addition">+  constructor() &#123;</span></span><br><span class="line"><span class="addition">+      this.data = [];</span></span><br><span class="line"><span class="addition">+  &#125;</span></span><br><span class="line">&#125;</span><br><span class="line">__decorateClass([</span><br><span class="line">  observable</span><br><span class="line">], MyStore.prototype, &quot;data&quot;, 2);</span><br><span class="line"></span><br><span class="line">const instance = new MyStore()</span><br><span class="line">instance.data.toJS();</span><br></pre></td></tr></table></figure>
+<p>这两种写法在 ChatGPT 看来是几乎等价的，Case1 是新语法，Case2 是旧语法，那么造成 Case1 代码运行异常的原因是什么 ?</p>
+<p>两者的共同点是使用 __decorateClass 函数中的  Object.defineProperty 给原形链对象 MyStore.prototype 的 key 设置拦截函数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> __defProp = <span class="title class_">Object</span>.<span class="property">defineProperty</span>;</span><br><span class="line"><span class="keyword">var</span> __getOwnPropDesc = <span class="title class_">Object</span>.<span class="property">getOwnPropertyDescriptor</span>;</span><br><span class="line"><span class="keyword">var</span> <span class="title function_">__decorateClass</span> = (<span class="params">decorators, target, key, kind</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">var</span> result = kind &gt; <span class="number">1</span> ? <span class="keyword">void</span> <span class="number">0</span> : kind ? <span class="title function_">__getOwnPropDesc</span>(target, key) : target;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = decorators.<span class="property">length</span> - <span class="number">1</span>, decorator; i &gt;= <span class="number">0</span>; i--)</span><br><span class="line">    <span class="keyword">if</span> (decorator = decorators[i])</span><br><span class="line">      result = (kind ? <span class="title function_">decorator</span>(target, key, result) : <span class="title function_">decorator</span>(result)) || result;</span><br><span class="line">  <span class="keyword">if</span> (kind &amp;&amp; result)</span><br><span class="line">    <span class="title function_">__defProp</span>(target, key, result);</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>不同点是</p>
+<ul>
+<li>Case2: new MyStore() 实例化时，首先运行构造函数的 this.data &#x3D; []; 赋值语句，<em><strong>这行代码非常具有迷惑性</strong></em>，初一看会认为是给实例化的对象 instance 设置实例属性，实际上由于原形链对象上有了 data 属性，这行代码会进入到上一步 Object.defineProperty 的拦截函数中，所以此时设置后的 data 属性仍然是 __decorateClass 中包裹的 Mobx 对象，具有 toJS 等属性</li>
+<li>Case1: new MyStore() 实例化时，data 会被直接设置为实例化的对象 instance 的实例属性，而不会像 Case1 一样进入到原形链对象 Object.defineProperty 的拦截函数中。至此 instance 的实例属性 data 是普通的数组没有 toJS 属性，instance 的原型链属性 data 是 Mobx 对象具有 toJS 等属性，而当 JS 中某个对象实例属性与原型链属性同名时，返回的是实例属性的值，故该代码抛错 ❌</li>
+</ul>
+<p>结论: Case2 会触发原型链上的拦截函数 setter，Case1 不会触发</p>
+<p><img src="https://github.com/user-attachments/assets/53c42c9f-f399-44b8-9938-3bb2fcf45b43" alt="image"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/09/30/b53/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&text=JS 类实例属性写法的区别"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&title=JS 类实例属性写法的区别"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&is_video=false&description=JS 类实例属性写法的区别"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JS 类实例属性写法的区别&body=Check out this article: https://xiaoxiaojx.github.io/2024/09/30/b53/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&title=JS 类实例属性写法的区别"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&title=JS 类实例属性写法的区别"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&title=JS 类实例属性写法的区别"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&title=JS 类实例属性写法的区别"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/09/30/b53/&name=JS 类实例属性写法的区别&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/09/30/b53/&t=JS 类实例属性写法的区别"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2024
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

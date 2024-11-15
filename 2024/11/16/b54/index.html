@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="背景这几天在调试某个详情页时, 每当我打开 Chrome Devtool 时页面就立马会卡死, 大约过了3分钟后又能恢复响应。卡死的时候运行top命令查看 CPU 负载情况如上图所示Google Chrome Helper (Renderer)进程达到了 100% ⚠️ 问题排查如上图可以看到内存占用正常且没有一直增加排除了内存泄漏的可能, 然后打开 Mac 活动监视器找到该进程的打开的文件和端">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chrome Renderer 进程 CPU 占用 100% 排查 (上)">
+<meta property="og:url" content="https://xiaoxiaojx.github.io/2024/11/16/b54/index.html">
+<meta property="og:site_name" content="多小凯&#39;s Blog">
+<meta property="og:description" content="背景这几天在调试某个详情页时, 每当我打开 Chrome Devtool 时页面就立马会卡死, 大约过了3分钟后又能恢复响应。卡死的时候运行top命令查看 CPU 负载情况如上图所示Google Chrome Helper (Renderer)进程达到了 100% ⚠️ 问题排查如上图可以看到内存占用正常且没有一直增加排除了内存泄漏的可能, 然后打开 Mac 活动监视器找到该进程的打开的文件和端">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c209f87d-6301-4d19-ba63-a4ade5a6aa91">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4a3b5a85-3beb-4c3b-8b7d-156306d12a14">
+<meta property="og:image" content="https://github.com/user-attachments/assets/769beb94-c38e-47a1-b4d0-d4418bb95ebf">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c69dc330-ef83-4608-8beb-1a57cb2e09f7">
+<meta property="og:image" content="https://github.com/user-attachments/assets/49ea28fe-90bf-4132-8c2f-2cf27b22f09a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/1a3b3d59-4692-4fe7-b7ae-3bca91959e7c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/bf8b5e2b-bdce-44cb-b7af-1eabf6902ab8">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0b04f9ee-be87-4bd8-944b-29e720b2c38c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4189f967-43a9-47e6-922e-057ade10f7fa">
+<meta property="article:published_time" content="2024-11-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-11-15T17:26:38.545Z">
+<meta property="article:author" content="多小凯">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/user-attachments/assets/c209f87d-6301-4d19-ba63-a4ade5a6aa91">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/dog.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Chrome Renderer 进程 CPU 占用 100% 排查 (上)</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/09/30/b53/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/11/16/b54/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&text=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&title=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&is_video=false&description=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Chrome Renderer 进程 CPU 占用 100% 排查 (上)&body=Check out this article: https://xiaoxiaojx.github.io/2024/11/16/b54/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&title=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&title=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&title=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&title=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&name=Chrome Renderer 进程 CPU 占用 100% 排查 (上)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/11/16/b54/&t=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9D%E6%AC%A1%E4%BD%BF%E7%94%A8-lldb"><span class="toc-number">2.1.</span> <span class="toc-text">初次使用 lldb</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Chrome"><span class="toc-number">2.1.1.</span> <span class="toc-text">Chrome</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Chromium"><span class="toc-number">2.1.2.</span> <span class="toc-text">Chromium</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95%E4%BD%BF%E7%94%A8-Instruments-Xcode"><span class="toc-number">2.2.</span> <span class="toc-text">尝试使用 Instruments (Xcode)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91-Chromium"><span class="toc-number">2.3.</span> <span class="toc-text">编译 Chromium</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E6%88%90%E5%8A%9F"><span class="toc-number">2.3.1.</span> <span class="toc-text">编译成功</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C-debug-%E5%8C%85"><span class="toc-number">2.3.2.</span> <span class="toc-text">运行 debug 包</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%B5%AE%E7%8E%B0"><span class="toc-number">2.3.3.</span> <span class="toc-text">问题浮现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D"><span class="toc-number">2.3.4.</span> <span class="toc-text">问题定位</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%BB%93%E8%AE%BA"><span class="toc-number">3.</span> <span class="toc-text">问题结论</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Chrome Renderer 进程 CPU 占用 100% 排查 (上)
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">多小凯</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-15T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-11-16</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/C/" rel="tag">C++</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><img src="https://github.com/user-attachments/assets/c209f87d-6301-4d19-ba63-a4ade5a6aa91" alt="image"></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>这几天在调试某个详情页时, 每当我打开 Chrome Devtool 时页面就立马会卡死, 大约过了3分钟后又能恢复响应。卡死的时候运行<code>top</code>命令查看 CPU 负载情况如上图所示<code>Google Chrome Helper (Renderer)</code>进程达到了 100% ⚠️</p>
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><p>如上图可以看到内存占用正常且没有一直增加排除了内存泄漏的可能, 然后打开 Mac 活动监视器找到该进程的<code>打开的文件和端口</code>面板发现也并没有占用过多的文件句柄排查了文件句柄泄漏的可能性</p>
+<h3 id="初次使用-lldb"><a href="#初次使用-lldb" class="headerlink" title="初次使用 lldb"></a>初次使用 lldb</h3><h4 id="Chrome"><a href="#Chrome" class="headerlink" title="Chrome"></a>Chrome</h4><p>一开始直接准备使用 lldb 进入该进程, 不出意外失败了, 正式版本 Chrome 可不能轻易被调试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  sudo lldb -p 69951</span><br><span class="line">(lldb) process attach --pid 69951</span><br><span class="line">error: attach failed: attach failed (Not allowed to attach to process.  Look <span class="keyword">in</span> the console messages (Console.app), near the debugserver entries, when the attach failed.  The subsystem that denied the attach permission will likely have logged an informative message about why it was denied.)</span><br></pre></td></tr></table></figure>
+
+<h4 id="Chromium"><a href="#Chromium" class="headerlink" title="Chromium"></a>Chromium</h4><p>好在 Chromium 也能顺利复现该问题, 继续使用 lldb 进入该进程。结果如下图虽然能够调试但显示的都是毫无价值的执行堆栈…</p>
+<p><img src="https://github.com/user-attachments/assets/4a3b5a85-3beb-4c3b-8b7d-156306d12a14" alt="image"></p>
+<h3 id="尝试使用-Instruments-Xcode"><a href="#尝试使用-Instruments-Xcode" class="headerlink" title="尝试使用 Instruments (Xcode)"></a>尝试使用 Instruments (Xcode)</h3><p>在 lldb 调试不乐观的情况下, 询问了一下 ChatGPT 说可以使用 Xcode 的 Instruments 工具进行分析。该工具的使用十分像我们熟悉的 Chrome Devtool Performance 面板, 首先点击开始记录最后再停止就能拿到火焰图</p>
+<p>🤔 发现了可疑线索。从下图中<code>Call Tree</code>可以看到最后停留在重复运行了若干次<code>0x10e0e4ea8</code>地址的函数, 猜想进程可能陷入了某种死循环或者因为什么条件陷在了该函数没有能继续运行下去<br><img src="https://github.com/user-attachments/assets/769beb94-c38e-47a1-b4d0-d4418bb95ebf" alt="image"></p>
+<h3 id="编译-Chromium"><a href="#编译-Chromium" class="headerlink" title="编译 Chromium"></a>编译 Chromium</h3><p>经历了上面 lldb 与 Instruments 的尝试发现调试生产版本的 App 总会因为安全问题或者调试信息的缺失而无法定位到最终的原因, 没办法只能决定尝试本机编译一个 debug 版本的 Chromium</p>
+<p>⚠️ 编译 Chromium 前你需要慎重确定两件事</p>
+<ol>
+<li>电脑具备访问外网的能力（下载 Google 的工具链都需要翻墙）</li>
+<li>电脑系统较新（我首次编译是 MacOS 12.x 编译出错查了一下是 SDK 缺失，最后花了 2小时升级到了 15.x）</li>
+</ol>
+<p>最后就可以按照 <a target="_blank" rel="noopener" href="https://chromium.googlesource.com/chromium/src/+/main/docs/mac_build_instructions.md">Building Chromium for Mac</a> 文档进行操作了。因为之前编译过 v8, 本次就省去了重新下载 Google 的工具链与配置环境的时间, 即使这样仅下载最新没有 git history 的 Chromium 与编译 Chromium 仍然花了接近 5个小时…</p>
+<h4 id="编译成功"><a href="#编译成功" class="headerlink" title="编译成功"></a>编译成功</h4><p>如下图就表示编译成功了<br><img src="https://github.com/user-attachments/assets/c69dc330-ef83-4608-8beb-1a57cb2e09f7" alt="image"></p>
+<h4 id="运行-debug-包"><a href="#运行-debug-包" class="headerlink" title="运行 debug 包"></a>运行 debug 包</h4><p>接着可以运行刚才编译成功的 debug 包, 从下图中可以看到 Chromium 自己的运行日志包括加载的网页中 JS 的 <code>console.log</code> 与 <code>console.error</code>等都会出现在终端的日志中<br><img src="https://github.com/user-attachments/assets/49ea28fe-90bf-4132-8c2f-2cf27b22f09a" alt="image"></p>
+<h4 id="问题浮现"><a href="#问题浮现" class="headerlink" title="问题浮现"></a>问题浮现</h4><p>好在 debug 版本的 Chromium 也能顺利复现该问题 🥲, 依然还是使用 lldb 进入该进程, 此时的执行堆栈的信息终于是完整的了</p>
+<p>通过仔细分析下图的堆栈函数调用</p>
+<ul>
+<li>-&gt; frame 10 setScriptSource 看变量名字应该是给 JS Script 标签绑定文件内容</li>
+<li>-&gt; frame 9 PatchScript 给 JS Script 内容进行某种更新修改操作?</li>
+<li>-&gt; frame 7 CalculateDifference 什么情况下需要 diff 后修改 JS Script 内容?</li>
+<li>-&gt; frame 0 FindEditPath 这个应该就对应了之前发现的可疑<code>0x10e0e4ea8</code>地址的函数</li>
+</ul>
+<p><img src="https://github.com/user-attachments/assets/1a3b3d59-4692-4fe7-b7ae-3bca91959e7c" alt="image"></p>
+<h4 id="问题定位"><a href="#问题定位" class="headerlink" title="问题定位"></a>问题定位</h4><p>于是我在源码中增加了 2 行代码, 看看具体这个 JS Script 有何特殊之处?<br><img src="https://github.com/user-attachments/assets/bf8b5e2b-bdce-44cb-b7af-1eabf6902ab8" alt="image"><br>然后再编译与运行 Chromium, 发现 JS Script 内容已经正常被打印了出来, 内容的最后一行是 sourcemap 的地址也就知道了该 JS 的文件名为 detail.js<br><img src="https://github.com/user-attachments/assets/0b04f9ee-be87-4bd8-944b-29e720b2c38c" alt="image"></p>
+<h2 id="问题结论"><a href="#问题结论" class="headerlink" title="问题结论"></a>问题结论</h2><p>回想了一下 detail.js 的唯一特殊之处就是之前因为要复现问题 Overrides 了该文件的部分代码，这也说明了上面的堆栈 PatchScript 为什么在给 JS Script 内容进行某种更新修改操作</p>
+<p>为了证实问题于是取消了勾选<code>Enable Local Overrides</code>, 发现卡死问题不再复现, 问题得到解决 ✅ 。至于为什么勾选了会造成问题就得深入分析 FindEditPath 函数的代码了</p>
+<p><img src="https://github.com/user-attachments/assets/4189f967-43a9-47e6-922e-057ade10f7fa" alt="image"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">2.</span> <span class="toc-text">问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9D%E6%AC%A1%E4%BD%BF%E7%94%A8-lldb"><span class="toc-number">2.1.</span> <span class="toc-text">初次使用 lldb</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Chrome"><span class="toc-number">2.1.1.</span> <span class="toc-text">Chrome</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Chromium"><span class="toc-number">2.1.2.</span> <span class="toc-text">Chromium</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95%E4%BD%BF%E7%94%A8-Instruments-Xcode"><span class="toc-number">2.2.</span> <span class="toc-text">尝试使用 Instruments (Xcode)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91-Chromium"><span class="toc-number">2.3.</span> <span class="toc-text">编译 Chromium</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E6%88%90%E5%8A%9F"><span class="toc-number">2.3.1.</span> <span class="toc-text">编译成功</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C-debug-%E5%8C%85"><span class="toc-number">2.3.2.</span> <span class="toc-text">运行 debug 包</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%B5%AE%E7%8E%B0"><span class="toc-number">2.3.3.</span> <span class="toc-text">问题浮现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D"><span class="toc-number">2.3.4.</span> <span class="toc-text">问题定位</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%BB%93%E8%AE%BA"><span class="toc-number">3.</span> <span class="toc-text">问题结论</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://xiaoxiaojx.github.io/2024/11/16/b54/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&text=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&title=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&is_video=false&description=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Chrome Renderer 进程 CPU 占用 100% 排查 (上)&body=Check out this article: https://xiaoxiaojx.github.io/2024/11/16/b54/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&title=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&title=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&title=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&title=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://xiaoxiaojx.github.io/2024/11/16/b54/&name=Chrome Renderer 进程 CPU 占用 100% 排查 (上)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://xiaoxiaojx.github.io/2024/11/16/b54/&t=Chrome Renderer 进程 CPU 占用 100% 排查 (上)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2024
+    多小凯
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
